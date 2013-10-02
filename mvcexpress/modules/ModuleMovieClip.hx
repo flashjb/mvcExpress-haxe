@@ -1,0 +1,189 @@
+// Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+/**
+ * Core Module class based on MovieClip.
+ * <p>
+ * It starts framework and lets you set up your application. (or execute Commands for set up.)
+ * You can create modular application by having more then one module.
+ * </p>
+ * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ */
+package mvcexpress.modules;
+
+import flash.display.MovieClip;
+import flash.events.Event;
+import mvcexpress.core.CommandMap;
+import mvcexpress.core.MediatorMap;
+import mvcexpress.core.ModuleBase;
+import mvcexpress.core.ModuleManager;
+import mvcexpress.core.ProxyMap;
+import mvcexpress.core.namespace.PureLegsCore;
+
+class ModuleMovieClip extends MovieClip {
+	public var moduleName(getModuleName, never) : String;
+
+	var moduleBase : ModuleBase;
+	var proxyMap : ProxyMap;
+	var mediatorMap : MediatorMap;
+	var commandMap : CommandMap;
+	/**
+	 * CONSTRUCTOR
+	 * @param	moduleName	module name that is used for referencing a module. (if not provided - unique name will be generated.)
+	 * @param	autoInit	if set to false framework is not initialized for this module. If you want to use framework features you will have to manually init() it first.
+	 * @param	initOnStage	defines if module should init only then it is added to stage or not. By default it will wait for Event.ADDED_TO_STAGE before calling onInit(). If autoInit is set to false, this parameters is ignored.
+	 */
+	public function new(moduleName : String = null, autoInit : Bool = true, initOnStage : Bool = true) {
+		use;
+		namespace;
+		pureLegsCore;
+		moduleBase = ModuleManager.createModule(moduleName, autoInit);
+		//
+		if(autoInit)  {
+			proxyMap = moduleBase.proxyMap;
+			mediatorMap = moduleBase.mediatorMap;
+			commandMap = moduleBase.commandMap;
+			//
+			if(initOnStage)  {
+				if(stage)  {
+					onInit();
+				}
+
+				else  {
+					addEventListener(Event.ADDED_TO_STAGE, handleModuleAddedToStage, false, 0, true);
+				}
+
+			}
+
+			else  {
+				onInit();
+			}
+
+		}
+	}
+
+	// inits module after it is added to stage.
+	function handleModuleAddedToStage(event : Event) : Void {
+		removeEventListener(Event.ADDED_TO_STAGE, handleModuleAddedToStage);
+		onInit();
+	}
+
+	/**
+	 * Name of the module
+	 */
+	public function getModuleName() : String {
+		return moduleBase.moduleName;
+	}
+
+	/**
+	 * Initializes module. If this function is not called module will not work properly.
+	 * By default it is called in constructor, but you can do it manually if you set constructor parameter 'autoInit' to false.
+	 */
+	function initModule() : Void {
+		moduleBase.initModule();
+		proxyMap = moduleBase.proxyMap;
+		mediatorMap = moduleBase.mediatorMap;
+		commandMap = moduleBase.commandMap;
+		onInit();
+	}
+
+	/**
+	 * Function called after framework is initialized.
+	 * Meant to be overridden.
+	 */
+	function onInit() : Void {
+		// for override
+	}
+
+	/**
+	 * Function to get rid of module.
+	 * - All module commands are unmapped.
+	 * - All module mediators are unmediated
+	 * - All module proxies are unmapped
+	 * - All internals are nulled.
+	 */
+	public function disposeModule() : Void {
+		onDispose();
+		moduleBase.disposeModule();
+	}
+
+	/**
+	 * Function called before module is destroyed.
+	 * Meant to be overridden.
+	 */
+	function onDispose() : Void {
+		// for override
+	}
+
+	/**
+	 * Message sender.
+	 * @param	type	type of the message. (Commands and handle functions must bu map to it to react.)
+	 * @param	params	Object that will be send to Command execute() or to handle function as parameter.
+	 */
+	function sendMessage(type : String, params : Dynamic = null) : Void {
+		moduleBase.sendMessage(type, params);
+	}
+
+	/**
+	 * Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
+	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
+	 * @param	type		type of the message for Commands or Mediator's handle function to react to.
+	 * @param	params		Object that will be passed to Command execute() function or to handle functions.
+	 */
+	function sendScopeMessage(scopeName : String, type : String, params : Dynamic = null) : Void {
+		moduleBase.sendScopeMessage(scopeName, type, params);
+	}
+
+	/**
+	 * Registers scope name.
+	 * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.
+	 * What features module can use with that scope is defined by parameters.
+	 * @param	scopeName			Name of the scope.
+	 * @param	messageSending		Modules can send messages to this scope.
+	 * @param	messageReceiving	Modules can receive and handle messages from this scope.(or map commands to scoped messages);
+	 * @param	proxieMap			Modules can map proxies to this scope.
+	 */
+	function registerScope(scopeName : String, messageSending : Bool = true, messageReceiving : Bool = true, proxieMapping : Bool = false) : Void {
+		moduleBase.registerScope(scopeName, messageSending, messageReceiving, proxieMapping);
+	}
+
+	/**
+	 * Unregisters scope name.
+	 * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.
+	 * @param	scopeName			Name of the scope.
+	 */
+	function unregisterScope(scopeName : String) : Void {
+		moduleBase.unregisterScope(scopeName);
+	}
+
+	//----------------------------------
+	//     Debug
+	//----------------------------------
+	/**
+	 * List all message mappings.
+	 */
+	public function listMappedMessages() : String {
+		return moduleBase.listMappedMessages();
+	}
+
+	/**
+	 * List all view mappings.
+	 */
+	public function listMappedMediators() : String {
+		return moduleBase.listMappedMediators();
+	}
+
+	/**
+	 * List all model mappings.
+	 */
+	public function listMappedProxies() : String {
+		return moduleBase.listMappedProxies();
+	}
+
+	/**
+	 * List all controller mappings.
+	 */
+	public function listMappedCommands() : String {
+		return moduleBase.listMappedCommands();
+	}
+
+}
+
