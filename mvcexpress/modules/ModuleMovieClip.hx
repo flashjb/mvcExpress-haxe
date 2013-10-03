@@ -9,8 +9,9 @@
  */
 package mvcexpress.modules;
 
-import flash.display.MovieClip;
-import flash.events.Event;
+import nme.display.MovieClip;
+import nme.events.Event;
+
 import mvcexpress.core.CommandMap;
 import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleBase;
@@ -31,7 +32,9 @@ class ModuleMovieClip extends MovieClip {
 	 * 
 	 * 
 	 */
-	public function new(moduleName : String = null, autoInit : Bool = true, initOnStage : Bool = true) {
+	public function new(moduleName : String = null, autoInit : Bool = true, initOnStage : Bool = true) 
+	{
+		super();
 		//use namespace pureLegsCore;
 		moduleBase = ModuleManager.createModule(moduleName, autoInit);
 		//
@@ -41,20 +44,14 @@ class ModuleMovieClip extends MovieClip {
 			commandMap = moduleBase.commandMap;
 			//
 			if(initOnStage)  {
-				if(stage)  {
+				if(stage != null)  {
 					onInit();
-				}
-
-				else  {
+				} else  {
 					addEventListener(Event.ADDED_TO_STAGE, handleModuleAddedToStage, false, 0, true);
 				}
-
-			}
-
-			else  {
+			} else  {
 				onInit();
 			}
-
 		}
 	}
 

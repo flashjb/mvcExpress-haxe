@@ -36,7 +36,7 @@ class ModuleManager
 	static var scopedProxyMaps : Map<String, ProxyMap> = new Map();
 	/* of ProxyMap by String{moduleName} */
 	/* all proxies maped to scope */
-	static var scopedProxiesByScope : Map<String, Map<Proxy, ScopedProxyData>> = new Map();
+	static var scopedProxiesByScope : Map<String, Map<String, ScopedProxyData>> = new Map();
 	/* of Dictionary(of ProxyMap by Proxy) by String{moduleName} */
 	static var needMetadataTest : Bool = true;
 	/* all module permision datas by modleName and scopeName */
@@ -112,7 +112,7 @@ class ModuleManager
 		if( moduleRegistry[moduleName] != null )  
 		{
 			// remove scoped proxies from this module
-			var scopiedProxies : Map<Proxy, ScopedProxyData> = scopedProxiesByScope[moduleName];
+			var scopiedProxies : Map<String, ScopedProxyData> = scopedProxiesByScope[moduleName];
 			if( scopiedProxies != null )  {
 				// remove scoped proxies.
 				for( scopedProxyData in scopiedProxies )
@@ -121,20 +121,8 @@ class ModuleManager
 						scopedProxyMap.unmap(scopedProxyData.injectClass, scopedProxyData.name);
 					Reflect.deleteField(scopiedProxies, scopedProxyData.injectId);
 				}
+			}
 
-			}
-			/*
-			 * Actionscript base
-			var scopiedProxies:Dictionary = scopedProxiesByScope[moduleName];
-			if (scopiedProxies) {
-				// remove scoped proxies.
-				for each (var scopedProxyData:ScopedProxyData in scopiedProxies) {
-					var scopedProxyMap:ProxyMap = scopedProxyMaps[scopedProxyData.scopeName];
-					scopedProxyMap.unmap(scopedProxyData.injectClass, scopedProxyData.name);
-					delete scopiedProxies[scopedProxyData.injectId];
-				}
-			}
-			 */
 			Reflect.deleteField(moduleRegistry, moduleName);
 			
 			var moduleCount : Int = allModules.length;
@@ -180,14 +168,14 @@ class ModuleManager
 	static public function addScopeHandler(moduleName : String, scopeName : String, type : String, handler : Dynamic) : HandlerVO {
 		// get permission object
 		var scopePermission : ScopePermissionData;
-		if( scopePermissionsRegistry[moduleName] ) {
+		if( scopePermissionsRegistry[moduleName]  != null ) {
 			scopePermission = scopePermissionsRegistry[moduleName][scopeName];
 		}
 		if( scopePermission != null || !scopePermission.messageReceiving)  {
 			throw ("Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
-		if(!scopeMesanger)  {
+		if( scopeMesanger == null)  {
 			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopeMesanger = new Messenger("$scope_" + scopeName);
@@ -200,7 +188,7 @@ class ModuleManager
 	/** remove scoped handler*/
 	static public function removeScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
-		if(scopeMesanger)  {
+		if( scopeMesanger != null )  {
 			scopeMesanger.removeHandler(scopeName + "_^~_" + type, handler);
 		}
 	}
@@ -220,14 +208,14 @@ class ModuleManager
 	static public function scopedCommandMap(moduleName : String, handleCommandExecute : Dynamic, scopeName : String, type : String, commandClass : Class<Dynamic>) : HandlerVO {
 		// get permission object
 		var scopePermission : ScopePermissionData;
-		if( scopePermissionsRegistry[moduleName] )  {
+		if( scopePermissionsRegistry[moduleName]  != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
 		if( scopePermission  != null || !scopePermission.messageReceiving)  {
 			throw ("Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
-		if(!scopeMesanger)  {
+		if( scopeMesanger != null )  {
 			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopeMesanger = new Messenger("$scope_" + scopeName);
@@ -252,7 +240,7 @@ class ModuleManager
 	static public function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void {
 		// get permission object
 		var scopePermission : ScopePermissionData;
-		if( scopePermissionsRegistry[moduleName] )  {
+		if( scopePermissionsRegistry[moduleName] != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
 		if( scopePermission != null || !scopePermission.proxieMapping)  {
@@ -260,30 +248,30 @@ class ModuleManager
 		}
 	//	use namespace pureLegsCore;
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[scopeName];
-		if(!scopedProxyMap)  {
+		if( scopedProxyMap == null )  {
 			initScopedProxyMap(scopeName);
 			scopedProxyMap = scopedProxyMaps[scopeName];
 		}
 		var injectId : String = scopedProxyMap.map(proxyObject, injectClass, name);
 		// add scope to proxy so it could send scoped messages.
 		proxyObject.addScope(scopeName);
+		
 		var scopedProxyData : ScopedProxyData = new ScopedProxyData();
-		scopedProxyData.scopedProxy = proxyObject;
-		scopedProxyData.scopeName = scopeName;
-		scopedProxyData.injectId = injectId;
+			scopedProxyData.scopedProxy = proxyObject;
+			scopedProxyData.scopeName = scopeName;
+			scopedProxyData.injectId = injectId;
+			
 		// if injectClass is not provided - proxyClass will be used instead.
-		if(injectClass)  {
+		if(injectClass != null)  {
 			scopedProxyData.injectClass = injectClass;
-		}
-
-		else  {
-			scopedProxyData.injectClass = Type.getClass(cast((proxyObject), Object).constructor);
+		} else {
+			scopedProxyData.injectClass = Type.getClass(proxyObject);
 		}
 
 		scopedProxyData.name = name;
 		//
-		if(scopedProxiesByScope[moduleName] == null)  {
-			scopedProxiesByScope[moduleName] = new Dictionary(true);
+		if( scopedProxiesByScope[moduleName] == null )  {
+			scopedProxiesByScope[moduleName] = new Map();
 		}
 		scopedProxiesByScope[moduleName][injectId] = scopedProxyData;
 	}
@@ -299,13 +287,13 @@ class ModuleManager
 	static public function scopeUnmap(moduleName : String, scopeName : String, injectClass : Class<Dynamic>, name : String) : Void 
 	{
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[scopeName];
-		if( scopedProxyMap ) 
+		if( scopedProxyMap != null ) 
 		{
 			var injectId : String = scopedProxyMap.unmap(injectClass, name);
 			// remove scope from proxy, so it would stop sending scoped messages.
 			//use namespace pureLegsCore;
-			if(scopedProxiesByScope[moduleName])  {
-				if(scopedProxiesByScope[moduleName][injectId])  {
+			if( scopedProxiesByScope[moduleName]  == null )  {
+				if( scopedProxiesByScope[moduleName][injectId] != null )  {
 					scopedProxiesByScope[moduleName][injectId].scopedProxy.removeScope(scopeName);
 				}
 			}
@@ -320,13 +308,14 @@ class ModuleManager
 	 * 
 	 * 
 	 */
-	static public function injectScopedProxy(recipientObject : Dynamic, injectRule : InjectRuleVO) : Bool {
+	static public function injectScopedProxy(recipientObject : Dynamic, injectRule : InjectRuleVO) : Bool 
+	{
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[injectRule.scopeName];
-		if(scopedProxyMap)  {
+		if( scopedProxyMap != null )  {
 			//use namespace pureLegsCore;
 			var injectProxy : Proxy = scopedProxyMap.getProxyById(injectRule.injectClassAndName);
 			if( injectProxy != null  )  {
-				recipientObject[injectRule.varName] = injectProxy;
+				Reflect.setField(recipientObject, injectRule.varName, injectProxy);
 				return true;
 			}
 		}
@@ -336,14 +325,11 @@ class ModuleManager
 	/**
 	 * Adds pending scoped injection.
 	 * 
-	 * 
-	 * 
-	 * 
 	 */
 	static public function addPendingScopedInjection(scopeName : String, injectClassAndName : String, pendingInject : PendingInject) : Void {
 		//use namespace pureLegsCore;
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[scopeName];
-		if(!scopedProxyMap)  {
+		if( scopedProxyMap == null )  {
 			initScopedProxyMap(scopeName);
 			scopedProxyMap = scopedProxyMaps[scopeName];
 		}
@@ -354,9 +340,10 @@ class ModuleManager
 	 * Initiates scoped proxy map.
 	 * 
 	 */
-	static public function initScopedProxyMap(scopeName : String) : Void {
+	static public function initScopedProxyMap(scopeName : String) : Void 
+	{
 		var scopedMesanger : Messenger = scopedMessengers[scopeName];
-		if(!scopedMesanger)  {
+		if( scopedMesanger == null )  {
 			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopedMesanger = new Messenger("$scope_" + scopeName);
@@ -377,10 +364,10 @@ class ModuleManager
 		#end
 		
 		// create dictionary for scope permisions by moduleName
-		if(!scopePermissionsRegistry[moduleName])  {
-			scopePermissionsRegistry[moduleName] = new Dictionary();
+		if( scopePermissionsRegistry[moduleName] == null)  {
+			scopePermissionsRegistry[moduleName] = new Map();
 		}
-		if(!scopePermissionsRegistry[moduleName][scopeName])  {
+		if( scopePermissionsRegistry[moduleName][scopeName] == null )  {
 			scopePermissionsRegistry[moduleName][scopeName] = new ScopePermissionData();
 		}
 		var scopePermission : ScopePermissionData = scopePermissionsRegistry[moduleName][scopeName];
@@ -398,8 +385,8 @@ class ModuleManager
 			MvcExpress.debug(new TraceModuleManager_unregisterScope(moduleName, scopeName));
 		#end
 		// remove permision data for scope if exists
-		if(scopePermissionsRegistry[moduleName])  {
-			if(scopePermissionsRegistry[moduleName][scopeName])  {
+		if( scopePermissionsRegistry[moduleName] != null )  {
+			if( scopePermissionsRegistry[moduleName][scopeName] != null )  {
 				scopePermissionsRegistry[moduleName][scopeName] = null;
 			}
 		}
@@ -426,7 +413,7 @@ class ModuleManager
 	}
 
 	static public function listMappedMessages(moduleName : String) : String {
-		if(moduleRegistry[moduleName])  {
+		if(moduleRegistry[moduleName] != null)  {
 			return  cast(moduleRegistry[moduleName], ModuleBase).listMappedMessages();
 		}
 		return "Module with name :" + moduleName + " is not found.";
@@ -434,7 +421,7 @@ class ModuleManager
 
 	static public function listMappedMediators(moduleName : String) : String 
 	{
-		if(moduleRegistry[moduleName])  {
+		if(moduleRegistry[moduleName] != null)  {
 			return  cast(moduleRegistry[moduleName], ModuleBase).listMappedMediators();
 		}
 		return "Module with name :" + moduleName + " is not found.";
@@ -442,7 +429,7 @@ class ModuleManager
 
 	static public function listMappedProxies(moduleName : String) : String 
 	{
-		if(moduleRegistry[moduleName])  {
+		if(moduleRegistry[moduleName] != null)  {
 			return cast(moduleRegistry[moduleName], ModuleBase).listMappedProxies();
 		}
 		return "Module with name :" + moduleName + " is not found.";
@@ -450,7 +437,7 @@ class ModuleManager
 
 	static public function listMappedCommands(moduleName : String) : String 
 	{
-		if(moduleRegistry[moduleName])  {
+		if(moduleRegistry[moduleName] != null)  {
 			return cast(moduleRegistry[moduleName], ModuleBase).listMappedCommands();
 		} 
 		return "Module with name :" + moduleName + " is not found.";
@@ -459,7 +446,7 @@ class ModuleManager
 	static public function listModuleMessageCommands(moduleName : String, key : String) : String 
 	{
 		//use namespace pureLegsCore;
-		if(moduleRegistry[moduleName])  {
+		if(moduleRegistry[moduleName] != null)  {
 			return cast(cast(moduleRegistry[moduleName], ModuleBase).commandMap.listMessageCommands(key), String);
 		}
 

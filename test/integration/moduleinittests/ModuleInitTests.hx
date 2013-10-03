@@ -55,9 +55,9 @@ class ModuleInitTests {
 	public function moduleInit_coreAutoInit_notNull() : Void {
 		var testModule : InitTestModuleCore = new InitTestModuleCore(true);
 		module = testModule;
-		Assert.assertNotNull("ModuleCore proxyMap should be not null after autoInit", testModule.getProxyMap());
-		Assert.assertNotNull("ModuleCore commandMap should be not null after autoInit", testModule.getCommandMap());
-		Assert.assertNotNull("ModuleCore mediatorMap should be not null after autoInit", testModule.getMediatorMap());
+		Assert.assertNotNull("ModuleCore proxyMap should be not null after autoInit", 		testModule.getProxyMap());
+		Assert.assertNotNull("ModuleCore commandMap should be not null after autoInit", 	testModule.getCommandMap());
+		Assert.assertNotNull("ModuleCore mediatorMap should be not null after autoInit", 	testModule.getMediatorMap());
 	}
 
 	
@@ -116,9 +116,9 @@ class ModuleInitTests {
 	public function moduleInit_spriteAutoInit_notNull() : Void {
 		var testModule : InitTestModuleSprite = new InitTestModuleSprite(true);
 		module = testModule;
-		Assert.assertNotNull("ModuleSprite proxyMap should be not null after autoInit", testModule.getProxyMap());
-		Assert.assertNotNull("ModuleSprite commandMap should be not null after autoInit", testModule.getCommandMap());
-		Assert.assertNotNull("ModuleSprite mediatorMap should be not null after autoInit", testModule.getMediatorMap());
+		Assert.assertNotNull("ModuleSprite proxyMap should be not null after autoInit", 	testModule.getProxyMap());
+		Assert.assertNotNull("ModuleSprite commandMap should be not null after autoInit", 	testModule.getCommandMap());
+		Assert.assertNotNull("ModuleSprite mediatorMap should be not null after autoInit", 	testModule.getMediatorMap());
 	}
 
 	

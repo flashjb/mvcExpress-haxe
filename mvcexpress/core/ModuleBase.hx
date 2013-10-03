@@ -99,9 +99,7 @@ class ModuleBase {
 		// if flex is used - special FlexMediatorMap Class is instantiated that wraps mediate() and unmediate() functions to handle flex 'creationComplete' issues.
 		if( uiComponentClass != null )  {
 			mediatorMap = new FlexMediatorMap(_moduleName, _messenger, proxyMap, uiComponentClass);
-		}
-
-		else  {
+		} else  {
 			mediatorMap = new MediatorMap(_moduleName, _messenger, proxyMap);
 		}
 

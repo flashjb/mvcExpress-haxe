@@ -51,19 +51,17 @@ class FlexMediatorMap extends MediatorMap
 	 * If flex object is unmediated before 'creationComplete' is dispatched - nothing is done. (because mediation is not done in the first place.)
 	 * 
 	 */
-	override public function unmediate(viewObject : Dynamic) : Void {
+	override public function unmediate(viewObject : Dynamic) : Void 
+	{
 		var mediator : Mediator = mediatorRegistry[viewObject];
-		if(mediator)  {
+		if( mediator != null )  {
 			super.unmediate(viewObject);
-		}
-
-		else  {
+		} else  {
 			// remove creationComplete handlers if any.
 			if(cast((viewObject), IEventDispatcher).hasEventListener("creationComplete"))  {
 				cast((viewObject), IEventDispatcher).removeEventListener("creationComplete", handleOnCreationComplete);
 			}
 		}
-
 	}
 
 }

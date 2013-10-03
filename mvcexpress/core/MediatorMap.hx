@@ -5,7 +5,6 @@
  */
 package mvcexpress.core;
 
-import flash.utils.Dictionary;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.interfaces.IMediatorMap;
@@ -27,20 +26,21 @@ class MediatorMap implements IMediatorMap {
 	// for internal use.
 	var messenger : Messenger;
 	// stores all mediator classes using view class(mediator must mediate) as a key.
-	var mediatorClassRegistry : Dictionary;
+	var mediatorClassRegistry : Map<Class<Dynamic>, Class<Dynamic>>;
 	/* of Class by Class */
 	// stores all view inject classes using view class(mediator must mediate) as a key.
-	var mediatorInjectRegistry : Dictionary;
+	var mediatorInjectRegistry : Map<Class<Dynamic>, Class<Dynamic>>;
 	/* of Class by Class */
 	// stores all mediators using use view object(mediator is mediating) as a key.
-	var mediatorRegistry : Dictionary;
+	var mediatorRegistry : Map<Dynamic, Mediator>;
 	/* of Mediator by Object */
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap) 
 	{
-		mediatorClassRegistry = new Dictionary();
-		mediatorInjectRegistry = new Dictionary();
-		mediatorRegistry = new Dictionary();
+		mediatorClassRegistry  = new Map();
+		mediatorInjectRegistry = new Map();
+		mediatorRegistry 	   = new Map();
+		
 		this.moduleName = moduleName;
 		this.messenger = messenger;
 		this.proxyMap = proxyMap;
@@ -68,12 +68,12 @@ class MediatorMap implements IMediatorMap {
 		#end
 		
 		// check if mapping is not created already
-		if(mediatorClassRegistry[viewClass])  {
+		if(mediatorClassRegistry[viewClass] != null )  {
 			throw ("Mediator class:" + mediatorClassRegistry[viewClass] + " is already mapped with this view class:" + viewClass + "");
 		}
 		mediatorClassRegistry[viewClass] = mediatorClass;
 		// map injectClass to viewClass
-		if(!injectClass)  {
+		if( injectClass == null )  {
 			injectClass = viewClass;
 		}
 		mediatorInjectRegistry[viewClass] = injectClass;
@@ -109,8 +109,8 @@ class MediatorMap implements IMediatorMap {
 	public function mediate(viewObject : Dynamic) : Void 
 	{
 		//use namespace pureLegsCore;
-		if(mediatorRegistry[viewObject])  {
-			throw cast(("This view object is already mediated by " + mediatorRegistry[viewObject]), Error);
+		if(mediatorRegistry[viewObject] != null )  {
+			throw ("This view object is already mediated by " + mediatorRegistry[viewObject]);
 		}
 		
 		var viewClass   : Class<Dynamic> = Type.getClass(viewObject);
@@ -118,14 +118,14 @@ class MediatorMap implements IMediatorMap {
 		
 		// get mapped mediator class.
 		var mediatorClass : Class<Dynamic> = mediatorClassRegistry[viewClass];
-		if(mediatorClass)  
+		if( mediatorClass != null )  
 		{
 			#if debug
 				// Allows Mediator to be constructed. (removed from release build to save some performance.)
 				Mediator.canConstruct = true;
 			#end
 			// create mediator.
-			var mediator : Mediator = new MediatorClass();
+			var mediator : Mediator = Type.createInstance(mediatorClass, []);
 			// debug this action
 			#if debug
 				MvcExpress.debug(new TraceMediatorMap_mediate(moduleName, viewObject, mediator, viewClass, mediatorClass, Type.getClassName(mediatorClass)));
@@ -136,10 +136,11 @@ class MediatorMap implements IMediatorMap {
 				Mediator.canConstruct = false;
 			#end
 			
-			mediator.moduleName = moduleName;
-			mediator.messenger = messenger;
-			mediator.proxyMap = proxyMap;
+			mediator.moduleName  = moduleName;
+			mediator.messenger   = messenger;
+			mediator.proxyMap    = proxyMap;
 			mediator.mediatorMap = this;
+			
 			var isAllInjected : Bool = proxyMap.injectStuff(mediator, mediatorClass, viewObject, injectClass);
 			mediatorRegistry[viewObject] = mediator;
 			if(isAllInjected)  {
@@ -160,22 +161,24 @@ class MediatorMap implements IMediatorMap {
 	 */
 	public function mediateWith(viewObject : Dynamic, mediatorClass : Class<Dynamic>, injectClass : Class<Dynamic> = null) : Void {
 	//	use namespace pureLegsCore;
-		if(mediatorRegistry[viewObject])  {
-			throw cast(("This view object is already mediated by " + mediatorRegistry[viewObject]), Error);
+		if(mediatorRegistry[viewObject] != null )  {
+			throw ("This view object is already mediated by " + mediatorRegistry[viewObject]);
 		}
 		
 		var mediator : Mediator = Type.createInstance( mediatorClass, [] );
 		var viewClass : Class<Dynamic> = Type.getClass(viewObject.constructor);
-		if(!injectClass)  {
+		if( injectClass == null )  {
 			injectClass = viewClass;
 		}
 		
-		mediator.moduleName = moduleName;
-		mediator.messenger = messenger;
-		mediator.proxyMap = proxyMap;
+		mediator.moduleName  = moduleName;
+		mediator.messenger 	 = messenger;
+		mediator.proxyMap 	 = proxyMap;
 		mediator.mediatorMap = this;
+		
 		var isAllInjected : Bool = proxyMap.injectStuff(mediator, mediatorClass, viewObject, injectClass);
 		mediatorRegistry[viewObject] = mediator;
+		
 		if(isAllInjected)  {
 			mediator.register();
 		}
@@ -196,11 +199,11 @@ class MediatorMap implements IMediatorMap {
 		#end
 		// get object mediator
 		var mediator : Mediator = mediatorRegistry[viewObject];
-		if( mediator ) {
+		if( mediator != null ) {
 			mediator.remove();
 			mediatorRegistry[viewObject] = null;
 		} else {
-			throw cast(("View object:" + viewObject + " has no mediator created for it."), Error);
+			throw ("View object:" + viewObject + " has no mediator created for it.");
 		}
 
 	}
@@ -217,17 +220,14 @@ class MediatorMap implements IMediatorMap {
 	public function isMapped(viewClass : Class<Dynamic>, mediatorClass : Class<Dynamic> = null) : Bool {
 		var retVal : Bool;
 		// = false;
-		if(mediatorClassRegistry[viewClass])  {
-			if(mediatorClass)  {
+		if(mediatorClassRegistry[viewClass] != null )  {
+			if(mediatorClass != null )  {
 				if(mediatorClassRegistry[viewClass] == mediatorClass)  {
 					retVal = true;
 				}
-			}
-
-			else  {
+			} else {
 				retVal = true;
 			}
-
 		}
 		return retVal;
 	}
@@ -241,7 +241,7 @@ class MediatorMap implements IMediatorMap {
 		var retVal : Bool;
 		// = false;
 		var viewClass : Class<Dynamic> = Type.getClass(viewObject);
-		if(mediatorClassRegistry[viewClass])  {
+		if( mediatorClassRegistry[viewClass] != null )  {
 			retVal = true;
 		}
 		return retVal;
@@ -277,7 +277,7 @@ class MediatorMap implements IMediatorMap {
 	 * Dispose mediatorMap - unmediate all mediated view objects and set all internals to null.
 	 * 
 	 */
-	function dispose() : Void 
+	public function dispose() : Void 
 	{
 		// unmediate all mediated view objects
 		for( viewObject  in Reflect.fields(mediatorRegistry) ) {

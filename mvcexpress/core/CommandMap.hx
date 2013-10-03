@@ -6,8 +6,6 @@
 package mvcexpress.core;
 
 
-import flash.utils.Dictionary;
-
 import mvcexpress.MvcExpress;
 import mvcexpress.core.messenger.HandlerVO;
 import mvcexpress.core.messenger.Messenger;
@@ -32,25 +30,26 @@ class CommandMap
 	// for internal use.
 	var mediatorMap : MediatorMap;
 	// collection of class arrays, stored by message type. Then message with this type is sent, all mapped classes are executed.
-	var classRegistry : Dictionary;
+	var classRegistry : Map<String, Array<Class<Dynamic>>>;
 	/* of Vector.<Class> by String */
 	// holds pooled command objects, stared by command class.
-	var commandPools : Dictionary;
+	var commandPools : Map<Class<Dynamic>, Array<PooledCommand>>;
 	/* of Vector.<PooledCommand> by Class */
 
 	#if debug
 	/** types of command execute function, needed for debug mode only validation of execute() parameter.  */
-		static private var commandClassParamTypes:Dictionary = new Dictionary(); /* of String by Class */
+		static private var commandClassParamTypes : Map<Class<Dynamic>, String> = new Map(); /* of String by Class */
 	//
 	//	/** Dictionary with validated command classes.  */
-		static private var validatedCommands:Dictionary = new Dictionary(); /* of Boolean by Class */
+		static private var validatedCommands : Map<Class<Dynamic>, Bool> = new Map(); /* of Boolean by Class */
 	#end
 	
 	var scopeHandlers : Array<HandlerVO>;
 	/** CONSTRUCTOR */
-	public function new( moduleName : String, messenger : Messenger, proxyMap : ProxyMap, mediatorMap : MediatorMap) {
-		classRegistry = new Dictionary();
-		commandPools = new Dictionary();
+	public function new( moduleName : String, messenger : Messenger, proxyMap : ProxyMap, mediatorMap : MediatorMap) 
+	{
+		classRegistry = new Map();
+		commandPools  = new Map();
 		scopeHandlers = new Array<HandlerVO>();
 		
 		this.moduleName  = moduleName;
@@ -82,7 +81,7 @@ class CommandMap
 		#end
 		
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[type];
-		if(!messageClasses)  {
+		if( messageClasses == null )  {
 			messageClasses = new Array<Class<Dynamic>>();
 			classRegistry[type] = messageClasses;
 			messenger.addCommandHandler(type, handleCommandExecute, commandClass);
@@ -104,7 +103,7 @@ class CommandMap
 		#end
 		
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[type];
-		if( messageClasses )  {
+		if( messageClasses !=  null )  {
 			var commandCount : Int = messageClasses.length;
 			var i : Int;
 			while(i < commandCount) {
@@ -136,7 +135,7 @@ class CommandMap
 		////// INLINE FUNCTION runCommand() START
 		// check if command is pooled.
 		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
-		if(pooledCommands && pooledCommands.length > 0)  {
+		if( pooledCommands != null  && pooledCommands.length > 0)  {
 			command = pooledCommands.shift();
 		}
 		else  
@@ -151,7 +150,7 @@ class CommandMap
 				Command.canConstruct = true;
 			#end
 			
-			command = new CommandClass();
+			command = Type.createInstance(commandClass, []);
 			
 			#if debug
 				Command.canConstruct = false;
@@ -167,7 +166,7 @@ class CommandMap
 
 		if(Std.is(command, PooledCommand))  {
 			// init pool if needed.
-			if(!pooledCommands)  {
+			if( pooledCommands == null )  {
 				pooledCommands = new Array<PooledCommand>();
 				commandPools[commandClass] = pooledCommands;
 			}
@@ -178,7 +177,7 @@ class CommandMap
 			// if not locked - pool it.
 			if(!cast(command, PooledCommand).isLocked)  
 			{
-				if(pooledCommands)  {
+				if( pooledCommands != null )  {
 					pooledCommands[pooledCommands.length] = cast(command, PooledCommand);
 				}
 			}
@@ -208,7 +207,7 @@ class CommandMap
 		//
 		var scopedType : String = scopeName + "_^~_" + type;
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
-		if(!messageClasses)  {
+		if( messageClasses == null )  {
 			messageClasses = new Array<Class<Dynamic>>();
 			classRegistry[scopedType] = messageClasses;
 			// add scoped command handler.
@@ -227,7 +226,7 @@ class CommandMap
 	{
 		var scopedType : String = scopeName + "_^~_" + type;
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
-		if( messageClasses )  {
+		if( messageClasses != null )  {
 			var commandCount : Int = messageClasses.length;
 			var i : Int;
 			while(i < commandCount) {
@@ -274,7 +273,7 @@ class CommandMap
 	public function isMapped(type : String, commandClass : Class<Dynamic>) : Bool {
 		var retVal : Bool;
 		// = false;
-		if(classRegistry[type])  {
+		if( classRegistry[type] != null )  {
 			var mappedClasses : Array<Class<Dynamic>> = classRegistry[type];
 			var classCaunt : Int = mappedClasses.length;
 			var i : Int;
@@ -327,7 +326,7 @@ class CommandMap
 	public function poolCommand(command : PooledCommand) : Void {
 		var commandClass : Class<Dynamic> = Type.getClass( command );
 		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
-		if( pooledCommands ) {
+		if( pooledCommands == null  ) {
 			pooledCommands[pooledCommands.length] = command;
 		}
 	}
@@ -364,7 +363,7 @@ class CommandMap
 		var command : Command;
 		var messageClasses : Array<Class<Dynamic>>;
 			messageClasses = classRegistry[messageType];
-		if( messageClasses )  {
+		if( messageClasses != null )  {
 			var commandCount : Int = messageClasses.length;
 			var i : Int;
 			while(i < commandCount) {
@@ -377,7 +376,7 @@ class CommandMap
 				////// INLINE FUNCTION runCommand() START
 				// check if command is pooled.
 				var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
-				if( pooledCommands && pooledCommands.length > 0 )  {
+				if( pooledCommands != null  && pooledCommands.length > 0 )  {
 					command = pooledCommands.shift();
 				}
 				else 
@@ -393,7 +392,7 @@ class CommandMap
 						Command.canConstruct = true;
 					#end
 					
-					command = new CommandClass();
+					command = Type.createInstance(commandClass, []);
 					
 					#if debug
 						Command.canConstruct = false;
@@ -410,7 +409,7 @@ class CommandMap
 				command.messageType = messageType;
 				if(Std.is(command, PooledCommand))  {
 					// init pool if needed.
-					if(!pooledCommands)  {
+					if( pooledCommands == null )  {
 						pooledCommands = new Array<PooledCommand>();
 						commandPools[commandClass] = pooledCommands;
 					}
@@ -421,7 +420,7 @@ class CommandMap
 					// if not locked - pool it.
 					if(!cast(command, PooledCommand).isLocked) 
 					{
-						if(pooledCommands)  {
+						if( pooledCommands != null )  {
 							pooledCommands[pooledCommands.length] = cast(command, PooledCommand);
 						}
 					}
@@ -455,17 +454,16 @@ class CommandMap
 			{
 				if( Std.is(Type.getSuperClass(commandClass), Command) )  
 				{
-					throw cast(("commandClass:" + commandClass + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class."), Error);
+					throw ("commandClass:" + commandClass + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.");
 				}
 				
-				if(!commandClassParamTypes[commandClass])  
+				if( commandClassParamTypes[commandClass] == null )  
 				{
-					var hasExecute : Bool;// = false;
 					var parameterCount : Int;// = 0;
 					
 					// find execute method.
-					var dFunc = Reflect.field( obj, "execute");
-					hasExecute = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute");
+					//var dFunc = Reflect.field( obj, "execute");
+					var hasExecute : Bool = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute");
 						
 						// TODO : check parameter ammount.
 						//var paramList = Reflect.fields(dFunc); 
@@ -479,10 +477,10 @@ class CommandMap
 					{
 						//TODO no way to check this at the moment
 						//if(parameterCount != 1)  {
-							//throw cast(("Command:" + commandClass + " function execute() must have single parameter, but it has " + parameterCount), Error);
+							//throw ("Command:" + commandClass + " function execute() must have single parameter, but it has " + parameterCount);
 						//}
 					} else {
-						throw cast(("Command:" + commandClass + " must have public execute() function with single parameter."), Error);
+						throw ("Command:" + commandClass + " must have public execute() function with single parameter.");
 					}
 	
 				}

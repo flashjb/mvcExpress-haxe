@@ -9,8 +9,9 @@
  */
 package mvcexpress.mvc;
 
-import flash.events.IEventDispatcher;
-import flash.utils.Dictionary;
+import nme.events.IEventDispatcher;
+
+
 import mvcexpress.MvcExpress;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.interfaces.IMediatorMap;
@@ -22,7 +23,8 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 
-class Mediator {
+class Mediator 
+{
 	var isReady(get_isReady, never) : Bool;
 
 	// name of module this mediator is working in.
@@ -43,10 +45,10 @@ class Mediator {
 	/** all added message handlers. */
 	var handlerVoRegistry : Array<HandlerVO>;
 	/** contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false*/
-	var eventListenerRegistry : Dictionary;
+	var eventListenerRegistry : Map<Dynamic, Map<String, IEventDispatcher>> ;
 	/* or Dictionary by Function */
 	/** contains array of added event listeners, stored by event listening function as a key. For event useCapture = true*/
-	var eventListenerCaptureRegistry : Dictionary;
+	var eventListenerCaptureRegistry : Map<Dynamic, Map<String, IEventDispatcher>>;
 	/* or Dictionary by Function */
 	// Allows Mediator to be constructed. (removed from release build to save some performance.)
 	#if debug
@@ -57,8 +59,8 @@ class Mediator {
 	public function new() 
 	{
 		handlerVoRegistry = new Array<HandlerVO>();
-		eventListenerRegistry = new Dictionary();
-		eventListenerCaptureRegistry = new Dictionary();
+		eventListenerRegistry = new Map();
+		eventListenerCaptureRegistry = new Map();
 		
 		#if debug
 			//	use namespace pureLegsCore;
@@ -181,9 +183,9 @@ class Mediator {
 	 */
 	function removeAllHandlers() : Void {
 	//	use namespace pureLegsCore;
-		while(handlerVoRegistry.length) {
+		while(handlerVoRegistry.length != 0) {
 			var handler : HandlerVO = handlerVoRegistry.pop();
-			handler.handler = null;
+				handler.handler = null;
 		}
 
 	}
@@ -230,27 +232,25 @@ class Mediator {
 	 * 
 	 *		A strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.
 	 */
-	function addListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void {
+	function addListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void 
+	{
 		if(useCapture)  {
-			if(!eventListenerCaptureRegistry[listener])  {
-				eventListenerCaptureRegistry[listener] = new Dictionary();
+			if( eventListenerCaptureRegistry[listener] == null )  {
+				eventListenerCaptureRegistry[listener] = new Map();
 			}
-			if(!eventListenerCaptureRegistry[listener][type])  {
+			if( eventListenerCaptureRegistry[listener][type] == null )  {
 				eventListenerCaptureRegistry[listener][type] = viewObject;
 				viewObject.addEventListener(type, listener, useCapture, priority, useWeakReference);
 			}
-		}
-
-		else  {
-			if(!eventListenerRegistry[listener])  {
-				eventListenerRegistry[listener] = new Dictionary();
+		} else  {
+			if( eventListenerRegistry[listener] == null )  {
+				eventListenerRegistry[listener] = new Map();
 			}
-			if(!eventListenerRegistry[listener][type])  {
+			if( eventListenerRegistry[listener][type] == null )  {
 				eventListenerRegistry[listener][type] = viewObject;
 				viewObject.addEventListener(type, listener, useCapture, priority, useWeakReference);
 			}
 		}
-
 	}
 
 	/**
@@ -265,17 +265,17 @@ class Mediator {
 	{
 		viewObject.removeEventListener(type, listener, useCapture);
 		if(useCapture)  {
-			if(eventListenerCaptureRegistry[listener])  {
-				if(eventListenerCaptureRegistry[listener][type])  {
-					if(eventListenerCaptureRegistry[listener][type] == viewObject)  {
+			if( eventListenerCaptureRegistry[listener] != null )  {
+				if( eventListenerCaptureRegistry[listener][type] != null )  {
+					if( eventListenerCaptureRegistry[listener][type] == viewObject)  {
 						eventListenerCaptureRegistry[listener][type] = null;
 					}
 				}
 			}
 		}else{
-			if(eventListenerRegistry[listener])  {
-				if(eventListenerRegistry[listener][type])  {
-					if(eventListenerRegistry[listener][type] == viewObject)  {
+			if( eventListenerRegistry[listener] != null )  {
+				if( eventListenerRegistry[listener][type] != null )  {
+					if( eventListenerRegistry[listener][type] == viewObject)  {
 						eventListenerRegistry[listener][type] = null;
 					}
 				}
@@ -291,7 +291,7 @@ class Mediator {
 	 */
 	function removeAllListeners() : Void 
 	{
-		var eventTypes : Dictionary;
+		var eventTypes : Map<String, IEventDispatcher>;
 		for( l in Reflect.fields(eventListenerCaptureRegistry) ) 
 		{
 			var listener  = Reflect.field(eventListenerCaptureRegistry, l);

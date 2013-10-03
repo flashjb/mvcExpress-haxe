@@ -6,7 +6,6 @@
  */
 package mvcexpress.mvc;
 
-import flash.utils.Dictionary;
 import mvcexpress.MvcExpress;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.interfaces.IProxyMap;
@@ -15,7 +14,8 @@ import mvcexpress.core.messenger.Messenger;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage;
 
-class Proxy {
+class Proxy 
+{
 	var isReady(get_isReady, never) : Bool;
 
 	/**
@@ -26,18 +26,19 @@ class Proxy {
 	var _isReady : Bool;
 	// = false;
 	// used internally for communication
-	var messenger : Messenger;
+	public var messenger : Messenger;
 	// for sending scoped messages then injected by scope.
 	var proxyScopes : Array<String>;
 	// for pooled command classes that are dependant on this proxy.
-	var dependantCommands : Dictionary;
+	public var dependantCommands : Map<Class<Dynamic>, Class<Dynamic>>;
 	// amount of pending injections.
-	var pendingInjections : Int;
+	public var pendingInjections : Int;
+	
 	// = 0;
 	/** CONSTRUCTOR */
 	public function new() {
 		proxyScopes = new Array<String>();
-		dependantCommands = new Dictionary();
+		dependantCommands = new Map();
 	}
 
 	//----------------------------------
@@ -125,7 +126,7 @@ class Proxy {
 	 * 
 	 * 
 	 */
-	function setProxyMap(iProxyMap : IProxyMap) : Void {
+	public function setProxyMap(iProxyMap : IProxyMap) : Void {
 		proxyMap = iProxyMap;
 	}
 
@@ -134,7 +135,7 @@ class Proxy {
 	 * called from proxyMap
 	 * 
 	 */
-	function register() : Void {
+	public function register() : Void {
 		if(!_isReady)  {
 			_isReady = true;
 			onRegister();
@@ -146,7 +147,7 @@ class Proxy {
 	 * called from proxyMap
 	 * 
 	 */
-	function remove() : Void {
+	public function remove() : Void {
 		_isReady = false;
 		dependantCommands = null;
 		onRemove();
@@ -160,7 +161,7 @@ class Proxy {
 	 * 
 	 * 
 	 */
-	function addScope(scopeName : String) : Void {
+	public function addScope(scopeName : String) : Void {
 		var messengerFound : Bool;
 		// = false;
 		var scopeCount : Int = proxyScopes.length;
@@ -182,7 +183,7 @@ class Proxy {
 	 * 
 	 * 
 	 */
-	function removeScope(scopeName : String) : Void {
+	public function removeScope(scopeName : String) : Void {
 		var scopeCount : Int = scopeName.length;
 		var i : Int;
 		while(i < scopeCount) {
@@ -198,19 +199,14 @@ class Proxy {
 	//     Pooled commands
 	//----------------------------------
 	// Registers command that needs this proxy. (used for PooledCommand's only)
-	/* 
-	function registerDependantCommand(signatureClass : Class<Dynamic>) : Void {
+	public function registerDependantCommand(signatureClass : Class<Dynamic>) : Void {
 		dependantCommands[signatureClass] = signatureClass;
 	}
 
 	// gets the list of dependant commands. (used to clear all PooledCommand's then proxy is removed)
-	/** 
-	function getDependantCommands() : Dictionary {
+	public function getDependantCommands() : Map<Class<Dynamic>, Class<Dynamic>> {
 		return dependantCommands;
 	}
-	 * 
-	 * 
-	 */
 
 }
 

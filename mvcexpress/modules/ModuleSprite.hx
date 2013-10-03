@@ -9,8 +9,9 @@
  */
 package mvcexpress.modules;
 
-import flash.display.Sprite;
-import flash.events.Event;
+import nme.display.Sprite;
+import nme.events.Event;
+
 import mvcexpress.core.CommandMap;
 import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleBase;
@@ -18,7 +19,8 @@ import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 ////import mvcexpress.core.namespace.PureLegsCore;
 
-class ModuleSprite extends Sprite {
+class ModuleSprite extends Sprite 
+{
 	public var moduleName(get_moduleName, never) : String;
 
 	var moduleBase : ModuleBase;
@@ -33,6 +35,7 @@ class ModuleSprite extends Sprite {
 	 */
 	public function new(moduleName : String = null, autoInit : Bool = true, initOnStage : Bool = true) 
 	{
+		super();
 		//use namespace pureLegsCore;
 		moduleBase = ModuleManager.createModule(moduleName, autoInit);
 		//
@@ -42,20 +45,14 @@ class ModuleSprite extends Sprite {
 			commandMap = moduleBase.commandMap;
 			//
 			if(initOnStage)  {
-				if(stage)  {
+				if(stage != null)  {
 					onInit();
-				}
-
-				else  {
+				} else  {
 					addEventListener(Event.ADDED_TO_STAGE, handleModuleAddedToStage, false, 0, true);
 				}
-
-			}
-
-			else  {
+			} else  {
 				onInit();
 			}
-
 		}
 	}
 

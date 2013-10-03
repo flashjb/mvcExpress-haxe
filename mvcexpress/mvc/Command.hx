@@ -35,9 +35,9 @@ class Command
 	public var mediatorMap : MediatorMap;
 	
 	/** used internally for communication*/
-	var messenger : Messenger;
-	var messageType : String;
-	var isExecuting : Bool;
+	public var messenger : Messenger;
+	public var messageType : String;
+	public var isExecuting : Bool;
 	// = false;
 	
 
