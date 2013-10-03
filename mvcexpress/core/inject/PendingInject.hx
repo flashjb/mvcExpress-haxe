@@ -1,7 +1,7 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * FOR INTERNAL USE ONLY.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core.inject;
 
@@ -11,13 +11,14 @@ class PendingInject {
 
 	/**
 	 * Private class to store pending injection data.
-	 * @private
+	 * 
 	 */
 	var injectClassAndName : String;
 	public var pendingObject : Dynamic;
 	public var signatureClass : Class<Dynamic>;
 	var pendingInjectTime : Int;
 	var timerId : Timer;
+	
 	public function new(injectClassAndName : String, pendingObject : Dynamic, signatureClass : Class<Dynamic>, pendingInjectTime : Int) {
 		this.injectClassAndName = injectClassAndName;
 		this.pendingObject = pendingObject;

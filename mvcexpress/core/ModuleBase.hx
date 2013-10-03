@@ -4,7 +4,7 @@
  * <p>
  * Provides base module functions for all other module classes.
  * </p>
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core;
 
@@ -55,7 +55,7 @@ class ModuleBase {
 
 	/**
 	 * framework access to module messenger
-	 * @private
+	 * 
 	 */
 	function getMessenger() : Messenger {
 		return _messenger;
@@ -68,8 +68,8 @@ class ModuleBase {
 	 * Internal framework function. Not meant to be used from outside.
 	 */
 	// Module creation function used instead of constructor.
-	// @param	moduleName	module name that is used for referencing a module.
-	// @param	autoInit	if set to false framework is not initialized for this module. If you want to use framework features you will have to manually init() it first.
+	// 
+	// 
 	// 						(or you start getting null reference errors.)
 	static public function getModuleInstance(moduleName : String, autoInit : Bool) : ModuleBase {
 		use;
@@ -151,45 +151,45 @@ class ModuleBase {
 	//----------------------------------
 	/**
 	 * Sends a message with optional params object inside of current module.
-	 * @param	type	type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params	Object that will be passed to Command execute() function and to handle functions.
+	 * 
+	 * 
 	 */
 	public function sendMessage(type : String, params : Dynamic = null) : Void {
 		// log the action
-		//		CONFIG::debug {
-		//			use namespace pureLegsCore;
-		//			MvcExpress.debug(new TraceModuleBase_sendMessage(_moduleName, this, type, params, true));
-		//		}
+		#if debug
+		//	use namespace pureLegsCore;
+			MvcExpress.debug(new TraceModuleBase_sendMessage(_moduleName, this, type, params, true));
+		#end
 		//
 		_messenger.send(type, params);
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceModuleBase_sendMessage(_moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceModuleBase_sendMessage(_moduleName, this, type, params, false));
+		#end
 	}
 
 	/**
 	 * Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params		Object that will be passed to Command execute() function and to handle functions.
+	 * 
+	 * 
+	 * 
 	 */
 	public function sendScopeMessage(scopeName : String, type : String, params : Dynamic) : Void {
 		use;
 		namespace;
 		pureLegsCore;
 		// log the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceModuleBase_sendScopeMessage(_moduleName, this, type, params, true));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceModuleBase_sendScopeMessage(_moduleName, this, type, params, true));
+		#end
 		//
 		ModuleManager.sendScopeMessage(_moduleName, scopeName, type, params);
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceModuleBase_sendScopeMessage(_moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceModuleBase_sendScopeMessage(_moduleName, this, type, params, false));
+		#end
 	}
 
 	//----------------------------------
@@ -199,27 +199,23 @@ class ModuleBase {
 	 * Registers scope name.
 	 * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.
 	 * What features module can use with that scope is defined by parameters.
-	 * @param	scopeName			Name of the scope.
-	 * @param	messageSending		Modules can send messages to this scope.
-	 * @param	messageReceiving	Modules can receive and handle messages from this scope.(or map commands to scoped messages);
-	 * @param	proxieMap			Modules can map proxies to this scope.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	public function registerScope(scopeName : String, messageSending : Bool = true, messageReceiving : Bool = true, proxieMap : Bool = false) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		ModuleManager.registerScope(_moduleName, scopeName, messageSending, messageReceiving, proxieMap);
 	}
 
 	/**
 	 * Unregisters scope name.
 	 * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.
-	 * @param	scopeName			Name of the scope.
+	 * 
 	 */
 	public function unregisterScope(scopeName : String) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		ModuleManager.unregisterScope(_moduleName, scopeName);
 	}
 

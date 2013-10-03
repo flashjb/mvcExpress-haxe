@@ -2,7 +2,7 @@
 /**
  * FOR INTERNAL USE ONLY.
  * Value Object to keep injection rules - what have to be injected there.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core.inject;
 
@@ -14,9 +14,11 @@ class InjectRuleVO {
 	public var injectClassAndName : String;
 	/** FOR INTERNAL USE ONLY. Injection identifier, formed by class name and your custom inject name. */
 	public var scopeName : String;
-	//	CONFIG::debug
-	//	public function toString():String {
-	//		return "[InjectRuleVO varName=" + varName + " injectClassAndName=" + injectClassAndName + " scopeName=" + scopeName + "]";
-	//	}
+	
+	#if debug
+		public function toString():String {
+			return "[InjectRuleVO varName=" + varName + " injectClassAndName=" + injectClassAndName + " scopeName=" + scopeName + "]";
+		}
+	#end
 }
 

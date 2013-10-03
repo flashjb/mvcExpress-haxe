@@ -1,12 +1,11 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * Handles command mappings, and executes them on messages
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core;
 
 
-import flash.utils.Dictionary;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.messenger.HandlerVO;
@@ -64,8 +63,8 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Map a class to be executed then message with provided type is sent.
-	 * @param	type				Message type for command class to react to.
-	 * @param	commandClass		Command class that will be executed.
+	 * 
+	 * 
 	 */
 	public function map(type : String, commandClass : Class<Dynamic>) : Void 
 	{
@@ -76,8 +75,8 @@ class CommandMap
 		#if debug
 			MvcExpress.debug(new TraceCommandMap_map(moduleName, type, commandClass));
 			validateCommandClass(commandClass);
-			if (!Boolean(type) || type == "null" || type == "undefined") {
-				throw Error("Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + commandClass + ")");
+			if (!Bool(type) || type == "null" || type == "undefined") {
+				throw "Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + commandClass + ")";
 			}
 		#end
 		
@@ -92,8 +91,8 @@ class CommandMap
 
 	/**
 	 * Unmaps a class to be executed then message with provided type is sent.
-	 * @param	type			Message type for command class to react to.
-	 * @param	commandClass	Command class that would be executed.
+	 * 
+	 * 
 	 */
 	public function unmap(type : String, commandClass : Class<Dynamic>) : Void 
 	{
@@ -122,8 +121,8 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Instantiates and executes provided command class, and sends params to it.
-	 * @param	commandClass	Command class to be instantiated and executed.
-	 * @param	params			Object to be sent to execute() function.
+	 * 
+	 * 
 	 */
 	public function execute(commandClass : Class<Dynamic>, params : Dynamic = null) : Void {
 		//use namespace pureLegsCore;
@@ -199,9 +198,9 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Maps a class for module to module communication, to be executed then message with provided type and scopeName is sent to scope.
-	 * @param	scopeName			both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type				Message type for command class to react to.
-	 * @param	commandClass		Command class that will be executed.
+	 * 
+	 * 
+	 * 
 	 */
 	public function scopeMap(scopeName : String, type : String, commandClass : Class<Dynamic>) : Void {
 		use;
@@ -221,9 +220,9 @@ class CommandMap
 
 	/**
 	 * Unmaps a class for module to module communication, to be executed then message with provided type and scopeName is sent to scope.
-	 * @param	scopeName			both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type				Message type for command class to react to.
-	 * @param	commandClass		Command class that would be executed.
+	 * 
+	 * 
+	 * 
 	 */
 	public function scopeUnmap(scopeName : String, type : String, commandClass : Class<Dynamic>) : Void 
 	{
@@ -247,8 +246,8 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Checks if PooledCommand is already pooled.
-	 * @param	commandClass
-	 * @return	true if command pool is created.
+	 * 
+	 * 
 	 */
 	public function checkIsClassPooled(commandClass : Class<Dynamic>) : Bool {
 		return (commandPools[commandClass] != null);
@@ -257,7 +256,7 @@ class CommandMap
 	/**
 	 * Clears pool created for specified command.
 	 * (if commands are not pooled - function fails silently.)
-	 * @param	commPoolingSimpleCommand
+	 * 
 	 */
 	public function clearCommandPool(commandClass : Class<Dynamic>) : Void 
 	{
@@ -269,9 +268,9 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Checks if Command class is already added to message type
-	 * @param	type			Message type for command class to react to.
-	 * @param	commandClass	Command class that will be instantiated and executed.
-	 * @return					true if Command class is already mapped to message
+	 * 
+	 * 
+	 * 
 	 */
 	public function isMapped(type : String, commandClass : Class<Dynamic>) : Bool {
 		var retVal : Bool;
@@ -292,8 +291,8 @@ class CommandMap
 
 	/**
 	 * Returns count of commands mapped to specified message type.
-	 * @param type		Message type for command class to react to.
-	 * @return			count of commands mapped to message.
+	 * 
+	 * 
 	 */
 	public function mappedCommandCount(type : String) : Int {
 		if(classRegistry[type] != null)  {
@@ -308,7 +307,7 @@ class CommandMap
 
 	/**
 	 * Returns text of all command classes that are mapped to messages. (for debugging)
-	 * @return		Text with all mapped commands.
+	 * 
 	 */
 	public function listMappings() : String {
 		var retVal : String = "";
@@ -317,8 +316,7 @@ class CommandMap
 			retVal += "SENDING MESSAGE:'" + key + "'	> EXECUTES > " + classRegistry[key] + "\n";
 		}
 
-		retVal += "================================================================
-";
+		retVal += "================================================================\n";
 		return retVal;
 	}
 
@@ -327,8 +325,8 @@ class CommandMap
 	//----------------------------------
 	/**
 	 * Pool command from outside of CommandMap.
-	 * @param	command	Command object to be pooled.
-	 * @private
+	 * 
+	 * 
 	 */
 	function poolCommand(command : PooledCommand) : Void {
 		var commandClass : Class<Dynamic> = Type.getClass(cast((command), Object).constructor);
@@ -340,7 +338,7 @@ class CommandMap
 
 	/**
 	 * Dispose commandMap on disposeModule()
-	 * @private
+	 * 
 	 */
 	function dispose() : Void {
 		//use;
@@ -451,17 +449,18 @@ class CommandMap
 
 	/**
 	 * Helper functions for error checking
-	 * @private
+	 * 
 	 */
 	#if debug
 		//pureLegsCore 
-		function validateCommandClass(commandClass:Class): Void 
+		function validateCommandClass(commandClass:Class<Dynamic>): Void 
 		{
 		
 			// skip alread validated classes.
 			if(validatedCommands[commandClass] != true)  
 			{
-				if( Type.getSuperClass(commandClass) != "mvcexpress.mvc.Command" )  {
+				if( Std.is(Type.getSuperClass(commandClass), Command) )  
+				{
 					throw cast(("commandClass:" + commandClass + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class."), Error);
 				}
 				
@@ -471,24 +470,20 @@ class CommandMap
 					var parameterCount : Int;// = 0;
 					
 					// find execute method.
-					var obj = Type.createEmptyInstance(commandClass);
-					var dFunc = Reflect.field( Type.createEmptyInstance(commandClass), "execute");
-					if( dFunc )
-					{
-						hasExecute = true;
+					var dFunc = Reflect.field( obj, "execute");
+					hasExecute = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute");
 						
-						// check parameter ammount.
+						// TODO : check parameter ammount.
 						//var paramList = Reflect.fields(dFunc); 
 						//parameterCount = paramList.length();
 						//if(parameterCount == 1)  {
 						//	commandClassParamTypes[commandClass] = Type.typeof(paramList[0]);
 						//}
-					}
 					
 					
 					if(hasExecute)  
 					{
-						//no way to check this
+						//TODO no way to check this at the moment
 						//if(parameterCount != 1)  {
 							//throw cast(("Command:" + commandClass + " function execute() must have single parameter, but it has " + parameterCount), Error);
 						//}
@@ -500,7 +495,12 @@ class CommandMap
 				validatedCommands[commandClass] = true;
 			}
 		}
-
+	#end
+	
+	
+	#if debug
+	
+	
 		private function validateCommandParams(commandClass:Class, params:Object) : Void 
 		{
 			validateCommandClass(commandClass);

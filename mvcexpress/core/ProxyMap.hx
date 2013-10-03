@@ -1,11 +1,10 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * ProxyMap is responsible for storing proxy objects and handling injection.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core;
 
-import haxe.rtti.Meta;
 import flash.utils.Dictionary;
 
 import mvcexpress.MvcExpress;
@@ -28,7 +27,8 @@ import mvcexpress.mvc.PooledCommand;
 import mvcexpress.mvc.Proxy;
 import mvcexpress.utils.MvcExpressTools;
 
-class ProxyMap implements IProxyMap {
+class ProxyMap implements IProxyMap 
+{
 
 	// name of the module CommandMap is working for.
 	var moduleName : String;
@@ -67,10 +67,10 @@ class ProxyMap implements IProxyMap {
 	//----------------------------------
 	/**
 	 * Maps proxy object to injectClass and name.
-	 * @param	proxyObject	Proxy instance to use for injection.
-	 * @param	injectClass	Optional class to use for injection, if null proxyObject class is used. It is helpful if you want to map proxy interface or subclass.
-	 * @param	name		Optional name if you need more then one proxy instance of same class.
-	 * @return	returns inject id. (for debuging reasons only.)
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	public function map(proxyObject : Proxy, injectClass : Class<Dynamic> = null, name : String = "") : String {
 		use;
@@ -115,18 +115,17 @@ class ProxyMap implements IProxyMap {
 	/**
 	 * Removes proxy mapped for injection by injectClass and name.
 	 *  If mapping does not exists - it will fail silently.
-	 * @param	injectClass	class previously mapped for injection
-	 * @param	name		name added to class, that was previously mapped for injection
-	 * @return	returns inject id. (for debuging reasons only.)
+	 * 
+	 * 
+	 * 
 	 */
 	public function unmap(injectClass : Class<Dynamic>, name : String = "") : String {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		// debug this action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxyMap_unmap(moduleName, injectClass, name));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxyMap_unmap(moduleName, injectClass, name));
+		#end
+		
 		// get inject id
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
@@ -155,11 +154,11 @@ class ProxyMap implements IProxyMap {
 	//----------------------------------
 	/**
 	 * Stores lazy proxy data to be instantiated on first use. Proxy will be instantiated and mapped then requested for the first time.
-	 * @param	proxyClass
-	 * @param	injectClass	Optional class to use for injection, if null proxyObject class is used. It is helpful if you want to map proxy interface or subclass.
-	 * @param	name		Optional name if you need more then one proxy instance of same class.
-	 * @param	proxyParams
-	 * @return	returns inject id. (for debuging reasons only.)
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	public function lazyMap(proxyClass : Class<Dynamic>, injectClass : Class<Dynamic> = null, name : String = "", proxyParams : Array<Dynamic> = null) : String {
 		if(!injectClass)  {
@@ -194,8 +193,8 @@ class ProxyMap implements IProxyMap {
 	 * 		You might wont to get proxy manually then your proxy has dynamic name.										<br>
 	 * 		Also you might want to get proxy manually if your proxy is needed only in rare cases or only for short time.
 	 * 			(for instance - you need it only in onRegister() function.)
-	 * @param	injectClass	Optional class to use for injection, if null proxyObject class is used. It is helpful if you want to map proxy interface or subclass.
-	 * @param	name		Optional name if you need more then one proxy instance of same class.
+	 * 
+	 * 
 	 */
 	public function getProxy(injectClass : Class<Dynamic>, name : String = "") : Proxy {
 		var className : String = qualifiedClassNameRegistry[injectClass];
@@ -219,19 +218,18 @@ class ProxyMap implements IProxyMap {
 	//----------------------------------
 	/**
 	 * Maps proxy object to the scape with injectClass and name.
-	 * @param	scopeName	scope name to map proxy to. Same scope name must be used for injection.
-	 * @param	proxyObject	Proxy instance to use for injection.
-	 * @param	injectClass	Optional class to use for injection, if null proxyObject class is used. It is helpful if you want to map proxy interface or subclass.
-	 * @param	name		Optional name if you need more then one proxy instance of same class.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
-	public function scopeMap(scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic> = null, name : String = "") : Void {
-		use;
-		namespace;
-		pureLegsCore;
+	public function scopeMap(scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic> = null, name : String = "") : Void 
+	{
+		//use namespace pureLegsCore;
 		//debug this action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxyMap_scopeMap(moduleName, scopeName, proxyObject, injectClass, name));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxyMap_scopeMap(moduleName, scopeName, proxyObject, injectClass, name));
+		#end
 		//
 		// init proxy if needed.
 		if(proxyObject.messenger == null)  {
@@ -256,18 +254,18 @@ class ProxyMap implements IProxyMap {
 	/**
 	 * Removes proxy mapped to scope with injectClass and name.
 	 *  If mapping does not exists - it will fail silently.
-	 * @param	scopeName	class previously mapped for injection
-	 * @param	injectClass	class previously mapped for injection
-	 * @param	name		name added to class, that was previously mapped for injection
+	 * 
+	 * 
+	 * 
 	 */
-	public function scopeUnmap(scopeName : String, injectClass : Class<Dynamic>, name : String = "") : Void {
-		use;
-		namespace;
-		pureLegsCore;
+	public function scopeUnmap(scopeName : String, injectClass : Class<Dynamic>, name : String = "") : Void 
+	{
+		//use namespace pureLegsCore;
 		// debug this action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxyMap_scopeUnmap(moduleName, scopeName, injectClass, name));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxyMap_scopeUnmap(moduleName, scopeName, injectClass, name));
+		#end
+		
 		ModuleManager.scopeUnmap(moduleName, scopeName, injectClass, name);
 	}
 
@@ -276,10 +274,10 @@ class ProxyMap implements IProxyMap {
 	//----------------------------------
 	/**
 	 * Checks if proxy object is already mapped.
-	 * @param	proxyObject	Proxy instance to use for injection.
-	 * @param	injectClass	Optional class to use for injection, if null proxyObject class is used. It is helpful if you want to map proxy interface or subclass.
-	 * @param	name		Optional name if you need more then one proxy instance of same class.
-	 * @return				true if object is already mapped.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	public function isMapped(proxyObject : Proxy, injectClass : Class<Dynamic> = null, name : String = "") : Bool {
 		var retVal : Bool;
@@ -301,7 +299,7 @@ class ProxyMap implements IProxyMap {
 
 	/**
 	 * Returns text of all mapped proxy objects, and keys they are mapped to. (for debugging)
-	 * @return		Text string with all mapped proxies.
+	 * 
 	 */
 	public function listMappings() : String {
 		var retVal : String = "";
@@ -323,8 +321,8 @@ class ProxyMap implements IProxyMap {
 
 	/**
 	 * Initiates proxy object.
-	 * @param	proxyObject
-	 * @private
+	 * 
+	 * 
 	 */
 	function initProxy(proxyObject : Proxy, proxyClass : Class<Dynamic>, injectId : String) : Void {
 		use;
@@ -342,7 +340,7 @@ class ProxyMap implements IProxyMap {
 
 	/**
 	 * Dispose of proxyMap. Remove all registered proxies and set all internals to null.
-	 * @private
+	 * 
 	 */
 	function dispose() : Void 
 	{
@@ -368,7 +366,7 @@ class ProxyMap implements IProxyMap {
 	/**
 	 * Finds inject points and injects dependencies.
 	 * tempValue and tempClass defines injection that will be done for current object only.
-	 * @private
+	 * 
 	 */
 	function injectStuff(object : Dynamic, signatureClass : Class<Dynamic>, tempValue : Dynamic = null, tempClass : Class<Dynamic> = null) : Bool {
 		//use namespace pureLegsCore;
@@ -414,9 +412,10 @@ class ProxyMap implements IProxyMap {
 						isAllInjected = false;
 						//add injection to pending injections.
 						// debug this action
-						//						CONFIG::debug {
-						//							MvcExpress.debug(new TraceProxyMap_scopedInjectPending(scopename, moduleName, object, injectObject, rule));
-						//						}
+						#if debug
+							MvcExpress.debug(new TraceProxyMap_scopedInjectPending(scopename, moduleName, object, injectObject, rule));
+						#end
+						
 						ModuleManager.addPendingScopedInjection(scopename, injectClassAndName, new PendingInject(injectClassAndName, object, signatureClass, MvcExpress.pendingInjectsTimeOut));
 						object.pendingInjections++;
 						//throw Error("Pending scoped injection is not supported yet.. (IN TODO...)");
@@ -434,9 +433,9 @@ class ProxyMap implements IProxyMap {
 				if(injectObject)  {
 					object[rule.varName] = injectObject;
 					// debug this action
-					//					CONFIG::debug {
-					//						MvcExpress.debug(new TraceProxyMap_injectStuff(moduleName, object, injectObject, rule));
-					//					}
+					#if debug
+						MvcExpress.debug(new TraceProxyMap_injectStuff(moduleName, object, injectObject, rule));
+					#end
 				}
 
 				else  {
@@ -511,9 +510,9 @@ class ProxyMap implements IProxyMap {
 						if(MvcExpress.pendingInjectsTimeOut && !(Std.is(object, Command)))  {
 							//add injection to pending injections.
 							// debug this action
-							//							CONFIG::debug {
-							//								MvcExpress.debug(new TraceProxyMap_injectPending(moduleName, object, injectObject, rule));
-							//							}
+							#if debug
+								MvcExpress.debug(new TraceProxyMap_injectPending(moduleName, object, injectObject, rule));
+							#end
 							//
 							addPendingInjection(injectClassAndName, new PendingInject(injectClassAndName, object, signatureClass, MvcExpress.pendingInjectsTimeOut));
 							object.pendingInjections++;
@@ -554,9 +553,9 @@ class ProxyMap implements IProxyMap {
 
 	/**
 	 * Adds pending injection.
-	 * @param	injectClassAndName
-	 * @param	pendingInjection
-	 * @private
+	 * 
+	 * 
+	 * 
 	 */
 	function addPendingInjection(injectClassAndName : String, pendingInjection : PendingInject) : Void {
 		var pendingInjections : Array<PendingInject> = pendingInjectionsRegistry[injectClassAndName];
@@ -672,7 +671,7 @@ class ProxyMap implements IProxyMap {
 		return retVal;
 	}
 
-	@:meta(Inline())
+	
 	function getInjectByConstName(constName : String) : String 
 	{
 		if(!classConstRegistry[constName])  {
@@ -710,7 +709,7 @@ class LazyProxyData {
 
 	/**
 	 * private class to store lazy proxy data.
-	 * @private
+	 * 
 	 */
 	public var proxyClass : Class<Dynamic>;
 	public var injectClass : Class<Dynamic>;

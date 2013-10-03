@@ -1,7 +1,7 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * Interface for Mediator. MediatorsMap use mediators with this interface.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core.interfaces;
 

@@ -2,7 +2,7 @@
 /**
  * FOR INTERNAL USE ONLY.
  * Handles framework communications.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core.messenger;
 
@@ -45,17 +45,18 @@ class Messenger {
 
 	/**
 	 * Adds handler function that will be called then message of specified type is sent.
-	 * @param	type	message type to react to.
-	 * @param	handler	function called on sent message, this function must have one and only one parameter.
-	 * @param	handlerClassName	handler function owner class name. For debugging only.
-	 * @return		returns message data object. This object can be disabled instead of removing the handle with function. (disabling is much faster)
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	public function addHandler(type : String, handler : Dynamic, handlerClassName : String = null) : HandlerVO {
 		// debug this action
-		//		CONFIG::debug {
+		#if debug
 		//			use namespace pureLegsCore;
-		//			MvcExpress.debug(new TraceMessenger_addHandler(moduleName, type, handler, handlerClassName));
-		//		}
+			MvcExpress.debug(new TraceMessenger_addHandler(moduleName, type, handler, handlerClassName));
+		#end
+		
 		// if this message type used for the first time - create data placeholders.
 		var messageList : Array<HandlerVO> = messageRegistry[type];
 		if(!messageList)  {
@@ -65,16 +66,19 @@ class Messenger {
 		}
 		var msgData : HandlerVO = handlerRegistry[type][handler];
 		// check if this handler already exists for this type. (this check can be skipped in release mode.)
-		//		CONFIG::debug {
-		//			if (msgData) {
-		//				throw Error("This handler function is already mapped to message type :" + type);
-		//			}
-		//		}
+		#if debug
+			if (msgData) {
+				throw Error("This handler function is already mapped to message type :" + type);
+			}
+		#end
+		
 		if(!msgData)  {
 			msgData = new HandlerVO();
-			//			CONFIG::debug {
-			//				msgData.handlerClassName = handlerClassName;
-			//			}
+			
+			#if debug
+				msgData.handlerClassName = handlerClassName;
+			#end
+			
 			msgData.handler = handler;
 			messageList[messageList.length] = msgData;
 			handlerRegistry[type][handler] = msgData;
@@ -86,15 +90,16 @@ class Messenger {
 	/**
 	 * Removes handler function that will be called then message of specified type is sent.
 	 * - if handler is not found it fails silently.
-	 * @param	type				message type that handler had to react
-	 * @param	handler				function called on sent message.
+	 * 
+	 * 
 	 */
 	public function removeHandler(type : String, handler : Dynamic) : Void {
 		// debug this action
-		//		CONFIG::debug {
+		#if debug
 		//			use namespace pureLegsCore;
-		//			MvcExpress.debug(new TraceMessenger_removeHandler(moduleName, type, handler));
-		//		}
+			MvcExpress.debug(new TraceMessenger_removeHandler(moduleName, type, handler));
+		#end
+		
 		if(handlerRegistry[type])  {
 			if(handlerRegistry[type][handler])  
 			{
@@ -106,8 +111,8 @@ class Messenger {
 
 	/**
 	 * Runs all handler functions associated with message type, and send params object as single parameter.
-	 * @param	type				message type to find needed handlers
-	 * @param	params				parameter object that will be sent to all handler functions as single parameter.
+	 * 
+	 * 
 	 */
 	public function send(type : String, params : Dynamic = null) : Void 
 	{
@@ -166,7 +171,7 @@ class Messenger {
 
 	/**
 	 * function to add command execute function.
-	 * @private
+	 * 
 	 */
 	public function addCommandHandler(type : String, executeFunction : Dynamic, handlerClass : Class<Dynamic> = null) : HandlerVO {
 		var executeMvgVo : HandlerVO = addHandler(type, executeFunction, Std.string(handlerClass));
@@ -182,17 +187,15 @@ class Messenger {
 	 * Intended to be used by ModuleCore.as
 	 */
 	public function listMappings(commandMap : CommandMap) : String {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		var retVal : String = "";
-		retVal = "====================== Message Mappings: ======================
-";
-		var warningText : String = "WARNING: If you want to see Classes that handles messages - you must run with CONFIG::debug compile variable set to 'true'.
-";
-		//		CONFIG::debug {
-		//			warningText = "";
-		//		}
+		retVal = "====================== Message Mappings: ======================\n";
+		var warningText : String = "WARNING: If you want to see Classes that handles messages - you must run with '-D debug' compile variable set to 'true'.\n";
+		
+		#if debug
+			warningText = "";
+		#end
+		
 		if(warningText)  {
 			retVal += warningText;
 		}
@@ -206,14 +209,13 @@ class Messenger {
 				var handlerVo : HandlerVO = msgList[i];
 				if(handlerVo.isExecutable)  {
 					messageHandlers += "[EXECUTES:" + commandMap.listMessageCommands(key) + "], ";
-					//					CONFIG::debug {
-					//						messageHandlers += "[" + handlerVo.handlerClassName + "], ";
-					//					}
+					#if debug
+						messageHandlers += "[" + handlerVo.handlerClassName + "], ";
+					#end
 				}
 				i++;
 			}
-			retVal += "SENDING MESSAGE:'" + key + "'	> HANDLED BY: > " + messageHandlers + "
-";
+			retVal += "SENDING MESSAGE:'" + key + "'	> HANDLED BY: > " + messageHandlers + "\n";
 		}
 
 		retVal += "================================================================";

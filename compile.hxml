@@ -1,0 +1,7 @@
+-swf bin/swf/Main.swf
+-main Main
+-swf-version 11
+-cp mvcexpress
+-cp test
+-cp src
+-D debug

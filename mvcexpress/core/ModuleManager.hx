@@ -2,7 +2,7 @@
 /**
  * INTERNAL FRAMEWORK CLASS.
  * Creates and manages modules.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core;
 
@@ -50,10 +50,10 @@ class ModuleManager {
 
 	/**
 	 * Creates new module for given name.
-	 * @param	moduleName
-	 * @param	autoInit
-	 * @return
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function createModule(moduleName : String, autoInit : Bool) : ModuleBase {
 		// tests if framework can read 'Inject' metadata tag.
@@ -66,10 +66,11 @@ class ModuleManager {
 		}
 		var retVal : ModuleBase;
 		// debug this action
-		//		CONFIG::debug {
-		//			use namespace pureLegsCore;
-		//			MvcExpress.debug(new TraceModuleManager_createModule(moduleName, autoInit));
-		//		}
+		#if debug
+			//	use namespace pureLegsCore;
+			MvcExpress.debug(new TraceModuleManager_createModule(moduleName, autoInit));
+		#end
+		
 		if(moduleRegistry[moduleName] == null)  {
 			_moduleId++;
 			//
@@ -91,9 +92,9 @@ class ModuleManager {
 
 	/**
 	 * get messenger for module name.
-	 * @param	moduleName		name of the module this messenger will belong to.
-	 * @return	returns Messenger object.
-	 * @private
+	 * 
+	 * 
+	 * 
 	 */
 	static function getMessenger(moduleName : String) : Messenger {
 		use;
@@ -104,8 +105,8 @@ class ModuleManager {
 
 	/**
 	 * disposes of messenger for module name.
-	 * @param	moduleName	name of the module this messenger was belong to.
-	 * @private
+	 * 
+	 * 
 	 */
 	static function disposeModule(moduleName : String) : Void {
 		//use;
@@ -153,7 +154,7 @@ class ModuleManager {
 	//     message scoping
 	//----------------------------------
 	/** sends scoped message
-	 * @private */
+	 * 
 	static function sendScopeMessage(moduleName : String, scopeName : String, type : String, params : Dynamic, checkPermisions : Bool = true) : Void {
 		use;
 		namespace;
@@ -174,7 +175,7 @@ class ModuleManager {
 	}
 
 	/** add scoped handler
-	 * @private */
+	 * 
 	static function addScopeHandler(moduleName : String, scopeName : String, type : String, handler : Dynamic) : HandlerVO {
 		// get permission object
 		if(scopePermissionsRegistry[moduleName])  {
@@ -197,7 +198,7 @@ class ModuleManager {
 	}
 
 	/** remove scoped handler
-	 * @private */
+	 * 
 	static function removeScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
 		if(scopeMesanger)  {
@@ -210,12 +211,12 @@ class ModuleManager {
 	//----------------------------------
 	/**
 	 * Map command to scoped message.
-	 * @param	handleCommandExecute
-	 * @param	scopeName
-	 * @param	type
-	 * @param	commandClass
-	 * @return
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function scopedCommandMap(moduleName : String, handleCommandExecute : Dynamic, scopeName : String, type : String, commandClass : Class<Dynamic>) : HandlerVO {
 		// get permission object
@@ -243,12 +244,12 @@ class ModuleManager {
 	//----------------------------------
 	/**
 	 * Map proxy to scope
-	 * @param	moduleName
-	 * @param	scopeName
-	 * @param	proxyObject
-	 * @param	injectClass
-	 * @param	name
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void {
 		// get permission object
@@ -292,11 +293,11 @@ class ModuleManager {
 
 	/**
 	 * Unmap proxy from scope
-	 * @param	moduleName
-	 * @param	scopeName
-	 * @param	injectClass
-	 * @param	name
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function scopeUnmap(moduleName : String, scopeName : String, injectClass : Class<Dynamic>, name : String) : Void 
 	{
@@ -317,10 +318,10 @@ class ModuleManager {
 
 	/**
 	 * Inject Scoped proxy.
-	 * @param	object
-	 * @param	injectRule
-	 * @return
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function injectScopedProxy(recipientObject : Dynamic, injectRule : InjectRuleVO) : Bool {
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[injectRule.scopeName];
@@ -339,10 +340,10 @@ class ModuleManager {
 
 	/**
 	 * Adds pending scoped injection.
-	 * @param	scopeName
-	 * @param	injectClassAndName
-	 * @param	pendingInject
-	 * @private
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	static function addPendingScopedInjection(scopeName : String, injectClassAndName : String, pendingInject : PendingInject) : Void {
 		use;
@@ -358,7 +359,7 @@ class ModuleManager {
 
 	/**
 	 * Initiates scoped proxy map.
-	 * @param	scopeName
+	 * 
 	 */
 	static function initScopedProxyMap(scopeName : String) : Void {
 		var scopedMesanger : Messenger = scopedMessengers[scopeName];
@@ -379,10 +380,11 @@ class ModuleManager {
 	//----------------------------------
 	static function registerScope(moduleName : String, scopeName : String, messageSending : Bool, messageReceiving : Bool, proxieMapping : Bool) : Void {
 		// debug this action
-		//		CONFIG::debug {
-		//			use namespace pureLegsCore;
-		//			MvcExpress.debug(new TraceModuleManager_registerScope(moduleName, scopeName, messageSending, messageReceiving, proxieMapping));
-		//		}
+		#if debug
+		//	use namespace pureLegsCore;
+			MvcExpress.debug(new TraceModuleManager_registerScope(moduleName, scopeName, messageSending, messageReceiving, proxieMapping));
+		#end
+		
 		// create dictionary for scope permisions by moduleName
 		if(!scopePermissionsRegistry[moduleName])  {
 			scopePermissionsRegistry[moduleName] = new Dictionary();
@@ -417,7 +419,7 @@ class ModuleManager {
 	//----------------------------------
 	/**
 	 * Returns string with all module names.
-	 * @return
+	 * 
 	 */
 	static public function listModules() : String {
 		var retVal : String = "";

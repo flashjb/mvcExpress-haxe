@@ -1,7 +1,7 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * Handles application mediators.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core;
 
@@ -51,9 +51,9 @@ class MediatorMap implements IMediatorMap {
 	//----------------------------------
 	/**
 	 * Maps mediator class to view class. Only one mediator class can mediate single instance of view class.
-	 * @param	viewClass		view class that has to be mediated by mediator class then mediate() is called on the view object.
-	 * @param	mediatorClass	mediator class that will be instantiated then viewClass object is passed to mediate() function.
-	 * @param	injectClass		inject mediator as this class.
+	 * 
+	 * 
+	 * 
 	 */
 	public function map(viewClass : Class<Dynamic>, mediatorClass : Class<Dynamic>, injectClass : Class<Dynamic> = null) : Void 
 	{
@@ -82,7 +82,7 @@ class MediatorMap implements IMediatorMap {
 	/**
 	 * Unmaps any mediator class to given view class.
 	 * If view is not mediated - it will fail silently.
-	 * @param	viewClass	view class to remove mapped mediator class from.
+	 * 
 	 */
 	public function unmap(viewClass : Class<Dynamic>) : Void 
 	{
@@ -104,7 +104,7 @@ class MediatorMap implements IMediatorMap {
 	 * Mediates provided viewObject with mapped mediator.
 	 * Automatically instantiates mediator class(if mapped), handles all injections(including viewObject), and calls onRegister function.
 	 * Throws error if mediator class is not mapped to viewObject class.
-	 * @param	viewObject	view object to mediate.
+	 * 
 	 */
 	public function mediate(viewObject : Dynamic) : Void 
 	{
@@ -154,9 +154,9 @@ class MediatorMap implements IMediatorMap {
 	/**
 	 * Mediates viewObject with specified mediator class.
 	 * It is usually better practice to use 2 step mediation(map(), mediate()) instead of this function. But sometimes it is not possible.
-	 * @param	viewObject		view object to mediate.
-	 * @param	mediatorClass	mediator class that will be instantiated and used to mediate view object
-	 * @param	injectClass		inject mediator as this class.
+	 * 
+	 * 
+	 * 
 	 */
 	public function mediateWith(viewObject : Dynamic, mediatorClass : Class<Dynamic>, injectClass : Class<Dynamic> = null) : Void {
 	//	use namespace pureLegsCore;
@@ -184,7 +184,7 @@ class MediatorMap implements IMediatorMap {
 	/**
 	 * Unmediated view object
 	 * If any mediator is mediating viewObject - it calls onRemove on that mediator, automatically removes all message handlers, all event listeners and disposes it.
-	 * @param	viewObject	view object witch mediator will be destroyed.
+	 * 
 	 */
 	public function unmediate(viewObject : Dynamic) : Void 
 	{
@@ -210,9 +210,9 @@ class MediatorMap implements IMediatorMap {
 	//----------------------------------
 	/**
 	 * Checks if mediator class is mapped to view class.
-	 * @param	viewClass		view class that has to be mediated by mediator class then mediate(viewObject) is called.
-	 * @param	mediatorClass	Optional Mediator class, if provided will check if viewClass is mapped to this particular mediator class.
-	 * @return					true if view class is already mapped to mediator class.
+	 * 
+	 * 
+	 * 
 	 */
 	public function isMapped(viewClass : Class<Dynamic>, mediatorClass : Class<Dynamic> = null) : Bool {
 		var retVal : Bool;
@@ -234,8 +234,8 @@ class MediatorMap implements IMediatorMap {
 
 	/**
 	 * Check if class of view object is mapped to any mediator.
-	 * @param	viewObject	view object to test if it's class is mapped to mediator class.
-	 * @return				true if viewObject class is mapped to mediator class
+	 * 
+	 * 
 	 */
 	public function isViewMapped(viewObject : Dynamic) : Bool {
 		var retVal : Bool;
@@ -249,7 +249,7 @@ class MediatorMap implements IMediatorMap {
 
 	/**
 	 * Checks if view object is mediated.
-	 * @param	viewObject		View object to check if it is mediated.
+	 * 
 	 */
 	public function isMediated(viewObject : Dynamic) : Bool {
 		return (mediatorRegistry[viewObject] != null);
@@ -257,7 +257,7 @@ class MediatorMap implements IMediatorMap {
 
 	/**
 	 * Returns String of all view classes that are mapped to mediator classes. (for debugging)
-	 * @return		Text with all mapped mediators.
+	 * 
 	 */
 	public function listMappings() : String {
 		var retVal : String = "";
@@ -275,7 +275,7 @@ class MediatorMap implements IMediatorMap {
 	//----------------------------------
 	/**
 	 * Dispose mediatorMap - unmediate all mediated view objects and set all internals to null.
-	 * @private
+	 * 
 	 */
 	function dispose() : Void 
 	{

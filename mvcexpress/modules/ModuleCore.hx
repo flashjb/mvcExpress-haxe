@@ -6,7 +6,7 @@
  * It starts framework and lets you set up your application. (or execute Commands for set up.)
  * You can create modular application by having more then one module.
  * </p>
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.modules;
 
@@ -26,8 +26,8 @@ class ModuleCore {
 	var commandMap : CommandMap;
 	/**
 	 * CONSTRUCTOR
-	 * @param	moduleName	module name that is used for referencing a module. (if not provided - unique name will be generated.)
-	 * @param	autoInit	if set to false framework is not initialized for this module. If you want to use framework features you will have to manually init() it first.
+	 * 
+	 * 
 	 */
 	public function new(moduleName : String = null, autoInit : Bool = true) {
 		use;
@@ -92,8 +92,8 @@ class ModuleCore {
 
 	/**
 	 * Message sender.
-	 * @param	type	type of the message. (Commands and handle functions must bu map to it to react.)
-	 * @param	params	Object that will be send to Command execute() or to handle function as parameter.
+	 * 
+	 * 
 	 */
 	function sendMessage(type : String, params : Dynamic = null) : Void {
 		moduleBase.sendMessage(type, params);
@@ -101,9 +101,9 @@ class ModuleCore {
 
 	/**
 	 * Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params		Object that will be passed to Command execute() function or to handle functions.
+	 * 
+	 * 
+	 * 
 	 */
 	function sendScopeMessage(scopeName : String, type : String, params : Dynamic = null) : Void {
 		moduleBase.sendScopeMessage(scopeName, type, params);
@@ -113,10 +113,10 @@ class ModuleCore {
 	 * Registers scope name.
 	 * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.
 	 * What features module can use with that scope is defined by parameters.
-	 * @param	scopeName			Name of the scope.
-	 * @param	messageSending		Modules can send messages to this scope.
-	 * @param	messageReceiving	Modules can receive and handle messages from this scope.(or map commands to scoped messages);
-	 * @param	proxieMap			Modules can map proxies to this scope.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	function registerScope(scopeName : String, messageSending : Bool = true, messageReceiving : Bool = true, proxieMapping : Bool = false) : Void {
 		moduleBase.registerScope(scopeName, messageSending, messageReceiving, proxieMapping);
@@ -125,7 +125,7 @@ class ModuleCore {
 	/**
 	 * Unregisters scope name.
 	 * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.
-	 * @param	scopeName			Name of the scope.
+	 * 
 	 */
 	function unregisterScope(scopeName : String) : Void {
 		moduleBase.unregisterScope(scopeName);

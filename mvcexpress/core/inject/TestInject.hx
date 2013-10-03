@@ -2,14 +2,18 @@
 /**
  * Small class to test if framework can use Inject metadata tag.
  * (It might be not compiled in, in release mode if '-keep-as3-metadata+=Inject' compile argument is not used.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.core.inject;
 
 class TestInject {
 
-	@:meta(Inject())
+	
 	public var metadataTest : Bool;
+	
+	public function new(){}
+	
+	
 	public function testInjectMetaTag() : Bool {
 		var retVal : Bool = false;
 		//var classDescription : XML = describeType(testInject);
@@ -25,7 +29,7 @@ class TestInject {
 //						var metadataCount : Int = metadataList.length();
 //						var j : Int = 0;
 //						while(j < metadataCount) {
-//							nodeName = metadataList[j].@name;
+//							nodeName = metadataList[j].
 //							if(nodeName == "Inject")  {
 //								retVal = true;
 //							}

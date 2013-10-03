@@ -2,7 +2,7 @@
 /**
  * Proxy holds and manages application data, provide API to work with it. 				</br>
  * Can send messages. (Usually sends one with each data update)							</br>
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.mvc;
 
@@ -26,14 +26,14 @@ class Proxy {
 	var _isReady : Bool;
 	// = false;
 	// used internally for communication
-	/** @private */
+	/** 
 	var messenger : Messenger;
 	// for sending scoped messages then injected by scope.
 	var proxyScopes : Array<String>;
 	// for pooled command classes that are dependant on this proxy.
 	var dependantCommands : Dictionary;
 	// amount of pending injections.
-	/** @private */
+	/** 
 	var pendingInjections : Int;
 	// = 0;
 	/** CONSTRUCTOR */
@@ -71,8 +71,8 @@ class Proxy {
 	//----------------------------------
 	/**
 	 * Sends a message with optional params object inside of current module.
-	 * @param	type	type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params	Object that will be passed to Command execute() function or to handle functions.
+	 * 
+	 * 
 	 */
 	function sendMessage(type : String, params : Dynamic = null) : Void {
 		use;
@@ -80,9 +80,9 @@ class Proxy {
 		pureLegsCore;
 		var moduleName : String = messenger.moduleName;
 		// log the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxy_sendMessage(moduleName, this, type, params, true));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxy_sendMessage(moduleName, this, type, params, true));
+		#end
 		//
 		messenger.send(type, params);
 		//
@@ -94,33 +94,31 @@ class Proxy {
 		}
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxy_sendMessage(moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxy_sendMessage(moduleName, this, type, params, false));
+		#end
 	}
 
 	/**
 	 * Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params		Object that will be passed to Command execute() function and to handle functions.
+	 * 
+	 * 
+	 * 
 	 */
 	function sendScopeMessage(scopeName : String, type : String, params : Dynamic = null) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		var moduleName : String = messenger.moduleName;
 		// log the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxy_sendScopeMessage(moduleName, this, type, params, true));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxy_sendScopeMessage(moduleName, this, type, params, true));
+		#end
 		//
 		ModuleManager.sendScopeMessage(moduleName, scopeName, type, params);
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceProxy_sendScopeMessage(moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceProxy_sendScopeMessage(moduleName, this, type, params, false));
+		#end
 	}
 
 	//----------------------------------
@@ -128,8 +126,8 @@ class Proxy {
 	//----------------------------------
 	/**
 	 * sets proxyMap interface.
-	 * @param	iProxyMap
-	 * @private
+	 * 
+	 * 
 	 */
 	function setProxyMap(iProxyMap : IProxyMap) : Void {
 		proxyMap = iProxyMap;
@@ -138,7 +136,7 @@ class Proxy {
 	/**
 	 * marks mediator as ready and calls onRegister()
 	 * called from proxyMap
-	 * @private
+	 * 
 	 */
 	function register() : Void {
 		if(!_isReady)  {
@@ -150,7 +148,7 @@ class Proxy {
 	/**
 	 * marks mediator as not ready and calls onRemove().
 	 * called from proxyMap
-	 * @private
+	 * 
 	 */
 	function remove() : Void {
 		_isReady = false;
@@ -163,8 +161,8 @@ class Proxy {
 	//----------------------------------
 	/**
 	 * Add scope for proxy to send all proxy messages to.
-	 * @param	scopeName
-	 * @private
+	 * 
+	 * 
 	 */
 	function addScope(scopeName : String) : Void {
 		var messengerFound : Bool;
@@ -185,8 +183,8 @@ class Proxy {
 
 	/**
 	 * Remove scope for proxy to send all proxy messages to.
-	 * @param	scopeName
-	 * @private
+	 * 
+	 * 
 	 */
 	function removeScope(scopeName : String) : Void {
 		var scopeCount : Int = scopeName.length;
@@ -204,16 +202,19 @@ class Proxy {
 	//     Pooled commands
 	//----------------------------------
 	// Registers command that needs this proxy. (used for PooledCommand's only)
-	/** @private */
+	/* 
 	function registerDependantCommand(signatureClass : Class<Dynamic>) : Void {
 		dependantCommands[signatureClass] = signatureClass;
 	}
 
 	// gets the list of dependant commands. (used to clear all PooledCommand's then proxy is removed)
-	/** @private */
+	/** 
 	function getDependantCommands() : Dictionary {
 		return dependantCommands;
 	}
+	 * 
+	 * 
+	 */
 
 }
 

@@ -1,16 +1,17 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * Class to store framework global settings and some important variables.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress;
 
 import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.TraceObj;
 
-class MvcExpress {
-	static public var VERSION(getVERSION, never) : String;
-	static public var DEBUG_COMPILE(getDEBUG_COMPILE, never) : Bool;
+class MvcExpress 
+{
+	static public var VERSION(get_VERSION, never) : String;
+	static public var DEBUG_COMPILE(get_DEBUG_COMPILE, never) : Bool;
 
 	/** Home website of mvcExpress. */
 	static public var WEBSITE_URL : String = "http://mvcexpress.org";
@@ -24,19 +25,19 @@ class MvcExpress {
 	static public var REVISION : Int = 2;
 	/** Current framework version */
 	//public static const VERSION:String = "v" + MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION;
-	static public function getVERSION() : String {
+	static public function get_VERSION() : String {
 		return "v" + MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION;
 	}
 
 	/**
-	 * Checks for CONFIG::debug variable value.
+	 * Checks for 'debug' variable value.
 	 * If it is true framework functions has overhead code, this overhead is used for debugging and error checking.
-	 * This value can help not to forget compile with CONFIG::debug set to false for release.
+	 * This value can help not to forget compile with '-D debug' set to false for release.
 	 */
-	static public function getDEBUG_COMPILE() : Bool {
-		//		CONFIG::debug {
-		//			return true;
-		//		}
+	static public function get_DEBUG_COMPILE() : Bool {
+		#if debug
+				return true;
+		#end
 		return false;
 	}
 
@@ -60,15 +61,16 @@ class MvcExpress {
 	//----------------------------------
 	/**
 	 * Function to get more detailed framework activity.
-	 * @private
+	 * 
 	 */
 	static var loggerFunction : Dynamic = null;
 	/**
 	 * Framework function for debugging.
-	 * @param	traceObj
-	 * @private
+	 * 
+	 * 
 	 */
-	//	CONFIG::debug
+	
+#if debug
 	static function debug(traceObj : TraceObj) : Void {
 		//use namespace pureLegsCore;
 		if(debugFunction != null)  {
@@ -80,6 +82,9 @@ class MvcExpress {
 			loggerFunction(traceObj);
 		}
 	}
+#end
+
+	public function new(){}
 
 }
 

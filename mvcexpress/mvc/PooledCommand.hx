@@ -2,7 +2,7 @@
 /**
  * Command that is automatically pooled.
  * All PooledCommand's are automatically pooled after execution - unless lock() is used.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.mvc;
 
@@ -13,7 +13,7 @@ class PooledCommand extends Command {
 
 	/**
 	 * Stores information if command is locked from automatic pooling by user.
-	 * @private */
+	 * 
 	var _isLocked : Bool;
 	// = false;
 	/**

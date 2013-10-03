@@ -5,7 +5,7 @@
  *  Can get proxies injected.																																</br>
  *  Can send messages. (sends messages then user interacts with the view)																					</br>
  *  Can handle messages. (handles data change or other framework messages)
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
+ * 
  */
 package mvcexpress.mvc;
 
@@ -26,7 +26,7 @@ class Mediator {
 	var isReady(getIsReady, never) : Bool;
 
 	// name of module this mediator is working in.
-	/** @private */
+	/** 
 	var moduleName : String;
 	public var proxyMap : IProxyMap;
 	/**
@@ -34,13 +34,13 @@ class Mediator {
 	 */
 	public var mediatorMap : IMediatorMap;
 	// used internally for communication
-	/** @private */
+	/** 
 	var messenger : Messenger;
 	// Shows if proxy is ready. Read only.
 	var _isReady : Bool;
 	// = false;
 	// amount of pending injections.
-	/** @private */
+	/** 
 	var pendingInjections : Int;
 	// = 0;
 	/** all added message handlers. */
@@ -52,20 +52,22 @@ class Mediator {
 	var eventListenerCaptureRegistry : Dictionary;
 	/* or Dictionary by Function */
 	// Allows Mediator to be constructed. (removed from release build to save some performance.)
-	/** @private */
-	//	CONFIG::debug
-	//	static pureLegsCore var canConstruct:Boolean; // = false;
+	/** 
+	#if debug
+		//static pureLegsCore var canConstruct:Boolean; // = false;
+		static var canConstruct:Boolean; // = false;
+	#end
 	/** CONSTRUCTOR */
 	public function new() {
 		handlerVoRegistry = new Array<HandlerVO>();
 		eventListenerRegistry = new Dictionary();
 		eventListenerCaptureRegistry = new Dictionary();
-		//		CONFIG::debug {
-		//			use namespace pureLegsCore;
-		//			if (!canConstruct) {
-		//				throw Error("Mediator:" + this + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.");
-		//			}
-		//		}
+		#if debug
+			//	use namespace pureLegsCore;
+			if (!canConstruct) {
+				throw Error("Mediator:" + this + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.");
+			}
+		#end
 	}
 
 	//----------------------------------
@@ -97,47 +99,44 @@ class Mediator {
 	//----------------------------------
 	/**
 	 * Sends a message with optional params object inside of current module.
-	 * @param	type	type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params	Object that will be passed to Command execute() function or to handle functions.
+	 * 
+	 * 
 	 */
 	function sendMessage(type : String, params : Dynamic = null) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		// log the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceMediator_sendMessage(moduleName, this, type, params, true));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceMediator_sendMessage(moduleName, this, type, params, true));
+		#end
 		//
 		messenger.send(type, params);
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceMediator_sendMessage(moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceMediator_sendMessage(moduleName, this, type, params, false));
+		#end
 	}
 
 	/**
 	 * Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type of the message for Commands or Mediator's handle function to react to.
-	 * @param	params		Object that will be passed to Command execute() function and to handle functions.
+	 * 
+	 * 
+	 * 
 	 */
-	function sendScopeMessage(scopeName : String, type : String, params : Dynamic = null) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+	function sendScopeMessage(scopeName : String, type : String, params : Dynamic = null) : Void 
+	{
+		//use namespace pureLegsCore;
 		// log the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceMediator_sendScopeMessage(moduleName, this, type, params, true));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceMediator_sendScopeMessage(moduleName, this, type, params, true));
+		#end
 		//
 		ModuleManager.sendScopeMessage(moduleName, scopeName, type, params);
 		//
 		// clean up logging the action
-		//		CONFIG::debug {
-		//			MvcExpress.debug(new TraceMediator_sendScopeMessage(moduleName, this, type, params, false));
-		//		}
+		#if debug
+			MvcExpress.debug(new TraceMediator_sendScopeMessage(moduleName, this, type, params, false));
+		#end
 	}
 
 	//----------------------------------
@@ -145,8 +144,8 @@ class Mediator {
 	//----------------------------------
 	/**
 	 * adds handle function to be called then message of given type is sent.
-	 * @param	type	message type for handle function to react to.
-	 * @param	handler	function that will be called then needed message is sent. this function must expect one parameter. (you can set your custom type for this param object, or leave it as Object)
+	 * 
+	 * 
 	 */
 	function addHandler(type : String, handler : Dynamic) : Void {
 		//use namespace pureLegsCore;
@@ -169,8 +168,8 @@ class Mediator {
 	/**
 	 * Removes handle function from message of given type.
 	 * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.
-	 * @param	type	message type that was set for handle function to react to.
-	 * @param	handler	function that was set to react to message.
+	 * 
+	 * 
 	 */
 	function removeHandler(type : String, handler : Dynamic) : Void {
 		//use namespace pureLegsCore;
@@ -183,9 +182,7 @@ class Mediator {
 	 * (You don't have to put it in mediators onRemove() function.)
 	 */
 	function removeAllHandlers() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+	//	use namespace pureLegsCore;
 		while(handlerVoRegistry.length) {
 			var handler : HandlerVO = handlerVoRegistry.pop();
 			handler.handler = null;
@@ -198,9 +195,9 @@ class Mediator {
 	//----------------------------------
 	/**
 	 * Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type	message type for handle function to react to.
-	 * @param	handler		function that will be called then needed message is sent. this function must expect one parameter. (you can set your custom type for this param object, or leave it as Object)
+	 * 
+	 * 
+	 * 
 	 */
 	function addScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
 		use;
@@ -211,9 +208,9 @@ class Mediator {
 
 	/**
 	 * Removes module to module communication handle function from message of provided type, sent to provided scopeName.
-	 * @param	scopeName	both sending and receiving modules must use same scope to make module to module communication.
-	 * @param	type		type	message type for handle function to react to.
-	 * @param	handler		function that will be called then needed message is sent. this function must expect one parameter. (you can set your custom type for this param object, or leave it as Object)
+	 * 
+	 * 
+	 * 
 	 */
 	function removeScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
 		use;
@@ -227,16 +224,16 @@ class Mediator {
 	//----------------------------------
 	/**
 	 * Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.
-	 * @param	viewObject	view object that can dispatch events.
-	 * @param	type	The type of event.
-	 * @param	listener	The listener function that processes the event. This function must accept an event object
+	 * 
+	 * 
+	 * 
 	 *   as its only parameter and must return nothing, as this example shows:
 	 *   function(event:Event):void
 	 *   The function can have any name.
-	 * @param	useCapture	Determines whether the listener works in the capture phase or the target and bubbling phases.
-	 * @param	priority	The priority level of the event listener. Priorities are designated by a 32-bit integer. The higher the number, the higher the priority.
+	 * 
+	 * 
 	 *		If two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.
-	 * @param	useWeakReference	Determines whether the reference to the listener is strong or weak.
+	 * 
 	 *		A strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.
 	 */
 	function addListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void {
@@ -265,10 +262,10 @@ class Mediator {
 	/**
 	 * Removes an event listener from the viewObject.
 	 * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.
-	 * @param	viewObject	view object that can dispatch events.
-	 * @param	type		The type of event.
-	 * @param	listener	The listener object to remove.
-	 * @param	useCapture	Specifies whether the listener was registered for the capture phase or the target and bubbling phases.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	function removeListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false) : Void 
 	{
@@ -330,7 +327,7 @@ class Mediator {
 	/**
 	 * marks mediator as ready and calls onRegister()
 	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))
-	 * @private */
+	 * 
 	function register() : Void {
 		_isReady = true;
 		onRegister();
@@ -343,12 +340,10 @@ class Mediator {
 	 * - remove all handle functions created by this mediator																	<br>
 	 * - remove all event listeners created by internal addListener() function													<br>
 	 * - sets internals to null																									<br>
-	 * @private
+	 * 
 	 */
 	function remove() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		onRemove();
 		removeAllHandlers();
 		removeAllListeners();

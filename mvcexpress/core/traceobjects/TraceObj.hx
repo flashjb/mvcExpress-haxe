@@ -1,8 +1,8 @@
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 /**
  * Base of all trace objects.
- * @author Raimundas Banevicius (http://www.mindscriptact.com/)
- * @private
+ * 
+ * 
  */
 package mvcexpress.core.traceobjects;
 
