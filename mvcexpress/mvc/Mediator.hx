@@ -17,16 +17,15 @@ import mvcexpress.core.interfaces.IMediatorMap;
 import mvcexpress.core.interfaces.IProxyMap;
 import mvcexpress.core.messenger.HandlerVO;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 
 class Mediator {
-	var isReady(getIsReady, never) : Bool;
+	var isReady(get_isReady, never) : Bool;
 
 	// name of module this mediator is working in.
-	/** 
 	var moduleName : String;
 	public var proxyMap : IProxyMap;
 	/**
@@ -34,13 +33,11 @@ class Mediator {
 	 */
 	public var mediatorMap : IMediatorMap;
 	// used internally for communication
-	/** 
 	var messenger : Messenger;
 	// Shows if proxy is ready. Read only.
 	var _isReady : Bool;
 	// = false;
 	// amount of pending injections.
-	/** 
 	var pendingInjections : Int;
 	// = 0;
 	/** all added message handlers. */
@@ -52,10 +49,9 @@ class Mediator {
 	var eventListenerCaptureRegistry : Dictionary;
 	/* or Dictionary by Function */
 	// Allows Mediator to be constructed. (removed from release build to save some performance.)
-	/** 
 	#if debug
 		//static pureLegsCore var canConstruct:Boolean; // = false;
-		static var canConstruct:Boolean; // = false;
+		public static var canConstruct:Bool; // = false;
 	#end
 	/** CONSTRUCTOR */
 	public function new() {
@@ -65,7 +61,7 @@ class Mediator {
 		#if debug
 			//	use namespace pureLegsCore;
 			if (!canConstruct) {
-				throw Error("Mediator:" + this + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.");
+				throw ("Mediator:" + this + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.");
 			}
 		#end
 	}
@@ -90,7 +86,7 @@ class Mediator {
 	/**
 	 * Indicates if mediator is ready for usage. (all dependencies are injected.)
 	 */
-	function getIsReady() : Bool {
+	function get_isReady() : Bool {
 		return _isReady;
 	}
 
@@ -151,14 +147,14 @@ class Mediator {
 		//use namespace pureLegsCore;
 		#if debug
 			if (handler.length < 1) {
-				throw Error("Every message handler function needs at least one parameter. You are trying to add handler function from " + getQualifiedClassName(this) + " for message type:" + type);
+				throw ("Every message handler function needs at least one parameter. You are trying to add handler function from " +  Type.getClassName(Type.getClass(Type.typeof(this))) + " for message type:" + type);
 			}
-			if (!Boolean(type) || type == "null" || type == "undefined") {
-				throw Error("Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + this + ")");
+			if (!cast(type, Bool) || type == "null" || type == "undefined") {
+				throw ("Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + this + ")");
 			}
 			MvcExpress.debug(new TraceMediator_addHandler(moduleName, this, type, handler));
 	
-			handlerVoRegistry[handlerVoRegistry.length] = messenger.addHandler(type, handler, getQualifiedClassName(this));
+			handlerVoRegistry[handlerVoRegistry.length] = messenger.addHandler(type, handler,  Type.getClassName(Type.getClass(Type.typeof(this))));
 			return;
 		#end
 		
@@ -200,9 +196,7 @@ class Mediator {
 	 * 
 	 */
 	function addScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		handlerVoRegistry[handlerVoRegistry.length] = ModuleManager.addScopeHandler(moduleName, scopeName, type, handler);
 	}
 
@@ -213,9 +207,7 @@ class Mediator {
 	 * 
 	 */
 	function removeScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		ModuleManager.removeScopeHandler(scopeName, type, handler);
 	}
 
@@ -297,15 +289,15 @@ class Mediator {
 	 */
 	function removeAllListeners() : Void 
 	{
+		var eventTypes : Dictionary;
 		for( l in Reflect.fields(eventListenerCaptureRegistry) ) 
 		{
 			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
-			var eventTypes : Dictionary = eventListenerCaptureRegistry[ listener ];
+			eventTypes = eventListenerCaptureRegistry[ listener ];
 			for( type in Reflect.fields(eventTypes)) {
 				var viewObject : IEventDispatcher = eventTypes[type];
-				viewObject.removeEventListener(type, listener, true);
+					viewObject.removeEventListener(type, listener, true);
 			}
-
 		}
 
 		for( l in Reflect.fields(eventListenerRegistry) ) 
@@ -313,10 +305,9 @@ class Mediator {
 			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
 			eventTypes = eventListenerRegistry[listener];
 			for(type in Reflect.fields(eventTypes)) {
-				viewObject = eventTypes[type];
-				viewObject.removeEventListener(type, listener, false);
+				var viewObject : IEventDispatcher = eventTypes[type];
+					viewObject.removeEventListener(type, listener, false);
 			}
-
 		}
 
 	}
@@ -327,7 +318,7 @@ class Mediator {
 	/**
 	 * marks mediator as ready and calls onRegister()
 	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))
-	 * 
+	 */
 	function register() : Void {
 		_isReady = true;
 		onRegister();

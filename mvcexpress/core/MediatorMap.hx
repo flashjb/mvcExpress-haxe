@@ -10,7 +10,7 @@ import flash.utils.Dictionary;
 import mvcexpress.MvcExpress;
 import mvcexpress.core.interfaces.IMediatorMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_map;
 import mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_mediate;
 import mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmap;
@@ -62,14 +62,14 @@ class MediatorMap implements IMediatorMap {
 		//			use namespace pureLegsCore;
 			MvcExpress.debug(new TraceMediatorMap_map(moduleName, viewClass, mediatorClass));
 		//			// check if mediatorClass is subclass of Mediator class
-			if (!MvcExpressTools.checkClassSuperclass(mediatorClass, "mvcexpress.mvc.Mediator")) {
-				throw Error("mediatorClass:" + mediatorClass + " you are trying to map is not extended from 'mvcexpress.mvc::Mediator' class.");
+			if (!MvcExpressTools.checkClassSuperClass(mediatorClass, Mediator)) {
+				throw ("mediatorClass:" + mediatorClass + " you are trying to map is not extended from 'mvcexpress.mvc::Mediator' class.");
 			}
 		#end
 		
 		// check if mapping is not created already
 		if(mediatorClassRegistry[viewClass])  {
-			throw cast(("Mediator class:" + mediatorClassRegistry[viewClass] + " is already mapped with this view class:" + viewClass + ""), Error);
+			throw ("Mediator class:" + mediatorClassRegistry[viewClass] + " is already mapped with this view class:" + viewClass + "");
 		}
 		mediatorClassRegistry[viewClass] = mediatorClass;
 		// map injectClass to viewClass
@@ -128,7 +128,7 @@ class MediatorMap implements IMediatorMap {
 			var mediator : Mediator = new MediatorClass();
 			// debug this action
 			#if debug
-				MvcExpress.debug(new TraceMediatorMap_mediate(moduleName, viewObject, mediator, viewClass, mediatorClass, getQualifiedClassName(mediatorClass)));
+				MvcExpress.debug(new TraceMediatorMap_mediate(moduleName, viewObject, mediator, viewClass, mediatorClass, Type.getClassName(mediatorClass)));
 			#end
 			//
 			#if debug

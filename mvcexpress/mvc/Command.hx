@@ -20,7 +20,7 @@ import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.command.TraceCommand_sendMessage;
 import mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage;
 
@@ -42,7 +42,7 @@ class Command
 	
 
 	#if debug
-		static var canConstruct:Bool; // = false;
+		static public var canConstruct:Bool; // = false;
 		//static pureLegsCore var canConstruct:Boolean; // = false;
 	#end
 

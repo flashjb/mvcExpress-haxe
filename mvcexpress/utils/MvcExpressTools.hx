@@ -7,13 +7,13 @@
  */
 package mvcexpress.utils;
 
-import flash.utils.Dictionary;
+
 
 class MvcExpressTools 
 {
 	static public var checkClassStringConstants = Reflect.makeVarArgs(_checkClassStringConstants);
 	
-	static public function checkClassSuperClass( classObject:Class, superClass:Class )
+	static public function checkClassSuperClass( classObject:Class<Dynamic>, superClass:Class<Dynamic> )
 	{
 		return Std.is(Type.getSuperClass(classObject), superClass); 
 	}
@@ -23,10 +23,10 @@ class MvcExpressTools
 		for( p in args ) 
 		{
 			var constantClass : Class<Dynamic> = cast( p, Class<Dynamic> );
-			if( constantClass )  
+			if( constantClass != null )  
 			{
 				// check if class is already analyzed.
-				if( Reflect.hasField(StringConstantRegistry.registeredClasses) && Reflect.field(StringConstantRegistry.registeredClasses) != true )  
+				if( StringConstantRegistry.registeredClasses.exists(constantClass) && StringConstantRegistry.registeredClasses.get(constantClass) != true )  
 				{
 					for (j in Reflect.fields(constantClass) ) 
 					{
@@ -34,17 +34,17 @@ class MvcExpressTools
 						if( Std.is( value, String) )  
 						{
 							if( Reflect.hasField(StringConstantRegistry.stringRegistry, value) )  {
-								throw cast(("Class " + constantClass + " and " + Reflect.field(StringConstantRegistry.stringRegistry, value) + " have same string constant value : " + constantValue), Error);
+								throw ("Class " + constantClass + " and " + Reflect.field(StringConstantRegistry.stringRegistry, value) + " have same string constant value : " + value);
 							} else {
 								Reflect.setField(StringConstantRegistry.stringRegistry, value, constantClass);
 							}
 						}
 					}
-					Reflect.setField(StringConstantRegistry.registeredClasses, true);
+					StringConstantRegistry.registeredClasses.set(constantClass , true);
 				}
 				
 			} else {
-				throw cast(("Please send Class names to checkClassStringConstants() only(not object or strings)."), Error);
+				throw ("Please send Class names to checkClassStringConstants() only(not object or strings).");
 			}
 		}
 	}
@@ -53,8 +53,8 @@ class MvcExpressTools
 class StringConstantRegistry 
 {
 
-	static public var registeredClasses : Map = new Map();
+	static public var registeredClasses : Map<Class<Dynamic>, Bool> = new Map();
 	/* of Boolean by Class */
-	static public var stringRegistry : Map = new Map();
+	static public var stringRegistry : Map<Class<Dynamic>, String> = new Map();
 	/* of Class by String */
 }

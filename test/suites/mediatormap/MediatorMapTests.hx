@@ -12,7 +12,7 @@ import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 import mvcexpress.core.messenger.Messenger;
 import mvcexpress.mvc.Mediator;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.MvcExpress;
 import suites.mediatormap.medatormaptestobj.MediatorMapTestSprite;
 import suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator;
@@ -29,9 +29,7 @@ class MediatorMapTests {
 	var callsExpected : Int;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -43,9 +41,7 @@ class MediatorMapTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;
 		mediatorMap = null;

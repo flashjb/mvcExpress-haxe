@@ -8,7 +8,7 @@ package suites.messenger;
 import mvcexpress.core.messenger.HandlerVO;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 
 import utils.Assert;
 import utils.AsyncUtil;
@@ -18,9 +18,7 @@ class MessengerTests {
 	var messenger : Messenger;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -28,9 +26,7 @@ class MessengerTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		messenger = null;
 	}
 

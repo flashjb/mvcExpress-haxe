@@ -20,5 +20,10 @@ class InjectRuleVO {
 			return "[InjectRuleVO varName=" + varName + " injectClassAndName=" + injectClassAndName + " scopeName=" + scopeName + "]";
 		}
 	#end
+	
+	
+	
+	
+	public function new(){}
 }
 

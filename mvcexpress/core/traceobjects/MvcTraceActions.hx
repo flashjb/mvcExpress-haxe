@@ -6,7 +6,7 @@
  */
 package mvcexpress.core.traceobjects;
 
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 
 class MvcTraceActions {
 
@@ -34,24 +34,24 @@ class MvcTraceActions {
 	//----------------------------------
 	//     For internal use
 	//----------------------------------
-	static var PROXYMAP_INJECTSTUFF : String = "ProxyMap.injectStuff";
-	static var MESSENGER_SEND_HANDLER : String = "Messenger.send.HANDLER";
-	static var MODULEBASE_SENDMESSAGE : String = "ModuleBase.sendMessage";
-	static var MODULEBASE_SENDMESSAGE_CLEAN : String = "ModuleBase.sendMessage.CLEAN";
-	static var MODULEBASE_SENDSCOPEMESSAGE : String = "ModuleBase.sendScopeMessage";
-	static var MODULEBASE_SENDSCOPEMESSAGE_CLEAN : String = "ModuleBase.sendScopeMessage.CLEAN";
-	static var COMMAND_SENDMESSAGE : String = "Command.sendMessage";
-	static var COMMAND_SENDMESSAGE_CLEAN : String = "Command.sendMessage.CLEAN";
-	static var COMMAND_SENDSCOPEMESSAGE : String = "Command.sendScopeMessage";
-	static var COMMAND_SENDSCOPEMESSAGE_CLEAN : String = "Command.sendScopeMessage.CLEAN";
-	static var MEDIATOR_SENDMESSAGE : String = "Mediator.sendMessage";
-	static var MEDIATOR_SENDMESSAGE_CLEAN : String = "Mediator.sendMessage.CLEAN";
-	static var MEDIATOR_SENDSCOPEMESSAGE : String = "Mediator.sendScopeMessage";
-	static var MEDIATOR_SENDSCOPEMESSAGE_CLEAN : String = "Mediator.sendScopeMessage.CLEAN";
-	static var MEDIATOR_ADDHANDLER : String = "Mediator.addHandler";
-	static var PROXY_SENDMESSAGE : String = "Proxy.sendMessage";
-	static var PROXY_SENDMESSAGE_CLEAN : String = "Proxy.sendMessage.CLEAN";
-	static var PROXY_SENDSCOPEMESSAGE : String = "Proxy.sendScopeMessage";
-	static var PROXY_SENDSCOPEMESSAGE_CLEAN : String = "Proxy.sendScopeMessage.CLEAN";
+	static public var PROXYMAP_INJECTSTUFF : String = "ProxyMap.injectStuff";
+	static public var MESSENGER_SEND_HANDLER : String = "Messenger.send.HANDLER";
+	static public var MODULEBASE_SENDMESSAGE : String = "ModuleBase.sendMessage";
+	static public var MODULEBASE_SENDMESSAGE_CLEAN : String = "ModuleBase.sendMessage.CLEAN";
+	static public var MODULEBASE_SENDSCOPEMESSAGE : String = "ModuleBase.sendScopeMessage";
+	static public var MODULEBASE_SENDSCOPEMESSAGE_CLEAN : String = "ModuleBase.sendScopeMessage.CLEAN";
+	static public var COMMAND_SENDMESSAGE : String = "Command.sendMessage";
+	static public var COMMAND_SENDMESSAGE_CLEAN : String = "Command.sendMessage.CLEAN";
+	static public var COMMAND_SENDSCOPEMESSAGE : String = "Command.sendScopeMessage";
+	static public var COMMAND_SENDSCOPEMESSAGE_CLEAN : String = "Command.sendScopeMessage.CLEAN";
+	static public var MEDIATOR_SENDMESSAGE : String = "Mediator.sendMessage";
+	static public var MEDIATOR_SENDMESSAGE_CLEAN : String = "Mediator.sendMessage.CLEAN";
+	static public var MEDIATOR_SENDSCOPEMESSAGE : String = "Mediator.sendScopeMessage";
+	static public var MEDIATOR_SENDSCOPEMESSAGE_CLEAN : String = "Mediator.sendScopeMessage.CLEAN";
+	static public var MEDIATOR_ADDHANDLER : String = "Mediator.addHandler";
+	static public var PROXY_SENDMESSAGE : String = "Proxy.sendMessage";
+	static public var PROXY_SENDMESSAGE_CLEAN : String = "Proxy.sendMessage.CLEAN";
+	static public var PROXY_SENDSCOPEMESSAGE : String = "Proxy.sendScopeMessage";
+	static public var PROXY_SENDSCOPEMESSAGE_CLEAN : String = "Proxy.sendScopeMessage.CLEAN";
 }
 

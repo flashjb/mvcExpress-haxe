@@ -11,12 +11,12 @@ import mvcexpress.MvcExpress;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.interfaces.IProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage;
 
 class Proxy {
-	var isReady(getIsReady, never) : Bool;
+	var isReady(get_isReady, never) : Bool;
 
 	/**
 	 * Interface to work with proxies.
@@ -26,14 +26,12 @@ class Proxy {
 	var _isReady : Bool;
 	// = false;
 	// used internally for communication
-	/** 
 	var messenger : Messenger;
 	// for sending scoped messages then injected by scope.
 	var proxyScopes : Array<String>;
 	// for pooled command classes that are dependant on this proxy.
 	var dependantCommands : Dictionary;
 	// amount of pending injections.
-	/** 
 	var pendingInjections : Int;
 	// = 0;
 	/** CONSTRUCTOR */
@@ -62,7 +60,7 @@ class Proxy {
 	/**
 	 * Indicates if proxy is ready for usage. (all dependencies are injected.)
 	 */
-	function getIsReady() : Bool {
+	function get_isReady() : Bool {
 		return _isReady;
 	}
 
@@ -75,9 +73,7 @@ class Proxy {
 	 * 
 	 */
 	function sendMessage(type : String, params : Dynamic = null) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var moduleName : String = messenger.moduleName;
 		// log the action
 		#if debug

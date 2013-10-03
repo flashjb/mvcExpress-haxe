@@ -10,13 +10,13 @@ package mvcexpress.core;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage;
 import mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage;
 
 class ModuleBase {
-	public var moduleName(getModuleName, never) : String;
-	var messenger(getMessenger, never) : Messenger;
+	public var moduleName(get_moduleName, never) : String;
+	var messenger(get_messenger, never) : Messenger;
 
 	// defines if class can be instantiated.
 	static var allowInstantiation : Bool;
@@ -34,11 +34,9 @@ class ModuleBase {
 	 * Internal framework class. Not meant to be constructed.
 	 */
 	public function new(moduleName : String, autoInit : Bool) {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		if(!allowInstantiation)  {
-			throw cast(("ModuleBase is framework internal class and is not meant to be instantiated. Use ModuleCore, ModuleSprite or other module classes instead."), Error);
+			throw  "ModuleBase is framework internal class and is not meant to be instantiated. Use ModuleCore, ModuleSprite or other module classes instead." ;
 		}
 		_moduleName = moduleName;
 		if(autoInit)  {
@@ -49,7 +47,7 @@ class ModuleBase {
 	/**
 	 * Module name
 	 */
-	public function getModuleName() : String {
+	public function get_moduleName() : String {
 		return _moduleName;
 	}
 
@@ -57,7 +55,7 @@ class ModuleBase {
 	 * framework access to module messenger
 	 * 
 	 */
-	function getMessenger() : Messenger {
+	function get_messenger() : Messenger {
 		return _messenger;
 	}
 
@@ -72,9 +70,7 @@ class ModuleBase {
 	// 
 	// 						(or you start getting null reference errors.)
 	static public function getModuleInstance(moduleName : String, autoInit : Bool) : ModuleBase {
-		use;
-		namespace;
-		pureLegsCore;
+	//	use namespace pureLegsCore;
 		var retVal : ModuleBase;
 		allowInstantiation = true;
 		retVal = new ModuleBase(moduleName, autoInit);
@@ -88,11 +84,9 @@ class ModuleBase {
 	// Initializes module. If this function is not called module will not work.
 	// By default it is called in constructor.
 	public function initModule() : Void {
-		use;
-		namespace;
-		pureLegsCore;
-		if(_messenger)  {
-			throw cast(("Module can be initiated only once."), Error);
+	//	use namespace pureLegsCore;
+		if( _messenger != null )  {
+			throw  "Module can be initiated only once.";
 		}
 		Messenger.allowInstantiation = true;
 		_messenger = new Messenger(_moduleName);
@@ -103,7 +97,7 @@ class ModuleBase {
 		// check if flex is used.
 		var uiComponentClass : Class<Dynamic> = getFlexClass();
 		// if flex is used - special FlexMediatorMap Class is instantiated that wraps mediate() and unmediate() functions to handle flex 'creationComplete' issues.
-		if(uiComponentClass)  {
+		if( uiComponentClass )  {
 			mediatorMap = new FlexMediatorMap(_moduleName, _messenger, proxyMap, uiComponentClass);
 		}
 
@@ -125,19 +119,17 @@ class ModuleBase {
 	// - All module proxies are unmapped
 	// - All internals are nulled.
 	public function disposeModule() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		//
-		if(commandMap)  {
+		if( commandMap != null ) {
 			commandMap.dispose();
 			commandMap = null;
 		}
-		if(mediatorMap)  {
+		if( mediatorMap != null ) {
 			mediatorMap.dispose();
 			mediatorMap = null;
 		}
-		if(proxyMap)  {
+		if( proxyMap != null ) {
 			proxyMap.dispose();
 			proxyMap = null;
 		}
@@ -176,9 +168,7 @@ class ModuleBase {
 	 * 
 	 */
 	public function sendScopeMessage(scopeName : String, type : String, params : Dynamic) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		// log the action
 		#if debug
 			MvcExpress.debug(new TraceModuleBase_sendScopeMessage(_moduleName, this, type, params, true));
@@ -225,7 +215,7 @@ class ModuleBase {
 	/** get flex lowest class by definition. ( way to check for flex project.) */
 	static function getFlexClass() : Class<Dynamic> 
 	{
-		return Type.getClass("mx.core.UIComponent");
+		return Type.resolveClass("mx.core.UIComponent");
 	}
 
 	//----------------------------------

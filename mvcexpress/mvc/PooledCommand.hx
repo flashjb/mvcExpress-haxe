@@ -6,21 +6,21 @@
  */
 package mvcexpress.mvc;
 
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 
 class PooledCommand extends Command {
-	public var isLocked(getIsLocked, never) : Bool;
+	public var isLocked(get_isLocked, never) : Bool;
 
 	/**
 	 * Stores information if command is locked from automatic pooling by user.
-	 * 
+	 */
 	var _isLocked : Bool;
 	// = false;
 	/**
 	 * Shows if command is locked, and will not be automatically pooling after execution, or not.
 	 * Asynchronous PooledCommand must be locked then used, and unlocked then they are done with there work.
 	 */
-	public function getIsLocked() : Bool {
+	public function get_isLocked() : Bool {
 		return _isLocked;
 	}
 
@@ -40,9 +40,7 @@ class PooledCommand extends Command {
 	public function unlock() : Void {
 		if(_isLocked)  {
 			_isLocked = false;
-			use;
-			namespace;
-			pureLegsCore;
+			//use namespace pureLegsCore
 			if(isExecuting)  {
 				commandMap.poolCommand(this);
 			}

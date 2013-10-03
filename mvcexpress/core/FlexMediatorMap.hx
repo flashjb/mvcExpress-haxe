@@ -17,9 +17,9 @@ class FlexMediatorMap extends MediatorMap {
 
 	var uiComponentClass : Class<Dynamic>;
 	/* CONSTRUCTOR */
-	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap, $uiComponentClass : Class<Dynamic>) {
+	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap, uiComponentClass : Class<Dynamic>) {
 		super(moduleName, messenger, proxyMap);
-		uiComponentClass = $uiComponentClass;
+		this.uiComponentClass = uiComponentClass;
 	}
 
 	/**

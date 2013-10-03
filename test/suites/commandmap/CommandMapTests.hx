@@ -11,7 +11,7 @@ import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 import suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand;
 import suites.commandmap.commands.ExtendedSuperParamCommand;
 import suites.commandmap.commands.NoExecuteCommand;
@@ -34,9 +34,7 @@ class CommandMapTests {
 	var testParamObject : ExtendedTestObject;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -50,9 +48,7 @@ class CommandMapTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;
 		commandMap = null;

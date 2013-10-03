@@ -6,7 +6,7 @@
  */
 package mvcexpress.core.traceobjects.command;
 
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.MvcTraceActions;
 import mvcexpress.core.traceobjects.TraceObj_SendMessage;
 import mvcexpress.mvc.Command;
@@ -19,7 +19,7 @@ class TraceCommand_sendScopeMessage extends TraceObj_SendMessage
 	public function new(moduleName : String, commandObject : Command, type : String, params : Dynamic, preSend : Bool) 
 	{
 		//use namespace pureLegsCore;
-		super((((preSend)) ? MvcTraceActions.COMMAND_SENDSCOPEMESSAGE : MvcTraceActions.COMMAND_SENDSCOPEMESSAGE_CLEAN), moduleName);
+		super( preSend ? MvcTraceActions.COMMAND_SENDSCOPEMESSAGE : MvcTraceActions.COMMAND_SENDSCOPEMESSAGE_CLEAN, moduleName );
 		this.commandObject = commandObject;
 		this.type = type;
 		this.params = params;

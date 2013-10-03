@@ -6,7 +6,7 @@
  */
 package mvcexpress.core.traceobjects.command;
 
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.MvcTraceActions;
 import mvcexpress.core.traceobjects.TraceObj_SendMessage;
 import mvcexpress.mvc.Command;

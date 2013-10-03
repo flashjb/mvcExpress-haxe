@@ -13,7 +13,7 @@ import mvcexpress.core.inject.PendingInject;
 import mvcexpress.core.inject.TestInject;
 import mvcexpress.core.messenger.HandlerVO;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule;
 import mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_disposeModule;
 import mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_registerScope;
@@ -45,23 +45,20 @@ class ModuleManager {
 	/* of Dictionary (of ScopePermissionData by scopeName String) by moduleName String */
 	/** CONSTRUCTOR */
 	public function new() {
-		throw cast(("ModuleFactory is static framework class for internal use. Not meant to be instantiated."), Error);
+		throw "ModuleFactory is static framework class for internal use. Not meant to be instantiated.";
 	}
 
 	/**
 	 * Creates new module for given name.
 	 * 
-	 * 
-	 * 
-	 * 
 	 */
-	static function createModule(moduleName : String, autoInit : Bool) : ModuleBase {
+	static public function createModule(moduleName : String, autoInit : Bool) : ModuleBase {
 		// tests if framework can read 'Inject' metadata tag.
-		if(needMetadataTest)  {
+		if( needMetadataTest )  {
 			needMetadataTest = false;
 			var injectTest : TestInject = new TestInject();
 			if(!injectTest.testInjectMetaTag())  {
-				throw cast(("mvcExpress framework failed to use 'Inject' metadata. Please add '-keep-as3-metadata+=Inject' to compile arguments."), Error);
+				throw  "mvcExpress framework failed to use 'Inject' metadata. Please add '-keep-as3-metadata+=Inject' to compile arguments.";
 			}
 		}
 		var retVal : ModuleBase;
@@ -97,9 +94,7 @@ class ModuleManager {
 	 * 
 	 */
 	static function getMessenger(moduleName : String) : Messenger {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		return moduleRegistry[moduleName].messenger;
 	}
 
@@ -153,42 +148,38 @@ class ModuleManager {
 	//----------------------------------
 	//     message scoping
 	//----------------------------------
-	/** sends scoped message
-	 * 
-	static function sendScopeMessage(moduleName : String, scopeName : String, type : String, params : Dynamic, checkPermisions : Bool = true) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+	/** sends scoped message*/
+	static public function sendScopeMessage (moduleName : String, scopeName : String, type : String, params : Dynamic, checkPermisions : Bool = true) : Void {
+		//use namespace pureLegsCore;
+		var scopePermission : ScopePermissionData;
 		if(checkPermisions)  {
 			// get permission object
 			if(scopePermissionsRegistry[moduleName])  {
-				var scopePermission : ScopePermissionData = scopePermissionsRegistry[moduleName][scopeName];
+				scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 			}
-			if(!scopePermission || !scopePermission.messageSending)  {
+			if( scopePermission != null || !scopePermission.messageSending)  {
 				throw cast(("Module with name:" + moduleName + " has no permition to send messages to scope:" + scopeName + ". Please use: registerScopeTest() function."), Error);
 			}
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
-		if(scopeMesanger)  {
+		if( scopeMesanger ) {
 			scopeMesanger.send(scopeName + "_^~_" + type, params);
 		}
 	}
 
-	/** add scoped handler
-	 * 
+	/** add scoped handler */
 	static function addScopeHandler(moduleName : String, scopeName : String, type : String, handler : Dynamic) : HandlerVO {
 		// get permission object
-		if(scopePermissionsRegistry[moduleName])  {
-			var scopePermission : ScopePermissionData = scopePermissionsRegistry[moduleName][scopeName];
+		var scopePermission : ScopePermissionData;
+		if( scopePermissionsRegistry[moduleName] ) {
+			scopePermission = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if(!scopePermission || !scopePermission.messageReceiving)  {
-			throw cast(("Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function."), Error);
+		if( scopePermission != null || !scopePermission.messageReceiving)  {
+			throw ("Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
 		if(!scopeMesanger)  {
-			use;
-			namespace;
-			pureLegsCore;
+			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopeMesanger = new Messenger("$scope_" + scopeName);
 			Messenger.allowInstantiation = false;
@@ -197,8 +188,7 @@ class ModuleManager {
 		return scopeMesanger.addHandler(scopeName + "_^~_" + type, handler);
 	}
 
-	/** remove scoped handler
-	 * 
+	/** remove scoped handler*/
 	static function removeScopeHandler(scopeName : String, type : String, handler : Dynamic) : Void {
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
 		if(scopeMesanger)  {
@@ -220,17 +210,16 @@ class ModuleManager {
 	 */
 	static function scopedCommandMap(moduleName : String, handleCommandExecute : Dynamic, scopeName : String, type : String, commandClass : Class<Dynamic>) : HandlerVO {
 		// get permission object
-		if(scopePermissionsRegistry[moduleName])  {
-			var scopePermission : ScopePermissionData = scopePermissionsRegistry[moduleName][scopeName];
+		var scopePermission : ScopePermissionData;
+		if( scopePermissionsRegistry[moduleName] )  {
+			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if(!scopePermission || !scopePermission.messageReceiving)  {
-			throw cast(("Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function."), Error);
+		if( scopePermission  != null || !scopePermission.messageReceiving)  {
+			throw ("Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
 		if(!scopeMesanger)  {
-			use;
-			namespace;
-			pureLegsCore;
+			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopeMesanger = new Messenger("$scope_" + scopeName);
 			Messenger.allowInstantiation = false;
@@ -253,15 +242,14 @@ class ModuleManager {
 	 */
 	static function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void {
 		// get permission object
-		if(scopePermissionsRegistry[moduleName])  {
-			var scopePermission : ScopePermissionData = scopePermissionsRegistry[moduleName][scopeName];
+		var scopePermission : ScopePermissionData;
+		if( scopePermissionsRegistry[moduleName] )  {
+			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if(!scopePermission || !scopePermission.proxieMapping)  {
-			throw cast(("Module with name:" + moduleName + " has no permition to map proxies to scope:" + scopeName + ". Please use: registerScopeTest() function."), Error);
+		if( scopePermission != null || !scopePermission.proxieMapping)  {
+			throw ("Module with name:" + moduleName + " has no permition to map proxies to scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
-		use;
-		namespace;
-		pureLegsCore;
+	//	use namespace pureLegsCore;
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[scopeName];
 		if(!scopedProxyMap)  {
 			initScopedProxyMap(scopeName);
@@ -326,12 +314,10 @@ class ModuleManager {
 	static function injectScopedProxy(recipientObject : Dynamic, injectRule : InjectRuleVO) : Bool {
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[injectRule.scopeName];
 		if(scopedProxyMap)  {
-			use;
-			namespace;
-			pureLegsCore;
-			var ijectProxy : Proxy = scopedProxyMap.getProxyById(injectRule.injectClassAndName);
-			if(ijectProxy)  {
-				recipientObject[injectRule.varName] = ijectProxy;
+			//use namespace pureLegsCore;
+			var injectProxy : Proxy = scopedProxyMap.getProxyById(injectRule.injectClassAndName);
+			if( injectProxy != null  )  {
+				recipientObject[injectRule.varName] = injectProxy;
 				return true;
 			}
 		}
@@ -346,9 +332,7 @@ class ModuleManager {
 	 * 
 	 */
 	static function addPendingScopedInjection(scopeName : String, injectClassAndName : String, pendingInject : PendingInject) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		var scopedProxyMap : ProxyMap = scopedProxyMaps[scopeName];
 		if(!scopedProxyMap)  {
 			initScopedProxyMap(scopeName);
@@ -364,9 +348,7 @@ class ModuleManager {
 	static function initScopedProxyMap(scopeName : String) : Void {
 		var scopedMesanger : Messenger = scopedMessengers[scopeName];
 		if(!scopedMesanger)  {
-			use;
-			namespace;
-			pureLegsCore;
+			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopedMesanger = new Messenger("$scope_" + scopeName);
 			Messenger.allowInstantiation = false;
@@ -378,7 +360,7 @@ class ModuleManager {
 	//----------------------------------
 	//     Scope managment
 	//----------------------------------
-	static function registerScope(moduleName : String, scopeName : String, messageSending : Bool, messageReceiving : Bool, proxieMapping : Bool) : Void {
+	static public function registerScope(moduleName : String, scopeName : String, messageSending : Bool, messageReceiving : Bool, proxieMapping : Bool) : Void {
 		// debug this action
 		#if debug
 		//	use namespace pureLegsCore;
@@ -399,7 +381,7 @@ class ModuleManager {
 		scopePermission.proxieMapping = proxieMapping;
 	}
 
-	static function unregisterScope(moduleName : String, scopeName : String) : Void 
+	static public function unregisterScope(moduleName : String, scopeName : String) : Void 
 	{
 		//		// debug this action
 		#if debug
@@ -438,11 +420,7 @@ class ModuleManager {
 		if(moduleRegistry[moduleName])  {
 			return  cast(moduleRegistry[moduleName], ModuleBase).listMappedMessages();
 		}
-
-		else  {
-			return "Module with name :" + moduleName + " is not found.";
-		}
-
+		return "Module with name :" + moduleName + " is not found.";
 	}
 
 	static public function listMappedMediators(moduleName : String) : String 
@@ -450,30 +428,23 @@ class ModuleManager {
 		if(moduleRegistry[moduleName])  {
 			return  cast(moduleRegistry[moduleName], ModuleBase).listMappedMediators();
 		}
-
-		else  {
-			return "Module with name :" + moduleName + " is not found.";
-		}
-
+		return "Module with name :" + moduleName + " is not found.";
 	}
 
 	static public function listMappedProxies(moduleName : String) : String 
 	{
 		if(moduleRegistry[moduleName])  {
 			return cast(moduleRegistry[moduleName], ModuleBase).listMappedProxies();
-		}else{
-			return "Module with name :" + moduleName + " is not found.";
 		}
-
+		return "Module with name :" + moduleName + " is not found.";
 	}
 
-	static public function listMappedCommands(moduleName : String) : String {
+	static public function listMappedCommands(moduleName : String) : String 
+	{
 		if(moduleRegistry[moduleName])  {
 			return cast(moduleRegistry[moduleName], ModuleBase).listMappedCommands();
-		}else {
-			return "Module with name :" + moduleName + " is not found.";
-		}
-
+		} 
+		return "Module with name :" + moduleName + " is not found.";
 	}
 
 	static function listModuleMessageCommands(moduleName : String, key : String) : String 
@@ -481,14 +452,16 @@ class ModuleManager {
 		//use namespace pureLegsCore;
 		if(moduleRegistry[moduleName])  {
 			return cast(cast(moduleRegistry[moduleName], ModuleBase).commandMap.listMessageCommands(key), String);
-		}else{
-			return "Module with name :" + moduleName + " is not found.";
 		}
+
+		return "Module with name :" + moduleName + " is not found.";
 	}
 }
 
 class ScopedProxyData {
 
+	public function new (){}
+	
 	public var scopedProxy : Proxy;
 	public var scopeName : String;
 	public var injectClass : Class<Dynamic>;
@@ -498,6 +471,8 @@ class ScopedProxyData {
 
 class ScopePermissionData {
 
+	public function new (){}
+	
 	public var messageSending : Bool;
 	public var messageReceiving : Bool;
 	public var proxieMapping : Bool;

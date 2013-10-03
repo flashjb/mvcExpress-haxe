@@ -8,7 +8,7 @@ import utils.Assert;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 import suites.proxymap.proxytestobj.ITestProxy;
 import suites.proxymap.proxytestobj.TestProxy;
 import suites.proxymap.namedproxytestobj.NamedProxyTestingProxy;
@@ -20,9 +20,7 @@ class NamedInterfacedProxyMapTests {
 	var namedTestingProxy : NamedProxyTestingProxy;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -31,18 +29,14 @@ class NamedInterfacedProxyMapTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;
 	}
 
 	
 	public function class_proxy_not_null() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		proxyMap.map(new TestProxy());
 		proxyMap.map(new TestProxy(), ITestProxy);
 		proxyMap.map(new TestProxy(), ITestProxy, "namedProxyInterface");

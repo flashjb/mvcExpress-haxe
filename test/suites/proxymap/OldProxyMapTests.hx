@@ -8,7 +8,7 @@ import utils.Assert;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 import suites.proxymap.proxytestobj.ProxyTestObj;
 import suites.proxymap.proxytestobj.TestProxy;
 
@@ -20,9 +20,7 @@ class OldProxyMapTests {
 	var callsExpected : Int;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -33,9 +31,7 @@ class OldProxyMapTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;
 		callCaunter = 0;
@@ -47,9 +43,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function using_class_proxy() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		proxyMap.map(new TestProxy());
 		var obj1 : ProxyTestObj = new ProxyTestObj();
 		proxyMap.injectStuff(obj1, ProxyTestObj);
@@ -61,9 +55,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function using_class_proxy_twice_both_should_be_equal() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		proxyMap.map(new TestProxy());
 		var obj1 : ProxyTestObj = new ProxyTestObj();
 		var obj2 : ProxyTestObj = new ProxyTestObj();
@@ -86,9 +78,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function using_object_test() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var testProxy : TestProxy = new TestProxy();
 		proxyMap.map(testProxy, TestProxy);
 		var obj1 : ProxyTestObj = new ProxyTestObj();
@@ -101,9 +91,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function using_object_proxy_twice_both_should_be_equal() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var testProxy : TestProxy = new TestProxy();
 		proxyMap.map(testProxy);
 		var obj1 : ProxyTestObj = new ProxyTestObj();
@@ -128,9 +116,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function mappings_does_not_exists_throws_error() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var obj1 : ProxyTestObj = new ProxyTestObj();
 		proxyMap.injectStuff(obj1, ProxyTestObj);
 	}
@@ -140,9 +126,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function removing_class_proxy() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		proxyMap.map(new TestProxy());
 		proxyMap.unmap(TestProxy);
 		var obj1 : ProxyTestObj = new ProxyTestObj();
@@ -154,9 +138,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function removing_object_proxy() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var testProxy : TestProxy = new TestProxy();
 		proxyMap.map(testProxy);
 		proxyMap.unmap(TestProxy);
@@ -169,9 +151,7 @@ class OldProxyMapTests {
 	//----------------------------------
 	
 	public function debug_test_isMapped_false() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var testProxy : TestProxy = new TestProxy();
 		//proxyMap.map(testProxy);
 		Assert.assertFalse("isMapped() should retturn false with NOT mapped proxy.", proxyMap.isMapped(testProxy));
@@ -179,9 +159,7 @@ class OldProxyMapTests {
 
 	
 	public function debug_test_isMapped_true() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		var testProxy : TestProxy = new TestProxy();
 		proxyMap.map(testProxy);
 		Assert.assertTrue("isMapped() should retturn true with mapped proxy.", proxyMap.isMapped(testProxy));

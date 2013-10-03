@@ -5,7 +5,7 @@
  */
 package mvcexpress;
 
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.TraceObj;
 
 class MvcExpress 
@@ -71,7 +71,7 @@ class MvcExpress
 	 */
 	
 #if debug
-	static function debug(traceObj : TraceObj) : Void {
+	static public function debug(traceObj : TraceObj) : Void {
 		//use namespace pureLegsCore;
 		if(debugFunction != null)  {
 			if(traceObj.canPrint)  {

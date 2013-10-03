@@ -7,15 +7,17 @@
 package mvcexpress.core.traceobjects.proxymap;
 
 import mvcexpress.core.inject.InjectRuleVO;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.MvcTraceActions;
 import mvcexpress.core.traceobjects.TraceObj;
 
-class TraceProxyMap_injectStuff extends TraceObj {
+class TraceProxyMap_injectStuff extends TraceObj 
+{
 
 	public var hostObject : Dynamic;
 	public var injectObject : Dynamic;
 	public var rule : InjectRuleVO;
+	
 	public function new(moduleName : String, hostObject : Dynamic, injectObject : Dynamic, rule : InjectRuleVO) {
 		//use namespace pureLegsCore;
 		super(MvcTraceActions.PROXYMAP_INJECTSTUFF, moduleName);

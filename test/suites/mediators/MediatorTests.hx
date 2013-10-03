@@ -7,7 +7,7 @@ package suites.mediators;
 import utils.Assert;
 import mvcexpress.core.MediatorMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+//import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.ProxyMap;
 import suites.testobjects.view.MediatorSprite;
 import suites.testobjects.view.MediatorSpriteMediator;
@@ -20,9 +20,7 @@ class MediatorTests {
 	var testView : MediatorSprite;
 	
 	public function runBeforeEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
@@ -35,9 +33,7 @@ class MediatorTests {
 
 	
 	public function runAfterEveryTest() : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore
 		mediatorMap.unmediate(testView);
 		messenger = null;
 		proxyMap = null;

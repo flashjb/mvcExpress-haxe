@@ -16,5 +16,7 @@ class HandlerVO {
 	#if debug
 		public var handlerClassName:String;
 	#end
+	
+	public function new(){}
 }
 

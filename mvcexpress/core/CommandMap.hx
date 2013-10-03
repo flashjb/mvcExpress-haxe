@@ -6,11 +6,12 @@
 package mvcexpress.core;
 
 
+import flash.utils.Dictionary;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.messenger.HandlerVO;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.commandmap.TraceCommandMap_execute;
 import mvcexpress.core.traceobjects.commandmap.TraceCommandMap_handleCommandExecute;
 import mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map;
@@ -75,8 +76,8 @@ class CommandMap
 		#if debug
 			MvcExpress.debug(new TraceCommandMap_map(moduleName, type, commandClass));
 			validateCommandClass(commandClass);
-			if (!Bool(type) || type == "null" || type == "undefined") {
-				throw "Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + commandClass + ")";
+			if (!cast(type, Bool) || type == "null" || type == "undefined") {
+				throw ("Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + commandClass + ")");
 			}
 		#end
 		
@@ -172,7 +173,7 @@ class CommandMap
 			}
 			command.messageType = null;
 			command.isExecuting = true;
-			command.execute(params);
+			Reflect.callMethod(command, Reflect.field(command,"execute"), params);
 			command.isExecuting = false;
 			// if not locked - pool it.
 			if(!cast(command, PooledCommand).isLocked)  
@@ -185,7 +186,7 @@ class CommandMap
 		else  
 		{
 			command.isExecuting = true;
-			command.execute(params);
+			Reflect.callMethod(command, Reflect.field(command, "execute"), []);
 			command.isExecuting = false;
 		}
 
@@ -203,9 +204,7 @@ class CommandMap
 	 * 
 	 */
 	public function scopeMap(scopeName : String, type : String, commandClass : Class<Dynamic>) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		//
 		var scopedType : String = scopeName + "_^~_" + type;
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
@@ -329,9 +328,9 @@ class CommandMap
 	 * 
 	 */
 	function poolCommand(command : PooledCommand) : Void {
-		var commandClass : Class<Dynamic> = Type.getClass(cast((command), Object).constructor);
+		var commandClass : Class<Dynamic> = Type.getClass( command );
 		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
-		if(pooledCommands)  {
+		if( pooledCommands ) {
 			pooledCommands[pooledCommands.length] = command;
 		}
 	}
@@ -341,9 +340,7 @@ class CommandMap
 	 * 
 	 */
 	function dispose() : Void {
-		//use;
-		//namespace;
-		//pureLegsCore;
+		//use namespace pureLegsCore;
 		for( type in Reflect.fields(classRegistry) ) {
 			messenger.removeHandler(type, handleCommandExecute);
 		}
@@ -422,7 +419,7 @@ class CommandMap
 					}
 					
 					command.isExecuting = true;
-					command.execute(params);
+					Reflect.callMethod(command, Reflect.field(command, "execute"), []);
 					command.isExecuting = false;
 					// if not locked - pool it.
 					if(!cast(command, PooledCommand).isLocked) 
@@ -435,7 +432,7 @@ class CommandMap
 				else 
 				{
 					command.isExecuting = true;
-					command.execute(params);
+					Reflect.callMethod(command, Reflect.field(command, "execute"), []);
 					command.isExecuting = false;
 				}
 
@@ -453,7 +450,7 @@ class CommandMap
 	 */
 	#if debug
 		//pureLegsCore 
-		function validateCommandClass(commandClass:Class<Dynamic>): Void 
+		public function validateCommandClass(commandClass:Class<Dynamic>): Void 
 		{
 		
 			// skip alread validated classes.
@@ -501,13 +498,13 @@ class CommandMap
 	#if debug
 	
 	
-		private function validateCommandParams(commandClass:Class, params:Object) : Void 
+		private function validateCommandParams(commandClass:Class<Dynamic>, params:Dynamic) : Void 
 		{
 			validateCommandClass(commandClass);
 			if(params)  {
-				var paramClass : Class<Dynamic> = Type.resolveClass(commandClassParamTypes[commandClass]);
+				var paramClass : Class<Dynamic> = Type.getClass(commandClassParamTypes[commandClass]);
 				if(!(Std.is(params, paramClass)))  {
-					throw cast(("Class " + commandClass + " expects " + commandClassParamTypes[commandClass] + ". But you are sending :" + Type.resolveClass(params)), Error);
+					throw "Class " + commandClass + " expects " + commandClassParamTypes[commandClass] + ". But you are sending :" + Type.resolveClass(params);
 				}
 			}
 		}

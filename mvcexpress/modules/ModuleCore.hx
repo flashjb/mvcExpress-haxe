@@ -15,10 +15,11 @@ import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleBase;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 
-class ModuleCore {
-	public var moduleName(getModuleName, never) : String;
+class ModuleCore 
+{
+	public var moduleName(get_moduleName, never) : String;
 
 	var moduleBase : ModuleBase;
 	var proxyMap : ProxyMap;
@@ -27,12 +28,9 @@ class ModuleCore {
 	/**
 	 * CONSTRUCTOR
 	 * 
-	 * 
 	 */
 	public function new(moduleName : String = null, autoInit : Bool = true) {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		moduleBase = ModuleManager.createModule(moduleName, autoInit);
 		//
 		if(autoInit)  {
@@ -46,7 +44,7 @@ class ModuleCore {
 	/**
 	 * Name of the module
 	 */
-	public function getModuleName() : String {
+	public function get_moduleName() : String {
 		return moduleBase.moduleName;
 	}
 

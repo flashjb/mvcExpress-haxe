@@ -12,7 +12,7 @@ import mvcexpress.core.inject.InjectRuleVO;
 import mvcexpress.core.inject.PendingInject;
 import mvcexpress.core.interfaces.IProxyMap;
 import mvcexpress.core.messenger.Messenger;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectPending;
 import mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff;
 import mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap;
@@ -58,8 +58,9 @@ class ProxyMap implements IProxyMap
 		pendingInjectionsRegistry = new Dictionary();
 		lazyProxyRegistry = new Dictionary();
 		classConstRegistry = new Dictionary();
+		
 		this.moduleName = moduleName;
-		this.messenger = messenger;
+		this.messenger  = messenger;
 	}
 
 	//----------------------------------
@@ -73,26 +74,24 @@ class ProxyMap implements IProxyMap
 	 * 
 	 */
 	public function map(proxyObject : Proxy, injectClass : Class<Dynamic> = null, name : String = "") : String {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		// get proxy class
-		var proxyClass : Class<Dynamic> = Type.getClass(cast((proxyObject), Object).constructor);
+		var proxyClass : Class<Dynamic> = Type.getClass(proxyObject);
 		// if injectClass is not provided - proxyClass will be used instead.
 		if(!injectClass)  {
 			injectClass = proxyClass;
 		}
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
-			className = getQualifiedClassName(injectClass);
+			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}
 		var injectId : String = className + name;
 		if(lazyProxyRegistry[injectId])  {
-			throw cast(("Proxy object is already lazy mapped. [injectClass:" + injectClass + " name:" + name + "]"), Error);
+			throw "Proxy object is already lazy mapped. [injectClass:" + injectClass + " name:" + name + "]";
 		}
 		if(injectObjectRegistry[injectId])  {
-			throw cast(("Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]"), Error);
+			throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		}
 		if(proxyObject.messenger == null)  {
 			initProxy(proxyObject, proxyClass, injectId);
@@ -106,7 +105,7 @@ class ProxyMap implements IProxyMap
 		}
 
 		else  {
-			throw cast(("Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]"), Error);
+			throw "Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]";
 		}
 
 		return injectId;
@@ -129,7 +128,7 @@ class ProxyMap implements IProxyMap
 		// get inject id
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
-			className = getQualifiedClassName(injectClass);
+			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}
 		var injectId : String = className + name;
@@ -155,9 +154,7 @@ class ProxyMap implements IProxyMap
 	/**
 	 * Stores lazy proxy data to be instantiated on first use. Proxy will be instantiated and mapped then requested for the first time.
 	 * 
-	 * 
-	 * 
-	 * 
+	
 	 * 
 	 */
 	public function lazyMap(proxyClass : Class<Dynamic>, injectClass : Class<Dynamic> = null, name : String = "", proxyParams : Array<Dynamic> = null) : String {
@@ -166,22 +163,22 @@ class ProxyMap implements IProxyMap
 		}
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
-			className = getQualifiedClassName(injectClass);
+			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}
 		var injectId : String = className + name;
 		if(lazyProxyRegistry[injectId])  {
-			throw cast(("Proxy class is already lazy mapped. [injectClass:" + className + " name:" + name + "]"), Error);
+			throw "Proxy class is already lazy mapped. [injectClass:" + className + " name:" + name + "]";
 		}
 		if(injectObjectRegistry[injectId])  {
-			throw cast(("Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]"), Error);
+			throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		}
 		var lazyInject : LazyProxyData = new LazyProxyData();
-		lazyInject.proxyClass = proxyClass;
-		lazyInject.injectClass = injectClass;
-		lazyInject.name = name;
-		lazyInject.proxyParams = proxyParams;
-		lazyProxyRegistry[injectId] = lazyInject;
+			lazyInject.proxyClass = proxyClass;
+			lazyInject.injectClass = injectClass;
+			lazyInject.name = name;
+			lazyInject.proxyParams = proxyParams;
+			lazyProxyRegistry[injectId] = lazyInject;
 		return injectId;
 	}
 
@@ -196,21 +193,20 @@ class ProxyMap implements IProxyMap
 	 * 
 	 * 
 	 */
-	public function getProxy(injectClass : Class<Dynamic>, name : String = "") : Proxy {
+	public function getProxy(injectClass : Class<Dynamic>, name : String = "") : Proxy 
+	{
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
-			className = getQualifiedClassName(injectClass);
+			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}
 		var classAndName : String = className + name;
 		if(injectObjectRegistry[classAndName])  {
 			return injectObjectRegistry[classAndName];
 		}
-
-		else  {
-			throw cast(("Proxy object is not mapped. [injectClass:" + className + " name:" + name + "]"), Error);
-		}
-
+ 
+		throw "Proxy object is not mapped. [injectClass:" + className + " name:" + name + "]";
+		
 	}
 
 	//----------------------------------
@@ -241,7 +237,7 @@ class ProxyMap implements IProxyMap
 			}
 			var className : String = qualifiedClassNameRegistry[injectClass];
 			if(!className)  {
-				className = getQualifiedClassName(injectClass);
+				className = Type.getClassName(injectClass);
 				qualifiedClassNameRegistry[injectClass] = className;
 			}
 			var injectId : String = className + name;
@@ -288,7 +284,7 @@ class ProxyMap implements IProxyMap
 		}
 		var className : String = qualifiedClassNameRegistry[injectClass];
 		if(!className)  {
-			className = getQualifiedClassName(injectClass);
+			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}
 		if(injectObjectRegistry[className + name])  {
@@ -305,7 +301,7 @@ class ProxyMap implements IProxyMap
 		var retVal : String = "";
 		retVal = "====================== ProxyMap Mappings: ======================\n";
 		for(  key  in Reflect.fields(injectObjectRegistry)) {
-			retVal += "PROXY OBJECT:'" + Reflect.fields(injectObjectRegistry, key) + "'			(MAPPED TO:" + key + ")\n";
+			retVal += "PROXY OBJECT:'" + Reflect.field(injectObjectRegistry, key) + "'			(MAPPED TO:" + key + ")\n";
 		}
 
 		retVal += "================================================================\n";
@@ -325,9 +321,7 @@ class ProxyMap implements IProxyMap
 	 * 
 	 */
 	function initProxy(proxyObject : Proxy, proxyClass : Class<Dynamic>, injectId : String) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		proxyObject.messenger = messenger;
 		proxyObject.setProxyMap(this);
 		// inject dependencies
@@ -371,13 +365,14 @@ class ProxyMap implements IProxyMap
 	function injectStuff(object : Dynamic, signatureClass : Class<Dynamic>, tempValue : Dynamic = null, tempClass : Class<Dynamic> = null) : Bool {
 		//use namespace pureLegsCore;
 		var isAllInjected : Bool = true;
+		var injectObject : Dynamic;
 		// deal with temporal injection. (it is used only for this injection, for example - view object for mediator is used this way.)
-		var tempClassName : String;
+		var tempClassName : String = "";
 		if( tempValue )  {
 			if(tempClass)  {
 				tempClassName = qualifiedClassNameRegistry[tempClass];
-				if(!tempClassName)  {
-					tempClassName = getQualifiedClassName(tempClass);
+				if( tempClassName != "" )  {
+					tempClassName = Type.getClassName(tempClass);
 					qualifiedClassNameRegistry[tempClass] = tempClassName;
 				}
 				if(!injectObjectRegistry[tempClassName])  {
@@ -406,7 +401,7 @@ class ProxyMap implements IProxyMap
 			var rule : InjectRuleVO = rules[i];
 			var scopename : String = rule.scopeName;
 			var injectClassAndName : String = rule.injectClassAndName;
-			if(scopename)  {
+			if( scopename != null )  {
 				if(!ModuleManager.injectScopedProxy(object, rule))  {
 					if(MvcExpress.pendingInjectsTimeOut && !(Std.is(object, Command)))  {
 						isAllInjected = false;
@@ -427,18 +422,19 @@ class ProxyMap implements IProxyMap
 
 				}
 			}
-
-			else  {
-				var injectObject : Dynamic = injectObjectRegistry[injectClassAndName];
-				if(injectObject)  {
+			else  
+			{
+				injectObject = injectObjectRegistry[injectClassAndName];
+				
+				if( injectObject ) 
+				{
 					object[rule.varName] = injectObject;
 					// debug this action
 					#if debug
 						MvcExpress.debug(new TraceProxyMap_injectStuff(moduleName, object, injectObject, rule));
 					#end
-				}
-
-				else  {
+					
+				} else {
 					// if local injection fails... test for lazy injections
 					if(lazyProxyRegistry[injectClassAndName])  {
 						var lazyProxyData : LazyProxyData = lazyProxyRegistry[injectClassAndName];
@@ -545,7 +541,7 @@ class ProxyMap implements IProxyMap
 				}
 			}
 		}
-		if(tempClassName)  {
+		if( Std.is(tempClassName, String) )  {
 			injectObjectRegistry[tempClassName] = null;
 		}
 		return isAllInjected;
@@ -570,9 +566,7 @@ class ProxyMap implements IProxyMap
 	 * Handle all pending injections for specified key.
 	 */
 	function injectPendingStuff(injectClassAndName : String, injectee : Dynamic) : Void {
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		var pendingInjects : Array<PendingInject> = pendingInjectionsRegistry[injectClassAndName];
 		while(pendingInjects.length) {
 			//
@@ -649,18 +643,18 @@ class ProxyMap implements IProxyMap
 							}
 
 							else if(argKey == "constName")  {
-								injectName = getInjectByContName(args[k].att.value);
+								injectName = getInjectByConstName(args[k].att.value);
 							}
 
 							else if(argKey == "constScope")  {
-								scopeName = getInjectByContName(args[k].att.value);
+								scopeName = getInjectByConstName(args[k].att.value);
 							}
 							k++;
 						}
 						var mapRule : InjectRuleVO = new InjectRuleVO();
-						mapRule.varName = node.att.name.toString();
-						mapRule.injectClassAndName = node.att.type.toString() + injectName;
-						mapRule.scopeName = scopeName;
+							mapRule.varName = node.att.name.toString();
+							mapRule.injectClassAndName = node.att.type.toString() + injectName;
+							mapRule.scopeName = scopeName;
 						retVal[retVal.length] = mapRule;
 					}
 					j++;
@@ -687,15 +681,15 @@ class ProxyMap implements IProxyMap
 				var constClass : Class<Dynamic> = Type.getClass(className);
 				classConstRegistry[constName] = constClass[split[spliteIndex]];
 				if(!classConstRegistry[constName])  {
-					throw cast(("Failed to get constant out of class:" + constClass + " Check constant name: " + split[spliteIndex]), Error);
+					throw ("Failed to get constant out of class:" + constClass + " Check constant name: " + split[spliteIndex]);
 				}
 			}
 			catch(error : Error) {
-				throw cast(("Failed to get constant out of constName:" + constName + " Can't get class from definition : " + className), Error);
+				throw ("Failed to get constant out of constName:" + constName + " Can't get class from definition : " + className);
 			}
 
 		}
-		return classConstRegistry[constName];
+		return cast(classConstRegistry[constName], String);
 	}
 
 	// gets proxy by id directly.
@@ -715,5 +709,7 @@ class LazyProxyData {
 	public var injectClass : Class<Dynamic>;
 	public var name : String;
 	public var proxyParams : Array<Dynamic>;
+	
+	public function new(){}
 }
 

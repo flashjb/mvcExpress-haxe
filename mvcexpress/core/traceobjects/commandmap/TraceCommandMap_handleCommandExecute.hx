@@ -32,7 +32,7 @@ class TraceCommandMap_handleCommandExecute extends TraceObj {
 		this.commandObject = commandObject;
 		this.commandClass = commandClass;
 		this.type = type;
-		params = params;
+		this.params = params;
 	}
 
 	override public function toString() : String {

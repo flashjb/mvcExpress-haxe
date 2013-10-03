@@ -14,13 +14,37 @@ class ModuleInitTests {
 
 	var module : Dynamic;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new() : Void 
+	{
+		
+		moduleInit_coreAutoInit_notNull();
+		runAfterEveryTest();
+		moduleInit_coreNoAutoInit_null();
+		runAfterEveryTest();
+		moduleInit_corePostAutoInit_notNull();
+		runAfterEveryTest();
+		
+		moduleInit_movieClipAutoInit_notNull();
+		runAfterEveryTest();
+		moduleInit_movieClipNoAutoInit_null();
+		runAfterEveryTest();
+		moduleInit_movieClipPostAutoInit_notNull();
+		runAfterEveryTest();
+		
+		moduleInit_spriteAutoInit_notNull();
+		runAfterEveryTest();
+		moduleInit_spriteNoAutoInit_null();
+		runAfterEveryTest();
+		moduleInit_spritePostAutoInit_notNull();
+		runAfterEveryTest();
+		
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	public function runAfterEveryTest() : Void 
+	{
 		if(module)  {
-			module["disposeModule"]();
+			Reflect.callMethod( module, "disposeModule", [] );
 		}
 	}
 
@@ -66,7 +90,6 @@ class ModuleInitTests {
 		Assert.assertNotNull("ModuleMovieClip commandMap should be not null after autoInit", testModule.getCommandMap());
 		Assert.assertNotNull("ModuleMovieClip mediatorMap should be not null after autoInit", testModule.getMediatorMap());
 	}
-
 	
 	public function moduleInit_movieClipNoAutoInit_null() : Void {
 		var testModule : InitTestModuleMovieClip = new InitTestModuleMovieClip(false);

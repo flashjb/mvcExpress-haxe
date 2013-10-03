@@ -9,7 +9,7 @@ package mvcexpress.core.messenger;
 import flash.utils.Dictionary;
 import mvcexpress.MvcExpress;
 import mvcexpress.core.CommandMap;
-import mvcexpress.core.namespace.PureLegsCore;
+////import mvcexpress.core.namespace.PureLegsCore;
 import mvcexpress.core.traceobjects.messenger.TraceMessenger_addHandler;
 import mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler;
 import mvcexpress.core.traceobjects.messenger.TraceMessenger_send;
@@ -18,9 +18,9 @@ import mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler;
 class Messenger {
 
 	// name of the module messenger is working for.
-	var moduleName : String;
+	public var moduleName : String;
 	// defines if messenger can be instantiated.
-	static var allowInstantiation : Bool;
+	public static var allowInstantiation : Bool;
 	// = false;
 	// keeps ALL HandlerVO's in vectors by message type that they have to respond to.
 	var messageRegistry : Dictionary;
@@ -34,11 +34,9 @@ class Messenger {
 	public function new( moduleName : String ) {
 		messageRegistry = new Dictionary();
 		handlerRegistry = new Dictionary();
-		use;
-		namespace;
-		pureLegsCore;
+		//use namespace pureLegsCore;
 		if(!allowInstantiation)  {
-			throw cast(("Messenger is a framework class, you can't instantiate it."), Error);
+			throw ("Messenger is a framework class, you can't instantiate it.");
 		}
 		this.moduleName = moduleName;
 	}
@@ -68,7 +66,7 @@ class Messenger {
 		// check if this handler already exists for this type. (this check can be skipped in release mode.)
 		#if debug
 			if (msgData) {
-				throw Error("This handler function is already mapped to message type :" + type);
+				throw ("This handler function is already mapped to message type :" + type);
 			}
 		#end
 		
@@ -196,7 +194,7 @@ class Messenger {
 			warningText = "";
 		#end
 		
-		if(warningText)  {
+		if(warningText != "")  {
 			retVal += warningText;
 		}
 		for( key in Reflect.fields(messageRegistry) ) 

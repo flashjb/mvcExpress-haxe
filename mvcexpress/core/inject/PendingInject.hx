@@ -34,7 +34,7 @@ class PendingInject {
 	}
 
 	function throwError() : Void {
-		throw cast(("Pending inject object is not resolved in " + (pendingInjectTime / 1000) + " second for class with id:" + injectClassAndName + "(needed in " + pendingObject + ")"), Error);
+		throw ("Pending inject object is not resolved in " + (pendingInjectTime / 1000) + " second for class with id:" + injectClassAndName + "(needed in " + pendingObject + ")");
 	}
 
 }
