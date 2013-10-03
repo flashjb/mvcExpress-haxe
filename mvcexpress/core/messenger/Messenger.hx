@@ -122,12 +122,12 @@ class Messenger
 		
 		var messageList : Array<HandlerVO> = messageRegistry[type];
 		var handlerVo : HandlerVO;
-		var delCount : Int;
+		var delCount : Int = 0;
 		// = 0;
 		if( messageList != null )  
 		{
 			var mesageCount : Int = messageList.length;
-			var i : Int;
+			var i : Int = 0;
 			for( handlerVo in messageList ) 
 			{
 				// check if message is not marked to be removed. (disabled)
@@ -138,7 +138,7 @@ class Messenger
 				else  
 				{
 					// if some MsgVOs marked to be removed - move all other messages to there place.
-					if(delCount != null)  {
+					if(delCount != 0)  {
 						messageList[i - delCount] = messageList[i];
 					}
 					if(handlerVo.isExecutable)  {
@@ -162,7 +162,7 @@ class Messenger
 				i++;
 			}
 			// remove all removed handlers.
-			if( delCount != null )  {
+			if( delCount != 0 )  {
 				messageList.splice(mesageCount - delCount, delCount);
 			}
 		}

@@ -7,6 +7,7 @@
  */
 package mvcexpress.utils;
 
+import haxe.ds.ObjectMap;
 
 
 class MvcExpressTools 
@@ -53,8 +54,8 @@ class MvcExpressTools
 class StringConstantRegistry 
 {
 
-	static public var registeredClasses : Map<Class<Dynamic>, Bool> = new Map();
+	static public var registeredClasses : Map<Dynamic, Bool> = new ObjectMap();
 	/* of Boolean by Class */
-	static public var stringRegistry : Map<Class<Dynamic>, String> = new Map();
+	static public var stringRegistry : Map<Dynamic, String> = new ObjectMap();
 	/* of Class by String */
 }

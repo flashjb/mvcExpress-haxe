@@ -275,7 +275,7 @@
 			<f a=""><x path="Void"/></f>
 			<meta><m n=":keep"/></meta>
 		</main>
-		<new public="1" set="method" line="14"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
 	</class>
 	<abstract path="Map" params="K:V" file="/usr/lib/haxe/std/Map.hx">
 		<from>

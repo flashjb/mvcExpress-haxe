@@ -6,6 +6,8 @@
  */
 package mvcexpress.mvc;
 
+import haxe.ds.ObjectMap;
+
 import mvcexpress.MvcExpress;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.interfaces.IProxyMap;
@@ -30,7 +32,7 @@ class Proxy
 	// for sending scoped messages then injected by scope.
 	var proxyScopes : Array<String>;
 	// for pooled command classes that are dependant on this proxy.
-	public var dependantCommands : Map<Class<Dynamic>, Class<Dynamic>>;
+	public var dependantCommands : ObjectMap<Dynamic, Class<Dynamic>>;
 	// amount of pending injections.
 	public var pendingInjections : Int;
 	
@@ -38,7 +40,7 @@ class Proxy
 	/** CONSTRUCTOR */
 	public function new() {
 		proxyScopes = new Array<String>();
-		dependantCommands = new Map();
+		dependantCommands = new ObjectMap();
 	}
 
 	//----------------------------------
@@ -84,10 +86,8 @@ class Proxy
 		messenger.send(type, params);
 		//
 		var scopeCount : Int = proxyScopes.length;
-		var i : Int;
-		while(i < scopeCount) {
+		for(i in 0...scopeCount) {
 			ModuleManager.sendScopeMessage(moduleName, proxyScopes[i], type, params, false);
-			i++;
 		}
 		//
 		// clean up logging the action
@@ -162,16 +162,14 @@ class Proxy
 	 * 
 	 */
 	public function addScope(scopeName : String) : Void {
-		var messengerFound : Bool;
+		var messengerFound : Bool = false;
 		// = false;
 		var scopeCount : Int = proxyScopes.length;
-		var i : Int;
-		while(i < scopeCount) {
+		for(i in 0...scopeCount) {
 			if(proxyScopes[i] == scopeName)  {
 				messengerFound = true;
 				break;
 			}
-			i++;
 		}
 		if(!messengerFound)  {
 			proxyScopes[proxyScopes.length] = scopeName;
@@ -185,13 +183,11 @@ class Proxy
 	 */
 	public function removeScope(scopeName : String) : Void {
 		var scopeCount : Int = scopeName.length;
-		var i : Int;
-		while(i < scopeCount) {
+		for(i in 0...scopeCount) {
 			if(proxyScopes[i] == scopeName)  {
 				proxyScopes.splice(i, 1);
 				break;
 			}
-			i++;
 		}
 	}
 
@@ -200,11 +196,11 @@ class Proxy
 	//----------------------------------
 	// Registers command that needs this proxy. (used for PooledCommand's only)
 	public function registerDependantCommand(signatureClass : Class<Dynamic>) : Void {
-		dependantCommands[signatureClass] = signatureClass;
+		dependantCommands.set(signatureClass, signatureClass);
 	}
 
 	// gets the list of dependant commands. (used to clear all PooledCommand's then proxy is removed)
-	public function getDependantCommands() : Map<Class<Dynamic>, Class<Dynamic>> {
+	public function getDependantCommands() : Map<Dynamic, Class<Dynamic>> {
 		return dependantCommands;
 	}
 

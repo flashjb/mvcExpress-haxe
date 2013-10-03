@@ -60,7 +60,7 @@ class ProxyMap implements IProxyMap
 		injectObjectRegistry = new Map();
 		pendingInjectionsRegistry = new Map();
 		lazyProxyRegistry = new Map();
-		classConstRegistry = new Map();
+		classConstRegistry = new Map<String, Dynamic>();
 		
 		this.moduleName = moduleName;
 		this.messenger  = messenger;
@@ -139,7 +139,7 @@ class ProxyMap implements IProxyMap
 		{
 			var proxy : Proxy =  cast(injectObjectRegistry[injectId], Proxy);
 			// handle dependencies..
-			var dependencies : Map<Class<Dynamic>, Class<Dynamic>> = proxy.getDependantCommands();
+			var dependencies : Map<Dynamic, Class<Dynamic>> = proxy.getDependantCommands();
 			for( item in dependencies ) {
 				commandMap.clearCommandPool(item);
 			}

@@ -10,7 +10,7 @@
 package mvcexpress.mvc;
 
 import nme.events.IEventDispatcher;
-
+import haxe.ds.ObjectMap;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.ModuleManager;
@@ -45,10 +45,10 @@ class Mediator
 	/** all added message handlers. */
 	var handlerVoRegistry : Array<HandlerVO>;
 	/** contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false*/
-	var eventListenerRegistry : Map<Dynamic, Map<String, IEventDispatcher>> ;
+	var eventListenerRegistry : ObjectMap<Dynamic, Map<String, IEventDispatcher>> ;
 	/* or Dictionary by Function */
 	/** contains array of added event listeners, stored by event listening function as a key. For event useCapture = true*/
-	var eventListenerCaptureRegistry : Map<Dynamic, Map<String, IEventDispatcher>>;
+	var eventListenerCaptureRegistry : ObjectMap<Dynamic, Map<String, IEventDispatcher>>;
 	/* or Dictionary by Function */
 	// Allows Mediator to be constructed. (removed from release build to save some performance.)
 	#if debug
@@ -59,8 +59,8 @@ class Mediator
 	public function new() 
 	{
 		handlerVoRegistry = new Array<HandlerVO>();
-		eventListenerRegistry = new Map();
-		eventListenerCaptureRegistry = new Map();
+		eventListenerRegistry = new ObjectMap();
+		eventListenerCaptureRegistry = new ObjectMap();
 		
 		#if debug
 			//	use namespace pureLegsCore;
@@ -235,19 +235,19 @@ class Mediator
 	function addListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void 
 	{
 		if(useCapture)  {
-			if( eventListenerCaptureRegistry[listener] == null )  {
-				eventListenerCaptureRegistry[listener] = new Map();
+			if(!eventListenerCaptureRegistry.exists(listener) )  {
+				eventListenerCaptureRegistry.set(listener, new Map());
 			}
-			if( eventListenerCaptureRegistry[listener][type] == null )  {
-				eventListenerCaptureRegistry[listener][type] = viewObject;
+			if(!eventListenerCaptureRegistry.get(listener).exists(type))  {
+				eventListenerCaptureRegistry.get(listener).set(type, viewObject);
 				viewObject.addEventListener(type, listener, useCapture, priority, useWeakReference);
 			}
 		} else  {
-			if( eventListenerRegistry[listener] == null )  {
-				eventListenerRegistry[listener] = new Map();
+			if(!eventListenerRegistry.exists(listener))  {
+				eventListenerRegistry.set(listener, new Map());
 			}
-			if( eventListenerRegistry[listener][type] == null )  {
-				eventListenerRegistry[listener][type] = viewObject;
+			if(!eventListenerRegistry.get(listener).exists(type))  {
+				eventListenerRegistry.get(listener).set(type, viewObject);
 				viewObject.addEventListener(type, listener, useCapture, priority, useWeakReference);
 			}
 		}
@@ -256,27 +256,23 @@ class Mediator
 	/**
 	 * Removes an event listener from the viewObject.
 	 * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.
-	 * 
-	 * 
-	 * 
-	 * 
 	 */
 	function removeListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false) : Void 
 	{
 		viewObject.removeEventListener(type, listener, useCapture);
 		if(useCapture)  {
-			if( eventListenerCaptureRegistry[listener] != null )  {
-				if( eventListenerCaptureRegistry[listener][type] != null )  {
-					if( eventListenerCaptureRegistry[listener][type] == viewObject)  {
-						eventListenerCaptureRegistry[listener][type] = null;
+			if( eventListenerCaptureRegistry.exists(listener) )  {
+				if( eventListenerCaptureRegistry.get(listener).exists(type) )  {
+					if( eventListenerCaptureRegistry.get(listener).get(type)  == viewObject )  {
+						eventListenerCaptureRegistry.get(listener).remove(type) ;
 					}
 				}
 			}
 		}else{
-			if( eventListenerRegistry[listener] != null )  {
-				if( eventListenerRegistry[listener][type] != null )  {
-					if( eventListenerRegistry[listener][type] == viewObject)  {
-						eventListenerRegistry[listener][type] = null;
+			if( eventListenerRegistry.exists(listener) )  {
+				if( eventListenerRegistry.get(listener).exists(type) )  {
+					if( eventListenerRegistry.get(listener).get(type) == viewObject )  {
+						eventListenerRegistry.get(listener).remove(type);
 					}
 				}
 			}
@@ -295,7 +291,7 @@ class Mediator
 		for( l in Reflect.fields(eventListenerCaptureRegistry) ) 
 		{
 			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
-			eventTypes = eventListenerCaptureRegistry[ listener ];
+			eventTypes = eventListenerCaptureRegistry.get(listener);
 			for( type in Reflect.fields(eventTypes)) {
 				var viewObject : IEventDispatcher = eventTypes[type];
 					viewObject.removeEventListener(type, listener, true);
@@ -305,7 +301,7 @@ class Mediator
 		for( l in Reflect.fields(eventListenerRegistry) ) 
 		{
 			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
-			eventTypes = eventListenerRegistry[listener];
+			eventTypes = eventListenerRegistry.get(listener);
 			for(type in Reflect.fields(eventTypes)) {
 				var viewObject : IEventDispatcher = eventTypes[type];
 					viewObject.removeEventListener(type, listener, false);
