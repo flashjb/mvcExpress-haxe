@@ -1,8 +1,8 @@
 -swf bin/swf/Main.swf
 -main Main
 -swf-version 11
--lib nme
+-cp src
 -cp mvcexpress
 -cp test
--cp src
+-lib nme
 -D debug

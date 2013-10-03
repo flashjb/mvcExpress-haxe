@@ -5,6 +5,7 @@
  */
 package mvcexpress.core;
 
+import haxe.ds.ObjectMap;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.messenger.HandlerVO;
@@ -33,15 +34,15 @@ class CommandMap
 	var classRegistry : Map<String, Array<Class<Dynamic>>>;
 	/* of Vector.<Class> by String */
 	// holds pooled command objects, stared by command class.
-	var commandPools : Map<Class<Dynamic>, Array<PooledCommand>>;
+	var commandPools : ObjectMap<Dynamic, Array<PooledCommand>>;
 	/* of Vector.<PooledCommand> by Class */
 
 	#if debug
 	/** types of command execute function, needed for debug mode only validation of execute() parameter.  */
-		static private var commandClassParamTypes : Map<Class<Dynamic>, String> = new Map(); /* of String by Class */
+		static private var commandClassParamTypes : ObjectMap<Dynamic, Dynamic> = new ObjectMap(); /* of String by Class */
 	//
 	//	/** Dictionary with validated command classes.  */
-		static private var validatedCommands : Map<Class<Dynamic>, Bool> = new Map(); /* of Boolean by Class */
+		static private var validatedCommands : ObjectMap<Dynamic, Bool> =  new ObjectMap(); /* of Boolean by Class */
 	#end
 	
 	var scopeHandlers : Array<HandlerVO>;
@@ -49,7 +50,7 @@ class CommandMap
 	public function new( moduleName : String, messenger : Messenger, proxyMap : ProxyMap, mediatorMap : MediatorMap) 
 	{
 		classRegistry = new Map();
-		commandPools  = new Map();
+		commandPools  = new ObjectMap();
 		scopeHandlers = new Array<HandlerVO>();
 		
 		this.moduleName  = moduleName;
@@ -105,7 +106,7 @@ class CommandMap
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[type];
 		if( messageClasses !=  null )  {
 			var commandCount : Int = messageClasses.length;
-			var i : Int;
+			var i : Int = 0;
 			while(i < commandCount) {
 				if(commandClass == messageClasses[i])  {
 					messageClasses.splice(i, 1);
@@ -129,12 +130,12 @@ class CommandMap
 		var command : Command;
 		// debug this action
 		#if debug
-			MvcExpress.debug(new TraceCommandMap_execute(moduleName, command, commandClass, params));
+			MvcExpress.debug(new TraceCommandMap_execute(moduleName, null, commandClass, params));
 		#end
 		//////////////////////////////////////////////
 		////// INLINE FUNCTION runCommand() START
 		// check if command is pooled.
-		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
+		var pooledCommands : Array<PooledCommand> = commandPools.get(commandClass);
 		if( pooledCommands != null  && pooledCommands.length > 0)  {
 			command = pooledCommands.shift();
 		}
@@ -168,7 +169,7 @@ class CommandMap
 			// init pool if needed.
 			if( pooledCommands == null )  {
 				pooledCommands = new Array<PooledCommand>();
-				commandPools[commandClass] = pooledCommands;
+				commandPools.set(commandClass, pooledCommands);
 			}
 			command.messageType = null;
 			command.isExecuting = true;
@@ -228,7 +229,7 @@ class CommandMap
 		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
 		if( messageClasses != null )  {
 			var commandCount : Int = messageClasses.length;
-			var i : Int;
+			var i : Int = 0;
 			while(i < commandCount) {
 				if(commandClass == messageClasses[i])  {
 					messageClasses.splice(i, 1);
@@ -247,8 +248,9 @@ class CommandMap
 	 * 
 	 * 
 	 */
-	public function checkIsClassPooled(commandClass : Class<Dynamic>) : Bool {
-		return (commandPools[commandClass] != null);
+	public function checkIsClassPooled(commandClass : Class<Dynamic>) : Bool 
+	{
+		return (commandPools.get(commandClass) != null);
 	}
 
 	/**
@@ -258,7 +260,7 @@ class CommandMap
 	 */
 	public function clearCommandPool(commandClass : Class<Dynamic>) : Void 
 	{
-		commandPools[commandClass] = null;
+		commandPools.remove(commandClass);
 	}
 
 	//----------------------------------
@@ -271,12 +273,12 @@ class CommandMap
 	 * 
 	 */
 	public function isMapped(type : String, commandClass : Class<Dynamic>) : Bool {
-		var retVal : Bool;
+		var retVal : Bool = false;
 		// = false;
 		if( classRegistry[type] != null )  {
 			var mappedClasses : Array<Class<Dynamic>> = classRegistry[type];
 			var classCaunt : Int = mappedClasses.length;
-			var i : Int;
+			var i : Int = 0;
 			while(i < classCaunt) {
 				if(commandClass == mappedClasses[i])  {
 					retVal = true;
@@ -325,7 +327,7 @@ class CommandMap
 	 */
 	public function poolCommand(command : PooledCommand) : Void {
 		var commandClass : Class<Dynamic> = Type.getClass( command );
-		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
+		var pooledCommands : Array<PooledCommand> = commandPools.get(commandClass);
 		if( pooledCommands == null  ) {
 			pooledCommands[pooledCommands.length] = command;
 		}
@@ -343,7 +345,7 @@ class CommandMap
 
 		//
 		var scopeHandlerCount : Int = scopeHandlers.length;
-		var i : Int;
+		var i : Int = 0;
 		while(i < scopeHandlerCount) {
 			scopeHandlers[i].handler = null;
 			i++;
@@ -365,17 +367,17 @@ class CommandMap
 			messageClasses = classRegistry[messageType];
 		if( messageClasses != null )  {
 			var commandCount : Int = messageClasses.length;
-			var i : Int;
+			var i : Int = 0;
 			while(i < commandCount) {
 				var commandClass : Class<Dynamic> = messageClasses[i];
 				// debug this action
 				#if debug
-					MvcExpress.debug(new TraceCommandMap_handleCommandExecute(moduleName, command, commandClass, messageType, params));
+					MvcExpress.debug(new TraceCommandMap_handleCommandExecute(moduleName, null, commandClass, messageType, params));
 				#end
 				//////////////////////////////////////////////
 				////// INLINE FUNCTION runCommand() START
 				// check if command is pooled.
-				var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
+				var pooledCommands : Array<PooledCommand> = commandPools.get(commandClass);
 				if( pooledCommands != null  && pooledCommands.length > 0 )  {
 					command = pooledCommands.shift();
 				}
@@ -411,7 +413,7 @@ class CommandMap
 					// init pool if needed.
 					if( pooledCommands == null )  {
 						pooledCommands = new Array<PooledCommand>();
-						commandPools[commandClass] = pooledCommands;
+						commandPools.set(commandClass, pooledCommands);
 					}
 					
 					command.isExecuting = true;
@@ -446,24 +448,24 @@ class CommandMap
 	 */
 	#if debug
 		//pureLegsCore 
-		public function validateCommandClass(commandClass:Class<Dynamic>): Void 
+		public function validateCommandClass( commandClass: Class<Dynamic> ): Void 
 		{
 		
 			// skip alread validated classes.
-			if(validatedCommands[commandClass] != true)  
+			if(validatedCommands.get(commandClass) != true)  
 			{
 				if( Std.is(Type.getSuperClass(commandClass), Command) )  
 				{
 					throw ("commandClass:" + commandClass + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.");
 				}
 				
-				if( commandClassParamTypes[commandClass] == null )  
+				if( commandClassParamTypes.get( commandClass ) == null )  
 				{
 					var parameterCount : Int;// = 0;
 					
 					// find execute method.
 					//var dFunc = Reflect.field( obj, "execute");
-					var hasExecute : Bool = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute");
+					var hasExecute : Bool = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute" );
 						
 						// TODO : check parameter ammount.
 						//var paramList = Reflect.fields(dFunc); 
@@ -484,7 +486,7 @@ class CommandMap
 					}
 	
 				}
-				validatedCommands[commandClass] = true;
+				validatedCommands.set(commandClass, true);
 			}
 		}
 	
@@ -492,10 +494,12 @@ class CommandMap
 		private function validateCommandParams(commandClass:Class<Dynamic>, params:Dynamic) : Void 
 		{
 			validateCommandClass(commandClass);
-			if(params)  {
-				var paramClass : Class<Dynamic> = Type.getClass(commandClassParamTypes[commandClass]);
-				if(!(Std.is(params, paramClass)))  {
-					throw "Class " + commandClass + " expects " + commandClassParamTypes[commandClass] + ". But you are sending :" + Type.resolveClass(params);
+			
+			if(params)  
+			{
+				var paramClass : Class<Dynamic> = Type.getClass(commandClassParamTypes.get(commandClass));
+				if(!Std.is(params, paramClass))  {
+					throw "Class " + commandClass + " expects " + commandClassParamTypes.get(commandClass) + ". But you are sending :" + Type.resolveClass(params);
 				}
 			}
 		}

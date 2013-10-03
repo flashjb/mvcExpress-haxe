@@ -126,7 +126,7 @@ class ModuleManager
 			Reflect.deleteField(moduleRegistry, moduleName);
 			
 			var moduleCount : Int = allModules.length;
-			var j : Int;
+			var j : Int = 0;
 			while(j < moduleCount) {
 				if(allModules[j].moduleName == moduleName)  {
 					allModules.splice(j, 1);
@@ -148,7 +148,7 @@ class ModuleManager
 	/** sends scoped message*/
 	static public function sendScopeMessage (moduleName : String, scopeName : String, type : String, params : Dynamic, checkPermisions : Bool = true) : Void {
 		//use namespace pureLegsCore;
-		var scopePermission : ScopePermissionData;
+		var scopePermission : ScopePermissionData = null;
 		if( checkPermisions )  {
 			// get permission object
 			if( scopePermissionsRegistry[moduleName] != null )  {
@@ -167,7 +167,7 @@ class ModuleManager
 	/** add scoped handler */
 	static public function addScopeHandler(moduleName : String, scopeName : String, type : String, handler : Dynamic) : HandlerVO {
 		// get permission object
-		var scopePermission : ScopePermissionData;
+		var scopePermission : ScopePermissionData = null;
 		if( scopePermissionsRegistry[moduleName]  != null ) {
 			scopePermission = scopePermissionsRegistry[moduleName][scopeName];
 		}
@@ -197,17 +197,13 @@ class ModuleManager
 	//     Command scoping
 	//----------------------------------
 	/**
+	 * 
 	 * Map command to scoped message.
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+	 *
 	 */
 	static public function scopedCommandMap(moduleName : String, handleCommandExecute : Dynamic, scopeName : String, type : String, commandClass : Class<Dynamic>) : HandlerVO {
 		// get permission object
-		var scopePermission : ScopePermissionData;
+		var scopePermission : ScopePermissionData = null;
 		if( scopePermissionsRegistry[moduleName]  != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
@@ -239,7 +235,7 @@ class ModuleManager
 	 */
 	static public function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void {
 		// get permission object
-		var scopePermission : ScopePermissionData;
+		var scopePermission : ScopePermissionData = null;
 		if( scopePermissionsRegistry[moduleName] != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
@@ -401,13 +397,12 @@ class ModuleManager
 	 */
 	static public function listModules() : String {
 		var retVal : String = "";
-		var i : Int;
-		while(i < allModules.length) {
+		for (i in 0...allModules.length) 
+		{
 			if(retVal != "")  {
 				retVal += ",";
 			}
 			retVal += allModules[i].moduleName;
-			i++;
 		}
 		return "Module list:" + retVal;
 	}
