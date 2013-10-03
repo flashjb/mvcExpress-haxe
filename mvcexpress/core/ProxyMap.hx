@@ -78,11 +78,11 @@ class ProxyMap implements IProxyMap
 		// get proxy class
 		var proxyClass : Class<Dynamic> = Type.getClass(proxyObject);
 		// if injectClass is not provided - proxyClass will be used instead.
-		if(!injectClass)  {
+		if( injectClass == null )  {
 			injectClass = proxyClass;
 		}
 		var className : String = qualifiedClassNameRegistry[injectClass];
-		if(!className)  {
+		if( className == null )  {
 			className = Type.getClassName(injectClass);
 			qualifiedClassNameRegistry[injectClass] = className;
 		}

@@ -146,7 +146,7 @@ class MediatorMap implements IMediatorMap {
 				mediator.register();
 			}
 		} else {
-			throw cast(("View object" + viewObject + " class is not mapped with any mediator class. use mediatorMap.map()"), Error);
+			throw "View object" + viewObject + " class is not mapped with any mediator class. use mediatorMap.map()";
 		}
 
 	}
@@ -164,7 +164,7 @@ class MediatorMap implements IMediatorMap {
 			throw cast(("This view object is already mediated by " + mediatorRegistry[viewObject]), Error);
 		}
 		
-		var mediator : Mediator = new MediatorClass();
+		var mediator : Mediator = Type.createInstance( mediatorClass, [] );
 		var viewClass : Class<Dynamic> = Type.getClass(viewObject.constructor);
 		if(!injectClass)  {
 			injectClass = viewClass;

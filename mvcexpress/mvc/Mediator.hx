@@ -26,19 +26,19 @@ class Mediator {
 	var isReady(get_isReady, never) : Bool;
 
 	// name of module this mediator is working in.
-	var moduleName : String;
+	public var moduleName : String;
 	public var proxyMap : IProxyMap;
 	/**
 	 * Handles application mediators.
 	 */
 	public var mediatorMap : IMediatorMap;
 	// used internally for communication
-	var messenger : Messenger;
+	public var messenger : Messenger;
 	// Shows if proxy is ready. Read only.
 	var _isReady : Bool;
 	// = false;
 	// amount of pending injections.
-	var pendingInjections : Int;
+	public var pendingInjections : Int;
 	// = 0;
 	/** all added message handlers. */
 	var handlerVoRegistry : Array<HandlerVO>;
@@ -54,10 +54,12 @@ class Mediator {
 		public static var canConstruct:Bool; // = false;
 	#end
 	/** CONSTRUCTOR */
-	public function new() {
+	public function new() 
+	{
 		handlerVoRegistry = new Array<HandlerVO>();
 		eventListenerRegistry = new Dictionary();
 		eventListenerCaptureRegistry = new Dictionary();
+		
 		#if debug
 			//	use namespace pureLegsCore;
 			if (!canConstruct) {
@@ -319,7 +321,7 @@ class Mediator {
 	 * marks mediator as ready and calls onRegister()
 	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))
 	 */
-	function register() : Void {
+	public function register() : Void {
 		_isReady = true;
 		onRegister();
 	}
@@ -333,7 +335,7 @@ class Mediator {
 	 * - sets internals to null																									<br>
 	 * 
 	 */
-	function remove() : Void {
+	public function remove() : Void {
 		//use namespace pureLegsCore;
 		onRemove();
 		removeAllHandlers();

@@ -16,13 +16,13 @@ class MvcExpress
 	/** Home website of mvcExpress. */
 	static public var WEBSITE_URL : String = "http://mvcexpress.org";
 	/** Framework name */
-	static public var NAME : String = "mvcExpress";
+	static public var NAME : String = "mvcExpress-haxe";
 	/** Current framework major version */
-	static public var MAJOR_VERSION : Int = 1;
+	static public var MAJOR_VERSION : Int = 0;
 	/** Current framework minor version */
-	static public var MINOR_VERSION : Int = 4;
+	static public var MINOR_VERSION : Int = 0;
 	/** Current framework revision version */
-	static public var REVISION : Int = 2;
+	static public var REVISION : Int = 1;
 	/** Current framework version */
 	//public static const VERSION:String = "v" + MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION;
 	static public function get_VERSION() : String {

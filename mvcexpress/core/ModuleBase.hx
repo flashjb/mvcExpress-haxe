@@ -16,7 +16,7 @@ import mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage;
 
 class ModuleBase {
 	public var moduleName(get_moduleName, never) : String;
-	var messenger(get_messenger, never) : Messenger;
+	public var messenger(get_messenger, never) : Messenger;
 
 	// defines if class can be instantiated.
 	static var allowInstantiation : Bool;
@@ -97,7 +97,7 @@ class ModuleBase {
 		// check if flex is used.
 		var uiComponentClass : Class<Dynamic> = getFlexClass();
 		// if flex is used - special FlexMediatorMap Class is instantiated that wraps mediate() and unmediate() functions to handle flex 'creationComplete' issues.
-		if( uiComponentClass )  {
+		if( uiComponentClass != null )  {
 			mediatorMap = new FlexMediatorMap(_moduleName, _messenger, proxyMap, uiComponentClass);
 		}
 

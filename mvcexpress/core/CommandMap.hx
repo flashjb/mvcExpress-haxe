@@ -293,15 +293,12 @@ class CommandMap
 	 * 
 	 * 
 	 */
-	public function mappedCommandCount(type : String) : Int {
-		if(classRegistry[type] != null)  {
+	public function mappedCommandCount(type : String) : Int 
+	{
+		if(classRegistry[type] != null)  
 			return cast classRegistry[type].length;
-		}
-
-		else  {
-			return 0;
-		}
-
+		
+		return 0;
 	}
 
 	/**
@@ -327,7 +324,7 @@ class CommandMap
 	 * 
 	 * 
 	 */
-	function poolCommand(command : PooledCommand) : Void {
+	public function poolCommand(command : PooledCommand) : Void {
 		var commandClass : Class<Dynamic> = Type.getClass( command );
 		var pooledCommands : Array<PooledCommand> = commandPools[commandClass];
 		if( pooledCommands ) {
@@ -339,7 +336,7 @@ class CommandMap
 	 * Dispose commandMap on disposeModule()
 	 * 
 	 */
-	function dispose() : Void {
+	public function dispose() : Void {
 		//use namespace pureLegsCore;
 		for( type in Reflect.fields(classRegistry) ) {
 			messenger.removeHandler(type, handleCommandExecute);
@@ -360,7 +357,7 @@ class CommandMap
 	}
 
 	/** function to be called by messenger on needed message type sent */
-	function handleCommandExecute(messageType : String, params : Dynamic) : Void 
+	public function handleCommandExecute(messageType : String, params : Dynamic) : Void 
 	{
 		//use namespace pureLegsCore;
 		
@@ -492,10 +489,6 @@ class CommandMap
 				validatedCommands[commandClass] = true;
 			}
 		}
-	#end
-	
-	
-	#if debug
 	
 	
 		private function validateCommandParams(commandClass:Class<Dynamic>, params:Dynamic) : Void 
@@ -511,7 +504,7 @@ class CommandMap
 	#end
 	
 	// used for debugging
-	function listMessageCommands(messageType : String) : Array<Class<Dynamic>> {
+	public function listMessageCommands(messageType : String) : Array<Class<Dynamic>> {
 		return classRegistry[messageType];
 	}
 

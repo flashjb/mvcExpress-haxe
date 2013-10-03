@@ -6,7 +6,6 @@
  */
 package mvcexpress.core.messenger;
 
-import flash.utils.Dictionary;
 import mvcexpress.MvcExpress;
 import mvcexpress.core.CommandMap;
 ////import mvcexpress.core.namespace.PureLegsCore;
@@ -15,7 +14,8 @@ import mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler;
 import mvcexpress.core.traceobjects.messenger.TraceMessenger_send;
 import mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler;
 
-class Messenger {
+class Messenger 
+{
 
 	// name of the module messenger is working for.
 	public var moduleName : String;
@@ -23,17 +23,18 @@ class Messenger {
 	public static var allowInstantiation : Bool;
 	// = false;
 	// keeps ALL HandlerVO's in vectors by message type that they have to respond to.
-	var messageRegistry : Dictionary;
+	var messageRegistry : Map<String, Array<HandlerVO>>;
 	/* of Vector.<HandlerVO> by String */
 	// keeps ALL HandlerVO's in Dictionaries by message type, mapped by handlers for fast disabling and duplicated handler checks.
-	var handlerRegistry : Dictionary;
+	var handlerRegistry : Map<String, Array<Dynamic>>;
 	/* of Dictionary by String */
 	/**
 	 * CONSTRUCTOR - internal class. Not available for use.
 	 */
-	public function new( moduleName : String ) {
-		messageRegistry = new Dictionary();
-		handlerRegistry = new Dictionary();
+	public function new( moduleName : String ) 
+	{
+		messageRegistry = new Map();
+		handlerRegistry = new Map();
 		//use namespace pureLegsCore;
 		if(!allowInstantiation)  {
 			throw ("Messenger is a framework class, you can't instantiate it.");
@@ -57,20 +58,20 @@ class Messenger {
 		
 		// if this message type used for the first time - create data placeholders.
 		var messageList : Array<HandlerVO> = messageRegistry[type];
-		if(!messageList)  {
+		if( messageList == null )  {
 			messageList = new Array<HandlerVO>();
 			messageRegistry[type] = messageList;
-			handlerRegistry[type] = new Dictionary();
+			handlerRegistry[type] = new Array();
 		}
 		var msgData : HandlerVO = handlerRegistry[type][handler];
 		// check if this handler already exists for this type. (this check can be skipped in release mode.)
 		#if debug
-			if (msgData) {
+			if( msgData != null ) {
 				throw ("This handler function is already mapped to message type :" + type);
 			}
 		#end
 		
-		if(!msgData)  {
+		if( msgData == null )  {
 			msgData = new HandlerVO();
 			
 			#if debug
@@ -82,7 +83,6 @@ class Messenger {
 			handlerRegistry[type][handler] = msgData;
 		}
 		return msgData;
-		//}
 	}
 
 	/**
@@ -94,15 +94,15 @@ class Messenger {
 	public function removeHandler(type : String, handler : Dynamic) : Void {
 		// debug this action
 		#if debug
-		//			use namespace pureLegsCore;
+		//	use namespace pureLegsCore;
 			MvcExpress.debug(new TraceMessenger_removeHandler(moduleName, type, handler));
 		#end
 		
-		if(handlerRegistry[type])  {
+		if( handlerRegistry[type] != null )  {
 			if(handlerRegistry[type][handler])  
 			{
 				cast(handlerRegistry[type][handler], HandlerVO).handler = null;
-				handlerRegistry[type][handler] = null;
+				Reflect.deleteField(handlerRegistry[type],handler);
 			}
 		}
 	}
@@ -124,11 +124,12 @@ class Messenger {
 		var handlerVo : HandlerVO;
 		var delCount : Int;
 		// = 0;
-		if(messageList)  {
+		if( messageList != null )  
+		{
 			var mesageCount : Int = messageList.length;
 			var i : Int;
-			while(i < mesageCount) {
-				handlerVo = messageList[i];
+			for( handlerVo in messageList ) 
+			{
 				// check if message is not marked to be removed. (disabled)
 				if(handlerVo.handler == null)  
 				{
@@ -137,7 +138,7 @@ class Messenger {
 				else  
 				{
 					// if some MsgVOs marked to be removed - move all other messages to there place.
-					if(delCount)  {
+					if(delCount != null)  {
 						messageList[i - delCount] = messageList[i];
 					}
 					if(handlerVo.isExecutable)  {
@@ -161,7 +162,7 @@ class Messenger {
 				i++;
 			}
 			// remove all removed handlers.
-			if(delCount)  {
+			if( delCount != null )  {
 				messageList.splice(mesageCount - delCount, delCount);
 			}
 		}

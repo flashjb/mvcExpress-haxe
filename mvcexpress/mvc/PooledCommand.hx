@@ -47,7 +47,7 @@ class PooledCommand extends Command {
 		}
 
 		else  {
-			throw cast(("You are trying to unlock PooledCommand that was never locked. lock() it first."), Error);
+			throw ("You are trying to unlock PooledCommand that was never locked. lock() it first.");
 		}
 
 	}

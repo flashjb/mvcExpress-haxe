@@ -13,7 +13,8 @@ import flash.events.IEventDispatcher;
 import mvcexpress.core.messenger.Messenger;
 import mvcexpress.mvc.Mediator;
 
-class FlexMediatorMap extends MediatorMap {
+class FlexMediatorMap extends MediatorMap 
+{
 
 	var uiComponentClass : Class<Dynamic>;
 	/* CONSTRUCTOR */
@@ -28,20 +29,19 @@ class FlexMediatorMap extends MediatorMap {
 	 * If object is not initialized - mvcExpress will wait for 'creationComplete' to be dispatched before mediating it.
 	 * 
 	 */
-	override public function mediate(viewObject : Dynamic) : Void {
-		if((Std.is(viewObject, uiComponentClass)) && !viewObject["initialized"])  {
+	override public function mediate(viewObject : Dynamic) : Void 
+	{
+		if((Std.is(viewObject, uiComponentClass)) && !Reflect.hasField(viewObject, "initialized") )  
+		{
 			cast((viewObject), IEventDispatcher).addEventListener("creationComplete", handleOnCreationComplete, false, 0, true);
-		}
-
-		else  {
+		} else  {
 			super.mediate(viewObject);
 		}
-
 	}
 
 	/** Start flex view object mediation after creationComplete is dispatched. */
 	function handleOnCreationComplete(event : Event) : Void {
-		cast((event.target), IEventDispatcher).removeEventListener("creationComplete", handleOnCreationComplete);
+		cast(event.target, IEventDispatcher).removeEventListener("creationComplete", handleOnCreationComplete);
 		//
 		super.mediate(event.target);
 	}
