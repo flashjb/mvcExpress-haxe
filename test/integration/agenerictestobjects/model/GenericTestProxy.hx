@@ -9,7 +9,9 @@ import mvcexpress.mvc.Proxy;
 class GenericTestProxy extends Proxy {
 
 	public var testData : String;
-	public function new() {
+	public function new() 
+	{
+		super();
 	}
 
 	override function onRegister() : Void {

@@ -10,6 +10,7 @@ class LazyProxy extends Proxy {
 
 	static public var instantiateCount : Int = 0;
 	public function new() {
+		super();
 		LazyProxy.instantiateCount++;
 	}
 

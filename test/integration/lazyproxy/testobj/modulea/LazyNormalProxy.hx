@@ -10,7 +10,9 @@ class LazyNormalProxy extends Proxy {
 
 	
 	public var lazyProxy : LazyProxy;
-	public function new() {
+	public function new() 
+	{
+		super();
 	}
 
 	override function onRegister() : Void {

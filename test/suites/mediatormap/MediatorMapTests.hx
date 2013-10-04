@@ -28,6 +28,28 @@ class MediatorMapTests {
 	var callCaunter : Int;
 	var callsExpected : Int;
 	
+	
+	public function new() 
+	{
+		testFunction( "mediatorMap_onRegister_and_no_onRemove" );
+		testFunction( "mediatorMap_onRegister_and_onRemove" );
+		testFunction( "mediatorMap_messag_callBack_test" );
+		//testFunction( "mediatorMap_doubleMediate_fails");>>OK
+		testFunction( "mediatorMap_mediateWith_notFails" );
+	//	testFunction( "mediatorMap_doubleMediateWith_fails" );>> OK
+		testFunction( "debug_test_isMapped_false_wrong_view" );
+		testFunction( "debug_test_isMapped_false_wrong_mediator");
+		testFunction( "debug_test_isMapped_true");
+		//testFunction( "debug_map_not_mediator_fails");
+	}
+	
+	public function testFunction( funcName : String ) : Void
+	{
+		runBeforeEveryTest();
+		Reflect.callMethod(this, Reflect.field(this, funcName), []);
+		runAfterEveryTest();
+	}
+	
 	public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
@@ -51,32 +73,36 @@ class MediatorMapTests {
 
 	//	[Test(async,description="Mediator onRegister test")]
 	public function mediatorMap_onRegister_and_no_onRemove() : Void {
-		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
-		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
+//		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+//		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
+		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = callBackSuccess;
+		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = callBackFail;
 		mediatorMap.map(MediatorMapTestSprite, MediatorMapTestSpriteMediator);
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediate(view);
 	}
-
+	
 	//	[Test(async,description="Mediator onRemove test")]
 	public function mediatorMap_onRegister_and_onRemove() : Void {
-		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
-		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+	//	MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+	//	MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = callBackSuccess;
+		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION   = callBackSuccess;
 		mediatorMap.map(MediatorMapTestSprite, MediatorMapTestSpriteMediator);
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediate(view);
 		mediatorMap.unmediate(view);
 	}
-
+	
 	//	[Test(async,description="Mediator onRemove test")]
 	public function mediatorMap_messag_callBack_test() : Void {
-		MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+//		MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = AsyncUtil.asyncHandler(this, callBackSuccess, null, 300, callBackFail);
+		MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = callBackSuccess;
 		mediatorMap.map(MediatorMapTestSprite, MediatorMapTestSpriteMediator);
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediate(view);
 		messenger.send(MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE);
 	}
-
 	
 	public function mediatorMap_doubleMediate_fails() : Void {
 		mediatorMap.map(MediatorMapTestSprite, MediatorMapTestSpriteMediator);
@@ -84,18 +110,33 @@ class MediatorMapTests {
 		mediatorMap.mediate(view);
 		mediatorMap.mediate(view);
 	}
-
 	
 	public function mediatorMap_mediateWith_notFails() : Void {
+		
+		#if debug
+			Mediator.canConstruct = true;
+		#end
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
+		#if debug
+			Mediator.canConstruct = false;
+		#end
 	}
 
 	
-	public function mediatorMap_doubleMediateWith_fails() : Void {
+	public function mediatorMap_doubleMediateWith_fails() : Void 
+	{
+		#if debug
+			Mediator.canConstruct = true;
+		#end
+		
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
+		
+		#if debug
+			Mediator.canConstruct = false;
+		#end
 	}
 
 	//----------------------------------
@@ -113,7 +154,7 @@ class MediatorMapTests {
 		Assert.assertFalse("isMapped() should retturn false with NOT mapped mediator class to view.", mediatorMap.isMapped(MediatorMapTestSprite, MediatorSpriteMediator));
 	}
 
-	
+
 	public function debug_test_isMapped_true() : Void {
 		mediatorMap.map(MediatorMapTestSprite, MediatorMapTestSpriteMediator);
 		Assert.assertTrue("isMapped() should retturn true with mapped view class to mediator class.", mediatorMap.isMapped(MediatorMapTestSprite, MediatorMapTestSpriteMediator));
@@ -138,7 +179,9 @@ class MediatorMapTests {
 		Assert.fail("CallBack should not be called...");
 	}
 
-	public function callBackSuccess(obj : Dynamic = null) : Void {
+	public function callBackSuccess(obj : Dynamic = null) : Void 
+	{
+		//trace("callback Succes", obj);
 	}
 
 	//----------------------------------

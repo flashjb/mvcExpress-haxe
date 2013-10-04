@@ -368,7 +368,8 @@ class ProxyMap implements IProxyMap
 		var injectObject : Dynamic = null;
 		// deal with temporal injection. (it is used only for this injection, for example - view object for mediator is used this way.)
 		var tempClassName : String = "";
-		if( tempValue )  {
+		if( tempValue )  
+		{
 			if( tempClass != null )  
 			{
 				tempClassName = qualifiedClassNameRegistry.get(tempClass);
@@ -378,14 +379,21 @@ class ProxyMap implements IProxyMap
 					qualifiedClassNameRegistry.set(tempClass, tempClassName);
 				}
 				
+				//TODO make injection work
+				/**
+				 * 
+				 
 				if( injectObjectRegistry.exists(tempClassName) )  {
 					injectObjectRegistry.set(tempClassName, cast(tempValue, Proxy));
 				} else  {
 					throw ("Temp object should not be mapped already... it was meant to be used by framework for mediator view object only.");
 				}
+				 * 
+				 */
 
 			}
 		}
+		
 		var rules : Array<InjectRuleVO> = classInjectRules.get(signatureClass);
 		if( rules == null )  {
 			////////////////////////////////////////////////////////////
@@ -397,16 +405,15 @@ class ProxyMap implements IProxyMap
 			//////////////////////////////////////////////////////////
 		}
 		
-		var ruleCount : Int = rules.length;
-		var i : Int = 0;
-		while(i < ruleCount) 
+		for ( rule  in rules )
 		{
-			var rule : InjectRuleVO = rules[i];
 			var scopename : String = rule.scopeName;
 			var injectClassAndName : String = rule.injectClassAndName;
 			
-			if( scopename != null )  {
-				if(!ModuleManager.injectScopedProxy(object, rule))  {
+			if( scopename != null ) 
+			 {
+				if(!ModuleManager.injectScopedProxy(object, rule))  
+				{
 					if(MvcExpress.pendingInjectsTimeOut != 0 && !(Std.is(object, Command)))  
 					{
 						isAllInjected = false;
@@ -422,7 +429,6 @@ class ProxyMap implements IProxyMap
 					} else {
 						throw ("Inject object is not found in scope:" + scopename + " for class with id:" + injectClassAndName + "(needed in " + object + ")");
 					}
-
 				}
 			}
 			else  
@@ -454,6 +460,7 @@ class ProxyMap implements IProxyMap
 							//var paramCount : Int = lazyProxyData.proxyParams.length;
 							
 							lazyProxy = Type.createInstance( lazyProxyData.proxyClass, lazyProxyData.proxyParams );
+							
 							/*
 							if(paramCount == 0)  {
 								lazyProxy = new lazyproxydata.ProxyClass();
@@ -508,7 +515,6 @@ class ProxyMap implements IProxyMap
 						}
 
 						map(lazyProxy, lazyProxyData.injectClass, lazyProxyData.name);
-						i--;
 					}
 					else  
 					{
@@ -523,30 +529,24 @@ class ProxyMap implements IProxyMap
 							//
 							addPendingInjection(injectClassAndName, new PendingInject(injectClassAndName, object, signatureClass, MvcExpress.pendingInjectsTimeOut));
 							object.pendingInjections++;
-						}
-
-						else  {
+						} else  {
 							throw ("Inject object is not found for class with id:" + injectClassAndName + "(needed in " + object + ")");
 						}
 					}
 				}
 			}
-
-			i++;
 		}
 		////// handle command pooling (register dependencies)
 		// chekc if object is PooledCommand,
 		if(Std.is(object, PooledCommand))  {
 			var command : PooledCommand =  cast(object, PooledCommand);
 			//check if it is not pooled already.
-			if(!commandMap.checkIsClassPooled(signatureClass))  {
+			if(!commandMap.checkIsClassPooled(signatureClass))  
+			{
 				// dependencies remembers who is dependant on them.
-				ruleCount = rules.length;
-				var r : Int = 0;
-				while(r < ruleCount) {
-					cast(Reflect.field(command,rules[r].varName), Proxy).registerDependantCommand(signatureClass);
-					r++;
-				}
+				for ( r in rules ) 
+					cast(Reflect.field(command, r.varName), Proxy).registerDependantCommand(signatureClass);
+				
 			}
 		}
 		if( Std.is(tempClassName, String) )  {

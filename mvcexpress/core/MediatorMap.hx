@@ -163,7 +163,8 @@ class MediatorMap implements IMediatorMap {
 	 * 
 	 * 
 	 */
-	public function mediateWith(viewObject : Dynamic, mediatorClass : Class<Dynamic>, injectClass : Class<Dynamic> = null) : Void {
+	public function mediateWith(viewObject : Dynamic, mediatorClass : Class<Dynamic>, injectClass : Class<Dynamic> = null) : Void 
+	{
 	//	use namespace pureLegsCore;
 		if(mediatorRegistry.exists(viewObject))  {
 			throw ("This view object is already mediated by " + mediatorRegistry.get(viewObject));

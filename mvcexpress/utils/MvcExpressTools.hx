@@ -16,7 +16,7 @@ class MvcExpressTools
 	
 	static public function checkClassSuperClass( classObject:Class<Dynamic>, superClass:Class<Dynamic> )
 	{
-		return Std.is(Type.getSuperClass(classObject), superClass); 
+		return Type.getSuperClass(classObject) == superClass; 
 	}
 	
 	static function _checkClassStringConstants( args:Array<Dynamic> ) : Void 

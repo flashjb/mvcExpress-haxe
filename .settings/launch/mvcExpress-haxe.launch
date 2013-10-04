@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.powerflasher.fdt.ui.ViewerLaunchGroup">
-<booleanAttribute key="KILL_PREVIOUS_VIEWER" value="true"/>
+<booleanAttribute key="KILL_PREVIOUS_VIEWER" value="false"/>
 <stringAttribute key="MAIN_CLASS" value="bin/flash/bin/swf/Main.swf"/>
 <intAttribute key="PLAYER_HEIGHT" value="400"/>
 <intAttribute key="PLAYER_WIDTH" value="550"/>

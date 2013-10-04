@@ -7,7 +7,6 @@
 -D tools=1
 -D openfl_ver=1.0.2
 -D openfl
--D debug
 -D web
 -swf-version 11
 -swf bin/flash/bin/swf/Main.swf

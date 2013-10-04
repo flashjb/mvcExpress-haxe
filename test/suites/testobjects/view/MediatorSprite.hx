@@ -11,6 +11,7 @@ import suites.TestViewEvent;
 class MediatorSprite extends Sprite {
 
 	public function new() {
+		super();
 	}
 
 	public function tryAddingHandlerTwice() : Void {

@@ -16,8 +16,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="19" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="27" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="14"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/flash/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -17030,17 +17030,17 @@
 	</class>
 	<class path="mvcexpress.core.MediatorMap" params="" file="mvcexpress/core/MediatorMap.hx">
 		<implements path="mvcexpress.core.interfaces.IMediatorMap"/>
-		<dispose public="1" set="method" line="277">
+		<dispose public="1" set="method" line="278">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose mediatorMap - unmediate all mediated view objects and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<listMappings public="1" set="method" line="259">
+		<listMappings public="1" set="method" line="260">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns String of all view classes that are mapped to mediator classes. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMediated public="1" set="method" line="251">
+		<isMediated public="1" set="method" line="252">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -17048,7 +17048,7 @@
 			<haxe_doc>* Checks if view object is mediated.
 	 *</haxe_doc>
 		</isMediated>
-		<isViewMapped public="1" set="method" line="237">
+		<isViewMapped public="1" set="method" line="238">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -17056,7 +17056,7 @@
 			<haxe_doc>* Check if class of view object is mapped to any mediator.
 	 *</haxe_doc>
 		</isViewMapped>
-		<isMapped public="1" set="method" line="225">
+		<isMapped public="1" set="method" line="226">
 			<f a="viewClass:?mediatorClass">
 				<x path="Class"><d/></x>
 				<x path="Class"><d/></x>
@@ -17067,7 +17067,7 @@
 	 * 
 	 *</haxe_doc>
 		</isMapped>
-		<unmediate public="1" set="method" line="196">
+		<unmediate public="1" set="method" line="197">
 			<f a="viewObject">
 				<d/>
 				<x path="Void"/>
@@ -18955,36 +18955,246 @@
 		<SWF_LITE/>
 		<SWF/>
 	</enum>
+	<class path="suites.TestViewEvent" params="" file="test/suites/TestViewEvent.hx">
+		<extends path="flash.events.Event"/>
+		<ADD_LOCAL_HANDLER public="1" line="11" static="1"><c path="String"/></ADD_LOCAL_HANDLER>
+		<ADD_REMOTE_HANDLER public="1" line="12" static="1"><c path="String"/></ADD_REMOTE_HANDLER>
+		<TRIGER_ADD_HANDLER public="1" line="13" static="1"><c path="String"/></TRIGER_ADD_HANDLER>
+		<REMOVE_LOCAL_HANDLER public="1" line="14" static="1"><c path="String"/></REMOVE_LOCAL_HANDLER>
+		<REMOVE_REMOTE_HANDLER public="1" line="15" static="1"><c path="String"/></REMOVE_REMOTE_HANDLER>
+		<TEST_GET_PROXY_CLASS public="1" line="16" static="1"><c path="String"/></TEST_GET_PROXY_CLASS>
+		<testClass public="1"><x path="Class"><d/></x></testClass>
+		<messageType public="1"><c path="String"/></messageType>
+		<new public="1" set="method" line="19"><f a="type:?messageType:?testClass">
+	<c path="String"/>
+	<c path="String"/>
+	<x path="Class"><d/></x>
+	<x path="Void"/>
+</f></new>
+	</class>
 	<class path="suites.general.GeneralTests" params="" file="test/suites/general/GeneralTests.hx">
 		<general_debug_flag public="1" set="method" line="26"><f a=""><x path="Void"/></f></general_debug_flag>
 		<general_framework_version public="1" set="method" line="18"><f a=""><x path="Void"/></f></general_framework_version>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
-	<class path="suites.messenger.MessengerTests" params="" file="test/suites/messenger/MessengerTests.hx">
-		<callbacknormal public="1" set="method" line="106"><f a="obj">
+	<class path="suites.mediatormap.MediatorMapTests" params="" file="test/suites/mediatormap/MediatorMapTests.hx">
+		<callBackIncrease public="1" set="method" line="197"><f a="?obj">
 	<d/>
 	<x path="Void"/>
-</f></callbacknormal>
-		<callBackSuccess public="1" set="method" line="103"><f a="obj">
+</f></callBackIncrease>
+		<callBackCheck set="method" line="190"><f a="?obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackCheck>
+		<callBackSuccess public="1" set="method" line="182"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackSuccess>
-		<callBackFail set="method" line="99"><f a="obj">
+		<callBackFail set="method" line="178"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackFail>
-		<add_and_remove_callback_then_message_fails_silently public="1" set="method" line="88"><f a=""><x path="Void"/></f></add_and_remove_callback_then_message_fails_silently>
-		<add_callback_and_disable_then_message_fails_silently public="1" set="method" line="76"><f a=""><x path="Void"/></f></add_callback_and_disable_then_message_fails_silently>
-		<add_callback_and_sendNot_then_message_fails_silently public="1" set="method" line="66"><f a=""><x path="Void"/></f></add_callback_and_sendNot_then_message_fails_silently>
-		<add_and_handle_callback public="1" set="method" line="56"><f a=""><x path="Void"/></f></add_and_handle_callback>
-		<runAfterEveryTest public="1" set="method" line="47"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="39"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<debug_map_not_mediator_fails public="1" set="method" line="164"><f a=""><x path="Void"/></f></debug_map_not_mediator_fails>
+		<debug_test_isMapped_true public="1" set="method" line="158"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
+		<debug_test_isMapped_false_wrong_mediator public="1" set="method" line="152"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_mediator>
+		<debug_test_isMapped_false_wrong_view public="1" set="method" line="146"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_view>
+		<mediatorMap_doubleMediateWith_fails public="1" set="method" line="127"><f a=""><x path="Void"/></f></mediatorMap_doubleMediateWith_fails>
+		<mediatorMap_mediateWith_notFails public="1" set="method" line="114"><f a=""><x path="Void"/></f></mediatorMap_mediateWith_notFails>
+		<mediatorMap_doubleMediate_fails public="1" set="method" line="107"><f a=""><x path="Void"/></f></mediatorMap_doubleMediate_fails>
+		<mediatorMap_messag_callBack_test public="1" set="method" line="98"><f a=""><x path="Void"/></f></mediatorMap_messag_callBack_test>
+		<mediatorMap_onRegister_and_onRemove public="1" set="method" line="86"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_onRemove>
+		<mediatorMap_onRegister_and_no_onRemove public="1" set="method" line="75"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_no_onRemove>
+		<runAfterEveryTest public="1" set="method" line="65"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="53"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="46"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<callsExpected><x path="Int"/></callsExpected>
+		<callCaunter><x path="Int"/></callCaunter>
+		<mediatorMap><c path="mvcexpress.core.MediatorMap"/></mediatorMap>
+		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
+		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<new public="1" set="method" line="32"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.mediatormap.medatormaptestobj.MediatorMapTestSprite" params="" file="test/suites/mediatormap/medatormaptestobj/MediatorMapTestSprite.hx">
+		<extends path="flash.display.Sprite"/>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator" params="" file="test/suites/mediatormap/medatormaptestobj/MediatorMapTestSpriteMediator.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<TEST_MESSAGE_TYPE public="1" line="11" static="1"><c path="String"/></TEST_MESSAGE_TYPE>
+		<REGISTER_TEST_FUNCTION public="1" line="12" static="1"><d/></REGISTER_TEST_FUNCTION>
+		<REMOVE_TEST_FUNCTION public="1" line="15" static="1"><d/></REMOVE_TEST_FUNCTION>
+		<CALLBACK_TEST_FUNCTION public="1" line="18" static="1"><d/></CALLBACK_TEST_FUNCTION>
+		<handleTestCallBack set="method" line="30"><f a="params">
+	<d/>
+	<x path="Void"/>
+</f></handleTestCallBack>
+		<onRemove public="1" set="method" line="26" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister public="1" set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.mediators.MediatorTests" params="" file="test/suites/mediators/MediatorTests.hx">
+		<mediator_same_handler_added_twice_fails public="1" set="method" line="126"><f a=""><x path="Void"/></f></mediator_same_handler_added_twice_fails>
+		<mediator_handler_two_params_one_optional public="1" set="method" line="121"><f a=""><x path="Void"/></f></mediator_handler_two_params_one_optional>
+		<mediator_handler_two_params public="1" set="method" line="116"><f a=""><x path="Void"/></f></mediator_handler_two_params>
+		<mediator_handler_bad_params public="1" set="method" line="111"><f a=""><x path="Void"/></f></mediator_handler_bad_params>
+		<mediator_handler_object_params public="1" set="method" line="106"><f a=""><x path="Void"/></f></mediator_handler_object_params>
+		<mediator_empty_handler public="1" set="method" line="78"><f a=""><x path="Void"/></f></mediator_empty_handler>
+		<mediator_isReady public="1" set="method" line="73"><f a=""><x path="Void"/></f></mediator_isReady>
+		<mediator_constructor_fails public="1" set="method" line="64"><f a=""><x path="Void"/></f></mediator_constructor_fails>
+		<runAfterEveryTest public="1" set="method" line="54"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="41"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="34"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<testView><c path="suites.testobjects.view.MediatorSprite"/></testView>
+		<mediatorMap><c path="mvcexpress.core.MediatorMap"/></mediatorMap>
+		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
+		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.messenger.MessengerTests" params="" file="test/suites/messenger/MessengerTests.hx">
+		<callbacknormal public="1" set="method" line="104"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callbacknormal>
+		<callBackSuccess public="1" set="method" line="101"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackSuccess>
+		<callBackFail set="method" line="97"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackFail>
+		<add_and_remove_callback_then_message_fails_silently public="1" set="method" line="86"><f a=""><x path="Void"/></f></add_and_remove_callback_then_message_fails_silently>
+		<add_callback_and_disable_then_message_fails_silently public="1" set="method" line="74"><f a=""><x path="Void"/></f></add_callback_and_disable_then_message_fails_silently>
+		<add_callback_and_sendNot_then_message_fails_silently public="1" set="method" line="64"><f a=""><x path="Void"/></f></add_callback_and_sendNot_then_message_fails_silently>
+		<add_and_handle_callback public="1" set="method" line="54"><f a=""><x path="Void"/></f></add_and_handle_callback>
+		<runAfterEveryTest public="1" set="method" line="45"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="37"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<testFunction public="1" set="method" line="30"><f a="funcName">
 	<c path="String"/>
 	<x path="Void"/>
 </f></testFunction>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
 		<new public="1" set="method" line="21"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.proxymap.NamedInterfacedProxyMapTests" params="" file="test/suites/proxymap/NamedInterfacedProxyMapTests.hx">
+		<class_proxy_not_null public="1" set="method" line="45"><f a=""><x path="Void"/></f></class_proxy_not_null>
+		<runAfterEveryTest public="1" set="method" line="38"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="29"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<namedTestingProxy><c path="suites.proxymap.namedproxytestobj.NamedProxyTestingProxy"/></namedTestingProxy>
+		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
+		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.proxymap.OldProxyMapTests" params="" file="test/suites/proxymap/OldProxyMapTests.hx">
+		<callBackIncrease public="1" set="method" line="216"><f a="?obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackIncrease>
+		<callBackCheck set="method" line="209"><f a="?obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackCheck>
+		<callBackSuccess public="1" set="method" line="203"><f a="?obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackSuccess>
+		<callBackFail set="method" line="199"><f a="?obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackFail>
+		<debug_test_isMapped_true public="1" set="method" line="189"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
+		<debug_test_isMapped_false public="1" set="method" line="181"><f a=""><x path="Void"/></f></debug_test_isMapped_false>
+		<removing_object_proxy public="1" set="method" line="168"><f a=""><x path="Void"/></f></removing_object_proxy>
+		<removing_class_proxy public="1" set="method" line="156"><f a=""><x path="Void"/></f></removing_class_proxy>
+		<mappings_does_not_exists_throws_error public="1" set="method" line="146"><f a=""><x path="Void"/></f></mappings_does_not_exists_throws_error>
+		<mapping_object_proxy_twice_throws_error public="1" set="method" line="136"><f a=""><x path="Void"/></f></mapping_object_proxy_twice_throws_error>
+		<using_object_proxy_twice_both_should_be_equal public="1" set="method" line="121"><f a=""><x path="Void"/></f></using_object_proxy_twice_both_should_be_equal>
+		<using_object_test public="1" set="method" line="106"><f a=""><x path="Void"/></f></using_object_test>
+		<mapping_class_proxy_twice_throws_error public="1" set="method" line="97"><f a=""><x path="Void"/></f></mapping_class_proxy_twice_throws_error>
+		<using_class_proxy_twice_both_should_be_equal public="1" set="method" line="81"><f a=""><x path="Void"/></f></using_class_proxy_twice_both_should_be_equal>
+		<using_class_proxy public="1" set="method" line="67"><f a=""><x path="Void"/></f></using_class_proxy>
+		<runAfterEveryTest public="1" set="method" line="55"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="44"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="37"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<callsExpected><x path="Int"/></callsExpected>
+		<callCaunter><x path="Int"/></callCaunter>
+		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
+		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.proxymap.namedproxytestobj.NamedProxyTestingProxy" params="" file="test/suites/proxymap/namedproxytestobj/NamedProxyTestingProxy.hx">
+		<extends path="mvcexpress.mvc.Proxy"/>
+		<proxyNamedNotNullClass public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></proxyNamedNotNullClass>
+		<proxyNamed public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></proxyNamed>
+		<proxyNamedInterface public="1"><c path="suites.proxymap.proxytestobj.ITestProxy"/></proxyNamedInterface>
+		<proxyInterface public="1"><c path="suites.proxymap.proxytestobj.ITestProxy"/></proxyInterface>
+		<proxy public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></proxy>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.proxymap.proxytestobj.ITestProxy" params="" file="test/suites/proxymap/proxytestobj/ITestProxy.hx" interface="1"/>
+	<class path="suites.proxymap.proxytestobj.ProxyTestObj" params="" file="test/suites/proxymap/proxytestobj/ProxyTestObj.hx">
+		<testProxy public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></testProxy>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.proxymap.proxytestobj.TestProxy" params="" file="test/suites/proxymap/proxytestobj/TestProxy.hx">
+		<extends path="mvcexpress.mvc.Proxy"/>
+		<implements path="suites.proxymap.proxytestobj.ITestProxy"/>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.ITestObject" params="" file="test/suites/testobjects/ITestObject.hx" interface="1"/>
+	<class path="suites.testobjects.TestObject" params="" file="test/suites/testobjects/TestObject.hx">
+		<implements path="suites.testobjects.ITestObject"/>
+		<new public="1" set="method" line="7"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.view.MediatorSprite" params="" file="test/suites/testobjects/view/MediatorSprite.hx">
+		<extends path="flash.display.Sprite"/>
+		<tryAddingHandlerTwice public="1" set="method" line="17"><f a=""><x path="Void"/></f></tryAddingHandlerTwice>
+		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.view.MediatorSpriteMediator" params="" file="test/suites/testobjects/view/MediatorSpriteMediator.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<instance public="1" static="1"><c path="suites.testobjects.view.MediatorSpriteMediator"/></instance>
+		<getIsReady public="1" set="method" line="55"><f a=""><x path="Bool"/></f></getIsReady>
+		<handleTestWithTwoParamsOneOptional public="1" set="method" line="52"><f a="params:?extraParam">
+	<d/>
+	<c path="String"/>
+	<x path="Void"/>
+</f></handleTestWithTwoParamsOneOptional>
+		<handleTestWithTwoParams public="1" set="method" line="49"><f a="params:extraParam">
+	<d/>
+	<c path="String"/>
+	<x path="Void"/>
+</f></handleTestWithTwoParams>
+		<handleTestWithBadParams public="1" set="method" line="46"><f a="params">
+	<c path="suites.testobjects.TestObject"/>
+	<x path="Void"/>
+</f></handleTestWithBadParams>
+		<handleTestWithObjectParams public="1" set="method" line="43"><f a="params">
+	<d/>
+	<x path="Void"/>
+</f></handleTestWithObjectParams>
+		<handleTestEmpty public="1" set="method" line="40"><f a=""><x path="Void"/></f></handleTestEmpty>
+		<handleTestEmptyHandler public="1" set="method" line="36"><f a="params">
+	<d/>
+	<x path="Void"/>
+</f></handleTestEmptyHandler>
+		<addTestHandler set="method" line="32"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></addTestHandler>
+		<onRemove public="1" set="method" line="28" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1"><c path="suites.testobjects.view.MediatorSprite"/></view>
+		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="utils.Assert" params="" file="test/utils/Assert.hx">
 		<assertEquals public="1" set="method" line="14" static="1"><f a="?msg:?arg1:?arg2">

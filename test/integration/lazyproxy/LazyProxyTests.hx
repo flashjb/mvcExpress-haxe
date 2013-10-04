@@ -59,7 +59,7 @@ class LazyProxyTests {
 			lazyProxyModulA.mapNotProxy();
 			return;
 		#end
-		throw cast(("debug mode only."), Error);
+		throw ("debug mode only.");
 	}
 
 	//----------------------------------
@@ -80,7 +80,8 @@ class LazyProxyTests {
 		#if debug
 			lazyProxyModulA.mapWithParams([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 		#end
-		throw cast(("debug mode only."), Error);
+		
+		throw ("debug mode only.");
 	}
 
 }

@@ -9,6 +9,7 @@ import flash.display.Sprite;
 class MediatorMapTestSprite extends Sprite {
 
 	public function new() {
+		super();
 	}
 
 }

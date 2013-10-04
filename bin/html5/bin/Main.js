@@ -80,8 +80,7 @@ ApplicationMain.preloader_onComplete = function(event) {
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
 	new suites.general.GeneralTests();
-	new integration.moduleinittests.ModuleInitTests();
-	new suites.messenger.MessengerTests();
+	new suites.mediators.MediatorTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -7799,9 +7798,6 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -8684,7 +8680,6 @@ mvcexpress.core.ProxyMap.prototype = {
 					tempClassName = Type.getClassName(tempClass);
 					mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(tempClass,tempClassName);
 				}
-				if(this.injectObjectRegistry.exists(tempClassName)) this.injectObjectRegistry.set(tempClassName,js.Boot.__cast(tempValue , mvcexpress.mvc.Proxy)); else throw "Temp object should not be mapped already... it was meant to be used by framework for mediator view object only.";
 			}
 		}
 		var rules = mvcexpress.core.ProxyMap.classInjectRules.h[signatureClass.__id__];
@@ -8692,10 +8687,10 @@ mvcexpress.core.ProxyMap.prototype = {
 			rules = this.getInjectRules(signatureClass);
 			mvcexpress.core.ProxyMap.classInjectRules.set(signatureClass,rules);
 		}
-		var ruleCount = rules.length;
-		var i = 0;
-		while(i < ruleCount) {
-			var rule = rules[i];
+		var _g = 0;
+		while(_g < rules.length) {
+			var rule = rules[_g];
+			++_g;
 			var scopename = rule.scopeName;
 			var injectClassAndName = rule.injectClassAndName;
 			if(scopename != null) {
@@ -8721,7 +8716,6 @@ mvcexpress.core.ProxyMap.prototype = {
 						var lazyProxy;
 						if(lazyProxyData.proxyParams != null) lazyProxy = Type.createInstance(lazyProxyData.proxyClass,lazyProxyData.proxyParams); else lazyProxy = Type.createInstance(lazyProxyData.proxyClass,[]);
 						this.map(lazyProxy,lazyProxyData.injectClass,lazyProxyData.name);
-						i--;
 					} else {
 						isAllInjected = false;
 						if(mvcexpress.MvcExpress.pendingInjectsTimeOut != 0 && !js.Boot.__instanceof(object,mvcexpress.mvc.Command)) {
@@ -8732,16 +8726,15 @@ mvcexpress.core.ProxyMap.prototype = {
 					}
 				}
 			}
-			i++;
 		}
 		if(js.Boot.__instanceof(object,mvcexpress.mvc.PooledCommand)) {
 			var command = js.Boot.__cast(object , mvcexpress.mvc.PooledCommand);
 			if(!this.commandMap.checkIsClassPooled(signatureClass)) {
-				ruleCount = rules.length;
-				var r = 0;
-				while(r < ruleCount) {
-					(js.Boot.__cast(Reflect.field(command,rules[r].varName) , mvcexpress.mvc.Proxy)).registerDependantCommand(signatureClass);
-					r++;
+				var _g = 0;
+				while(_g < rules.length) {
+					var r = rules[_g];
+					++_g;
+					(js.Boot.__cast(Reflect.field(command,r.varName) , mvcexpress.mvc.Proxy)).registerDependantCommand(signatureClass);
 				}
 			}
 		}
@@ -9696,7 +9689,7 @@ mvcexpress.mvc.Mediator.prototype = {
 	}
 	,addHandler: function(type,handler) {
 		if(handler.length < 1) throw "Every message handler function needs at least one parameter. You are trying to add handler function from " + Type.getClassName(Type.getClass(Type["typeof"](this))) + " for message type:" + type;
-		if(!js.Boot.__cast(type , Bool) || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
+		if(type == null || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler(this.moduleName,this,type,handler));
 		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler,Type.getClassName(Type.getClass(Type["typeof"](this))));
 		return;
@@ -9828,7 +9821,7 @@ mvcexpress.utils.MvcExpressTools = function() { }
 $hxClasses["mvcexpress.utils.MvcExpressTools"] = mvcexpress.utils.MvcExpressTools;
 mvcexpress.utils.MvcExpressTools.__name__ = ["mvcexpress","utils","MvcExpressTools"];
 mvcexpress.utils.MvcExpressTools.checkClassSuperClass = function(classObject,superClass) {
-	return js.Boot.__instanceof(Type.getSuperClass(classObject),superClass);
+	return Type.getSuperClass(classObject) == superClass;
 }
 mvcexpress.utils.MvcExpressTools._checkClassStringConstants = function(args) {
 	var _g = 0;
@@ -9879,6 +9872,17 @@ openfl.display.Tilesheet.prototype = {
 	,__class__: openfl.display.Tilesheet
 }
 var suites = {}
+suites.TestViewEvent = function(type,messageType,testClass) {
+	flash.events.Event.call(this,type);
+	this.testClass = testClass;
+	this.messageType = messageType;
+};
+$hxClasses["suites.TestViewEvent"] = suites.TestViewEvent;
+suites.TestViewEvent.__name__ = ["suites","TestViewEvent"];
+suites.TestViewEvent.__super__ = flash.events.Event;
+suites.TestViewEvent.prototype = $extend(flash.events.Event.prototype,{
+	__class__: suites.TestViewEvent
+});
 suites.general = {}
 suites.general.GeneralTests = function() {
 	this.general_framework_version();
@@ -9901,6 +9905,214 @@ suites.general.GeneralTests.prototype = {
 	}
 	,__class__: suites.general.GeneralTests
 }
+suites.mediatormap = {}
+suites.mediatormap.MediatorMapTests = function() {
+	this.testFunction("mediatorMap_onRegister_and_no_onRemove");
+	this.testFunction("mediatorMap_onRegister_and_onRemove");
+	this.testFunction("mediatorMap_messag_callBack_test");
+	this.testFunction("mediatorMap_mediateWith_notFails");
+	this.testFunction("debug_test_isMapped_false_wrong_view");
+	this.testFunction("debug_test_isMapped_false_wrong_mediator");
+	this.testFunction("debug_test_isMapped_true");
+};
+$hxClasses["suites.mediatormap.MediatorMapTests"] = suites.mediatormap.MediatorMapTests;
+suites.mediatormap.MediatorMapTests.__name__ = ["suites","mediatormap","MediatorMapTests"];
+suites.mediatormap.MediatorMapTests.prototype = {
+	callBackIncrease: function(obj) {
+		this.callCaunter++;
+	}
+	,callBackCheck: function(obj) {
+		if(this.callCaunter != this.callsExpected) utils.Assert.fail("Expected " + this.callsExpected + " calls, but " + this.callCaunter + " was received...");
+	}
+	,callBackSuccess: function(obj) {
+	}
+	,callBackFail: function(obj) {
+		utils.Assert.fail("CallBack should not be called...");
+	}
+	,debug_map_not_mediator_fails: function() {
+		var errorChecked = false;
+		errorChecked = true;
+		this.mediatorMap.map(flash.display.Sprite,flash.display.Bitmap);
+		if(!errorChecked) utils.Assert.fail("fake error");
+	}
+	,debug_test_isMapped_true: function() {
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		utils.Assert.assertTrue("isMapped() should retturn true with mapped view class to mediator class.",this.mediatorMap.isMapped(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator));
+	}
+	,debug_test_isMapped_false_wrong_mediator: function() {
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped mediator class to view.",this.mediatorMap.isMapped(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.testobjects.view.MediatorSpriteMediator));
+	}
+	,debug_test_isMapped_false_wrong_view: function() {
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped view class.",this.mediatorMap.isMapped(suites.testobjects.view.MediatorSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator));
+	}
+	,mediatorMap_doubleMediateWith_fails: function() {
+		mvcexpress.mvc.Mediator.canConstruct = true;
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		mvcexpress.mvc.Mediator.canConstruct = false;
+	}
+	,mediatorMap_mediateWith_notFails: function() {
+		mvcexpress.mvc.Mediator.canConstruct = true;
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		mvcexpress.mvc.Mediator.canConstruct = false;
+	}
+	,mediatorMap_doubleMediate_fails: function() {
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediate(view);
+		this.mediatorMap.mediate(view);
+	}
+	,mediatorMap_messag_callBack_test: function() {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = $bind(this,this.callBackSuccess);
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediate(view);
+		this.messenger.send(suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE);
+	}
+	,mediatorMap_onRegister_and_onRemove: function() {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = $bind(this,this.callBackSuccess);
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = $bind(this,this.callBackSuccess);
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediate(view);
+		this.mediatorMap.unmediate(view);
+	}
+	,mediatorMap_onRegister_and_no_onRemove: function() {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = $bind(this,this.callBackSuccess);
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = $bind(this,this.callBackFail);
+		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
+		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
+		this.mediatorMap.mediate(view);
+	}
+	,runAfterEveryTest: function() {
+		this.messenger = null;
+		this.proxyMap = null;
+		this.mediatorMap = null;
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
+		this.mediatorMap = new mvcexpress.core.MediatorMap("test",this.messenger,this.proxyMap);
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+	}
+	,testFunction: function(funcName) {
+		this.runBeforeEveryTest();
+		Reflect.field(this,funcName).apply(this,[]);
+		this.runAfterEveryTest();
+	}
+	,__class__: suites.mediatormap.MediatorMapTests
+}
+suites.mediatormap.medatormaptestobj = {}
+suites.mediatormap.medatormaptestobj.MediatorMapTestSprite = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["suites.mediatormap.medatormaptestobj.MediatorMapTestSprite"] = suites.mediatormap.medatormaptestobj.MediatorMapTestSprite;
+suites.mediatormap.medatormaptestobj.MediatorMapTestSprite.__name__ = ["suites","mediatormap","medatormaptestobj","MediatorMapTestSprite"];
+suites.mediatormap.medatormaptestobj.MediatorMapTestSprite.__super__ = flash.display.Sprite;
+suites.mediatormap.medatormaptestobj.MediatorMapTestSprite.prototype = $extend(flash.display.Sprite.prototype,{
+	__class__: suites.mediatormap.medatormaptestobj.MediatorMapTestSprite
+});
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator"] = suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator;
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.__name__ = ["suites","mediatormap","medatormaptestobj","MediatorMapTestSpriteMediator"];
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = function(msg) {
+}
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION = function(msg) {
+}
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = function(msg) {
+}
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.__super__ = mvcexpress.mvc.Mediator;
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	handleTestCallBack: function(params) {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION();
+	}
+	,onRemove: function() {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION();
+	}
+	,onRegister: function() {
+		suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION();
+		this.addHandler(suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE,$bind(this,this.handleTestCallBack));
+	}
+	,__class__: suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator
+});
+suites.mediators = {}
+suites.mediators.MediatorTests = function() {
+	this.testFunction("mediator_constructor_fails");
+	this.testFunction("mediator_isReady");
+	this.testFunction("mediator_empty_handler");
+	this.testFunction("mediator_handler_object_params");
+	this.testFunction("mediator_handler_bad_params");
+	this.testFunction("mediator_handler_two_params");
+	this.testFunction("mediator_handler_two_params_one_optional");
+	this.testFunction("mediator_same_handler_added_twice_fails");
+};
+$hxClasses["suites.mediators.MediatorTests"] = suites.mediators.MediatorTests;
+suites.mediators.MediatorTests.__name__ = ["suites","mediators","MediatorTests"];
+suites.mediators.MediatorTests.prototype = {
+	mediator_same_handler_added_twice_fails: function() {
+		this.testView.tryAddingHandlerTwice();
+		utils.Assert.fail("Adding handlen twice should fail.");
+	}
+	,mediator_handler_two_params_one_optional: function() {
+		this.messenger.send("test_handler_two_params_one_optional");
+	}
+	,mediator_handler_two_params: function() {
+		this.messenger.send("test_handler_two_params");
+	}
+	,mediator_handler_bad_params: function() {
+		this.messenger.send("test_handler_bad_params");
+	}
+	,mediator_handler_object_params: function() {
+		this.messenger.send("test_handler_object_params");
+	}
+	,mediator_empty_handler: function() {
+		this.messenger.send("test_add_empty_handler");
+		return;
+		throw "Debug mode is needed for this test.";
+	}
+	,mediator_isReady: function() {
+		utils.Assert.assertTrue("After view mediating mediator isReady must be true.",suites.testobjects.view.MediatorSpriteMediator.instance.getIsReady());
+	}
+	,mediator_constructor_fails: function() {
+		new suites.testobjects.view.MediatorSpriteMediator();
+		return;
+		throw "Fake error.";
+	}
+	,runAfterEveryTest: function() {
+		this.mediatorMap.unmediate(this.testView);
+		this.messenger = null;
+		this.proxyMap = null;
+		this.mediatorMap = null;
+		this.testView = null;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
+		this.mediatorMap = new mvcexpress.core.MediatorMap("test",this.messenger,this.proxyMap);
+		this.mediatorMap.map(suites.testobjects.view.MediatorSprite,suites.testobjects.view.MediatorSpriteMediator);
+		this.testView = new suites.testobjects.view.MediatorSprite();
+		this.mediatorMap.mediate(this.testView);
+	}
+	,testFunction: function(funcName) {
+		this.runBeforeEveryTest();
+		Reflect.field(this,funcName).apply(this,[]);
+		this.runAfterEveryTest();
+	}
+	,__class__: suites.mediators.MediatorTests
+}
 suites.messenger = {}
 suites.messenger.MessengerTests = function() {
 	this.testFunction("add_and_handle_callback");
@@ -9912,6 +10124,7 @@ $hxClasses["suites.messenger.MessengerTests"] = suites.messenger.MessengerTests;
 suites.messenger.MessengerTests.__name__ = ["suites","messenger","MessengerTests"];
 suites.messenger.MessengerTests.prototype = {
 	callbacknormal: function(obj) {
+		haxe.Log.trace("callbacknormal",{ fileName : "MessengerTests.hx", lineNumber : 106, className : "suites.messenger.MessengerTests", methodName : "callbacknormal"});
 	}
 	,callBackSuccess: function(obj) {
 	}
@@ -9920,19 +10133,19 @@ suites.messenger.MessengerTests.prototype = {
 	}
 	,add_and_remove_callback_then_message_fails_silently: function() {
 		var callBack = $bind(this,this.callBackFail);
-		this.messenger.addHandler("test",callBack);
-		this.messenger.removeHandler("test",callBack);
+		this.messenger.addHandler("test3",callBack);
+		this.messenger.removeHandler("test3",callBack);
 		this.messenger.send("test3");
 	}
 	,add_callback_and_disable_then_message_fails_silently: function() {
 		var callBack = $bind(this,this.callBackFail);
-		var handlerVo = this.messenger.addHandler("test",callBack);
+		var handlerVo = this.messenger.addHandler("test2",callBack);
 		handlerVo.handler = null;
 		this.messenger.send("test2");
 	}
 	,add_callback_and_sendNot_then_message_fails_silently: function() {
 		this.messenger.send("test_notListened");
-		this.messenger.addHandler("test",$bind(this,this.callbacknormal));
+		this.messenger.addHandler("test",$bind(this,this.callBackFail));
 	}
 	,add_and_handle_callback: function() {
 		this.messenger.addHandler("test",$bind(this,this.callbacknormal));
@@ -9953,6 +10166,242 @@ suites.messenger.MessengerTests.prototype = {
 	}
 	,__class__: suites.messenger.MessengerTests
 }
+suites.proxymap = {}
+suites.proxymap.NamedInterfacedProxyMapTests = function() {
+	this.runBeforeEveryTest();
+	this.class_proxy_not_null();
+	this.runAfterEveryTest();
+};
+$hxClasses["suites.proxymap.NamedInterfacedProxyMapTests"] = suites.proxymap.NamedInterfacedProxyMapTests;
+suites.proxymap.NamedInterfacedProxyMapTests.__name__ = ["suites","proxymap","NamedInterfacedProxyMapTests"];
+suites.proxymap.NamedInterfacedProxyMapTests.prototype = {
+	class_proxy_not_null: function() {
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy(),suites.proxymap.proxytestobj.ITestProxy);
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy(),suites.proxymap.proxytestobj.ITestProxy,"namedProxyInterface");
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy(),null,"namedProxy");
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy(),suites.proxymap.proxytestobj.TestProxy,"namedProxyNotNullClass");
+		this.namedTestingProxy = new suites.proxymap.namedproxytestobj.NamedProxyTestingProxy();
+		this.proxyMap.injectStuff(this.namedTestingProxy,suites.proxymap.namedproxytestobj.NamedProxyTestingProxy);
+	}
+	,runAfterEveryTest: function() {
+		this.messenger = null;
+		this.proxyMap = null;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
+	}
+	,__class__: suites.proxymap.NamedInterfacedProxyMapTests
+}
+suites.proxymap.OldProxyMapTests = function() {
+	this.testFunction("using_class_proxy");
+	this.testFunction("using_class_proxy_twice_both_should_be_equal");
+	this.testFunction("mapping_class_proxy_twice_throws_error");
+	this.testFunction("using_object_test");
+	this.testFunction("using_object_proxy_twice_both_should_be_equal");
+	this.testFunction("mapping_object_proxy_twice_throws_error");
+	this.testFunction("mappings_does_not_exists_throws_error");
+	this.testFunction("removing_class_proxy");
+	this.testFunction("removing_object_proxy");
+	this.testFunction("debug_test_isMapped_false");
+	this.testFunction("debug_test_isMapped_true");
+};
+$hxClasses["suites.proxymap.OldProxyMapTests"] = suites.proxymap.OldProxyMapTests;
+suites.proxymap.OldProxyMapTests.__name__ = ["suites","proxymap","OldProxyMapTests"];
+suites.proxymap.OldProxyMapTests.prototype = {
+	callBackIncrease: function(obj) {
+		this.callCaunter++;
+	}
+	,callBackCheck: function(obj) {
+		if(this.callCaunter != this.callsExpected) utils.Assert.fail("Expected " + this.callsExpected + " calls, but " + this.callCaunter + " was received...");
+	}
+	,callBackSuccess: function(obj) {
+	}
+	,callBackFail: function(obj) {
+		utils.Assert.fail("CallBack should not be called...");
+	}
+	,debug_test_isMapped_true: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		this.proxyMap.map(testProxy);
+		utils.Assert.assertTrue("isMapped() should retturn true with mapped proxy.",this.proxyMap.isMapped(testProxy));
+	}
+	,debug_test_isMapped_false: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped proxy.",this.proxyMap.isMapped(testProxy));
+	}
+	,removing_object_proxy: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		this.proxyMap.map(testProxy);
+		this.proxyMap.unmap(suites.proxymap.proxytestobj.TestProxy);
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,removing_class_proxy: function() {
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+		this.proxyMap.unmap(suites.proxymap.proxytestobj.TestProxy);
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,mappings_does_not_exists_throws_error: function() {
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,mapping_object_proxy_twice_throws_error: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		this.proxyMap.map(testProxy);
+		this.proxyMap.map(testProxy);
+	}
+	,using_object_proxy_twice_both_should_be_equal: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		this.proxyMap.map(testProxy);
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		var obj2 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+		this.proxyMap.injectStuff(obj2,suites.proxymap.proxytestobj.ProxyTestObj);
+		utils.Assert.assertEquals("Injected value object must be equel everythere.",obj1.testProxy,obj2.testProxy);
+	}
+	,using_object_test: function() {
+		var testProxy = new suites.proxymap.proxytestobj.TestProxy();
+		this.proxyMap.map(testProxy,suites.proxymap.proxytestobj.TestProxy);
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,mapping_class_proxy_twice_throws_error: function() {
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+	}
+	,using_class_proxy_twice_both_should_be_equal: function() {
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		var obj2 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+		this.proxyMap.injectStuff(obj2,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,using_class_proxy: function() {
+		this.proxyMap.map(new suites.proxymap.proxytestobj.TestProxy());
+		var obj1 = new suites.proxymap.proxytestobj.ProxyTestObj();
+		this.proxyMap.injectStuff(obj1,suites.proxymap.proxytestobj.ProxyTestObj);
+	}
+	,runAfterEveryTest: function() {
+		this.messenger = null;
+		this.proxyMap = null;
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+	}
+	,testFunction: function(funcName) {
+		this.runBeforeEveryTest();
+		Reflect.field(this,funcName).apply(this,[]);
+		this.runAfterEveryTest();
+	}
+	,__class__: suites.proxymap.OldProxyMapTests
+}
+suites.proxymap.namedproxytestobj = {}
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["suites.proxymap.namedproxytestobj.NamedProxyTestingProxy"] = suites.proxymap.namedproxytestobj.NamedProxyTestingProxy;
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__name__ = ["suites","proxymap","namedproxytestobj","NamedProxyTestingProxy"];
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__super__ = mvcexpress.mvc.Proxy;
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	__class__: suites.proxymap.namedproxytestobj.NamedProxyTestingProxy
+});
+suites.proxymap.proxytestobj = {}
+suites.proxymap.proxytestobj.ITestProxy = function() { }
+$hxClasses["suites.proxymap.proxytestobj.ITestProxy"] = suites.proxymap.proxytestobj.ITestProxy;
+suites.proxymap.proxytestobj.ITestProxy.__name__ = ["suites","proxymap","proxytestobj","ITestProxy"];
+suites.proxymap.proxytestobj.ProxyTestObj = function() {
+};
+$hxClasses["suites.proxymap.proxytestobj.ProxyTestObj"] = suites.proxymap.proxytestobj.ProxyTestObj;
+suites.proxymap.proxytestobj.ProxyTestObj.__name__ = ["suites","proxymap","proxytestobj","ProxyTestObj"];
+suites.proxymap.proxytestobj.ProxyTestObj.prototype = {
+	__class__: suites.proxymap.proxytestobj.ProxyTestObj
+}
+suites.proxymap.proxytestobj.TestProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["suites.proxymap.proxytestobj.TestProxy"] = suites.proxymap.proxytestobj.TestProxy;
+suites.proxymap.proxytestobj.TestProxy.__name__ = ["suites","proxymap","proxytestobj","TestProxy"];
+suites.proxymap.proxytestobj.TestProxy.__interfaces__ = [suites.proxymap.proxytestobj.ITestProxy];
+suites.proxymap.proxytestobj.TestProxy.__super__ = mvcexpress.mvc.Proxy;
+suites.proxymap.proxytestobj.TestProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	__class__: suites.proxymap.proxytestobj.TestProxy
+});
+suites.testobjects = {}
+suites.testobjects.ITestObject = function() { }
+$hxClasses["suites.testobjects.ITestObject"] = suites.testobjects.ITestObject;
+suites.testobjects.ITestObject.__name__ = ["suites","testobjects","ITestObject"];
+suites.testobjects.TestObject = function() {
+};
+$hxClasses["suites.testobjects.TestObject"] = suites.testobjects.TestObject;
+suites.testobjects.TestObject.__name__ = ["suites","testobjects","TestObject"];
+suites.testobjects.TestObject.__interfaces__ = [suites.testobjects.ITestObject];
+suites.testobjects.TestObject.prototype = {
+	__class__: suites.testobjects.TestObject
+}
+suites.testobjects.view = {}
+suites.testobjects.view.MediatorSprite = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["suites.testobjects.view.MediatorSprite"] = suites.testobjects.view.MediatorSprite;
+suites.testobjects.view.MediatorSprite.__name__ = ["suites","testobjects","view","MediatorSprite"];
+suites.testobjects.view.MediatorSprite.__super__ = flash.display.Sprite;
+suites.testobjects.view.MediatorSprite.prototype = $extend(flash.display.Sprite.prototype,{
+	tryAddingHandlerTwice: function() {
+		this.dispatchEvent(new suites.TestViewEvent(suites.TestViewEvent.TRIGER_ADD_HANDLER));
+	}
+	,__class__: suites.testobjects.view.MediatorSprite
+});
+suites.testobjects.view.MediatorSpriteMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["suites.testobjects.view.MediatorSpriteMediator"] = suites.testobjects.view.MediatorSpriteMediator;
+suites.testobjects.view.MediatorSpriteMediator.__name__ = ["suites","testobjects","view","MediatorSpriteMediator"];
+suites.testobjects.view.MediatorSpriteMediator.__super__ = mvcexpress.mvc.Mediator;
+suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	getIsReady: function() {
+		return this.get_isReady();
+	}
+	,handleTestWithTwoParamsOneOptional: function(params,extraParam) {
+	}
+	,handleTestWithTwoParams: function(params,extraParam) {
+	}
+	,handleTestWithBadParams: function(params) {
+	}
+	,handleTestWithObjectParams: function(params) {
+	}
+	,handleTestEmpty: function() {
+	}
+	,handleTestEmptyHandler: function(params) {
+		this.addHandler("test_empty_handler",$bind(this,this.handleTestEmpty));
+	}
+	,addTestHandler: function(event) {
+		this.addHandler("test",$bind(this,this.handleTestEmptyHandler));
+	}
+	,onRemove: function() {
+		suites.testobjects.view.MediatorSpriteMediator.instance = null;
+	}
+	,onRegister: function() {
+		this.addHandler("test_add_empty_handler",$bind(this,this.handleTestEmptyHandler));
+		this.addHandler("test_handler_object_params",$bind(this,this.handleTestWithObjectParams));
+		this.addHandler("test_handler_bad_params",$bind(this,this.handleTestWithBadParams));
+		this.addHandler("test_handler_two_params",$bind(this,this.handleTestWithTwoParams));
+		this.addHandler("test_handler_two_params_one_optional",$bind(this,this.handleTestWithTwoParamsOneOptional));
+		this.view.addEventListener(suites.TestViewEvent.TRIGER_ADD_HANDLER,$bind(this,this.addTestHandler));
+		suites.testobjects.view.MediatorSpriteMediator.instance = this;
+	}
+	,__class__: suites.testobjects.view.MediatorSpriteMediator
+});
 var utils = {}
 utils.Assert = function() {
 };
@@ -10520,7 +10969,7 @@ mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 3;
+mvcexpress.MvcExpress.REVISION = 4;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.core.CommandMap.commandClassParamTypes = new haxe.ds.ObjectMap();
 mvcexpress.core.CommandMap.validatedCommands = new haxe.ds.ObjectMap();
@@ -10585,6 +11034,13 @@ openfl.display.Tilesheet.TILE_BLEND_NORMAL = 0;
 openfl.display.Tilesheet.TILE_BLEND_ADD = 65536;
 openfl.display.Tilesheet.TILE_BLEND_MULTIPLY = 131072;
 openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
+suites.TestViewEvent.ADD_LOCAL_HANDLER = "addLocalHandler";
+suites.TestViewEvent.ADD_REMOTE_HANDLER = "addRemoteHandler";
+suites.TestViewEvent.TRIGER_ADD_HANDLER = "trigerAddHandler";
+suites.TestViewEvent.REMOVE_LOCAL_HANDLER = "removeLocalHandler";
+suites.TestViewEvent.REMOVE_REMOTE_HANDLER = "removeRemoteHandler";
+suites.TestViewEvent.TEST_GET_PROXY_CLASS = "testGetProxyClass";
+suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE = "mediatorMapTestType";
 utils.Async.asyncHandlerMap = new haxe.ds.StringMap();
 utils.AsyncUtil.ASYNC_EVENT = "asyncEvent";
 ApplicationMain.main();

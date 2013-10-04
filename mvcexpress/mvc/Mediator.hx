@@ -153,7 +153,7 @@ class Mediator
 			if (handler.length < 1) {
 				throw ("Every message handler function needs at least one parameter. You are trying to add handler function from " +  Type.getClassName(Type.getClass(Type.typeof(this))) + " for message type:" + type);
 			}
-			if (!cast(type, Bool) || type == "null" || type == "undefined") {
+			if (type == null || type == "null" || type == "undefined") {
 				throw ("Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + this + ")");
 			}
 			MvcExpress.debug(new TraceMediator_addHandler(moduleName, this, type, handler));

@@ -19,6 +19,25 @@ class MediatorTests {
 	var mediatorMap : MediatorMap;
 	var testView : MediatorSprite;
 	
+	public function new() 
+	{
+		testFunction( "mediator_constructor_fails" );
+		testFunction( "mediator_isReady" );
+		testFunction( "mediator_empty_handler" );
+		testFunction( "mediator_handler_object_params");
+		testFunction( "mediator_handler_bad_params" );
+		testFunction( "mediator_handler_two_params" );
+		testFunction( "mediator_handler_two_params_one_optional" );
+		testFunction( "mediator_same_handler_added_twice_fails");
+	}
+	
+	public function testFunction( funcName : String ) : Void
+	{
+		runBeforeEveryTest();
+		Reflect.callMethod(this, Reflect.field(this, funcName), []);
+		runAfterEveryTest();
+	}
+	
 	public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
@@ -48,10 +67,9 @@ class MediatorTests {
 			new MediatorSpriteMediator();
 			return;
 		#end
-		throw cast(("Fake error."), Error);
+		throw ("Fake error.");
 	}
 
-	
 	public function mediator_isReady() : Void {
 		Assert.assertTrue("After view mediating mediator isReady must be true.", MediatorSpriteMediator.instance.getIsReady());
 	}
@@ -64,7 +82,7 @@ class MediatorTests {
 			return;
 		#end
 		
-		throw cast(("Debug mode is needed for this test."), Error);
+		throw ("Debug mode is needed for this test.");
 	}
 
 	//[Test]
