@@ -1,8 +1,39 @@
--swf bin/swf/Main.swf
--main Main
--swf-version 11
--cp src
+-main ApplicationMain 
+-lib openfl
 -cp mvcexpress
+-cp src
 -cp test
--lib nme
+-cp Source
+-D tools=1
+-D openfl_ver=1.0.10
+-D openfl
 -D debug
+-D web
+-swf-version 11
+-swf bin/flash/bin/swf/Main.swf
+-swf-header 1024:768:60:FFFFFF
+-cp bin/flash/haxe
+#--remap nme:flash
+--no-inline
+-debug
+
+--next
+
+-main ApplicationMain
+-cp mvcexpress
+-cp src
+-cp test
+-lib openfl
+-lib openfl-html5
+-D tools=1
+-D openfl_ver=1.0.10
+-D openfl
+-D debug
+-D html5
+-D web
+-js bin/html5/bin/Main.js
+-cp bin/html5/haxe
+-D html5
+-D html
+--remap flash:flash
+-debug

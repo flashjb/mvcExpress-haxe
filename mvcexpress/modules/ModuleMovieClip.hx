@@ -9,8 +9,8 @@
  */
 package mvcexpress.modules;
 
-import nme.display.MovieClip;
-import nme.events.Event;
+import flash.display.MovieClip;
+import flash.events.Event;
 
 import mvcexpress.core.CommandMap;
 import mvcexpress.core.MediatorMap;

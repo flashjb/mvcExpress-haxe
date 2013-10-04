@@ -6,7 +6,7 @@
  */
 package mvcexpress.core.traceobjects.proxymap;
 
-import flash.display.DisplayObject;
+
 import mvcexpress.core.traceobjects.MvcTraceActions;
 import mvcexpress.core.traceobjects.TraceObj;
 import mvcexpress.mvc.Proxy;
@@ -18,7 +18,8 @@ class TraceProxyMap_lazyMap extends TraceObj {
 	public var name : String;
 	public var proxyParams : Array<Dynamic>;
 	public var dependencies : Array<Dynamic>;
-	public var view : DisplayObject;
+	public var view : Dynamic;
+	
 	public function new(moduleName : String, proxyClass : Class<Dynamic>, injectClass : Class<Dynamic>, name : String, proxyParams : Array<Dynamic>) {
 		super(MvcTraceActions.PROXYMAP_LAZYMAP, moduleName);
 		this.proxyParams = proxyParams;

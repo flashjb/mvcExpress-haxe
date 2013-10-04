@@ -6,7 +6,8 @@
  */
 package mvcexpress.core.traceobjects.mediatormap;
 
-import flash.display.DisplayObject;
+
+
 import mvcexpress.core.traceobjects.MvcTraceActions;
 import mvcexpress.core.traceobjects.TraceObj;
 import mvcexpress.mvc.Mediator;
@@ -18,9 +19,10 @@ class TraceMediatorMap_mediate extends TraceObj {
 	public var viewClass : Class<Dynamic>;
 	public var mediatorClass : Class<Dynamic>;
 	public var mediatorClassName : String;
-	public var view : DisplayObject;
+	public var view : Dynamic;
 	public var dependencies : Array<Dynamic>;
 	public var handleObjects : Array<Dynamic>;
+	
 	public function new(moduleName : String, viewObject : Dynamic, mediatorObject : Mediator, viewClass : Class<Dynamic>, mediatorClass : Class<Dynamic>, mediatorClassName : String) {
 		super(MvcTraceActions.MEDIATORMAP_MEDIATE, moduleName);
 		this.viewObject = viewObject;

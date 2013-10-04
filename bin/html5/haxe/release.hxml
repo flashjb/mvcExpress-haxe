@@ -1,0 +1,17 @@
+-main ApplicationMain 
+-lib openfl
+-lib openfl-html5
+-cp ../
+-cp ../test
+-cp Source
+-D tools=1
+-D openfl_ver=1.0.10
+-D openfl
+-D debug
+-D html5
+-D web
+-js ../bin/html5/bin/Openfl.js
+-cp ../bin/html5/haxe
+-D html5
+-D html
+--remap flash:flash

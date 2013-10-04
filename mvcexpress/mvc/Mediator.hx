@@ -9,7 +9,7 @@
  */
 package mvcexpress.mvc;
 
-import nme.events.IEventDispatcher;
+import flash.events.IEventDispatcher;
 import haxe.ds.ObjectMap;
 
 import mvcexpress.MvcExpress;
