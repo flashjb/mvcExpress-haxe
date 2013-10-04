@@ -4,10 +4,19 @@
  */
 package suites.proxymap.proxytestobj;
 
-class ProxyTestObj {
-
+class ProxyTestObj 
+{
 	
+	//@inject({"name":"toto", "scope":"tata"}) 
+	//@inject({"constName":"titi", "constScope":"tutu"}) 
+//	@inject({"name":"toto"}) 
+	@inject( ) 
 	public var testProxy : TestProxy;
+	
+//	public var testProxy1112 : TestProxy;
+	@inject( ) 
+	public var testProxy2 : Dynamic;
+	
 	public function new() {
 	}
 

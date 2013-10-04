@@ -18,33 +18,29 @@ import suites.utils.objects.ConstantsB;
 
 class UtilsTests {
 
-	//[Before]
-	//
-	//public function runBeforeEveryTest():void {
-	//
-	//}
-	//
-	//[After]
-	//
-	//public function runAfterEveryTest():void {
-	//
-	//}
-	//----------------------------------
-	//     checkClassStringConstants
-	//----------------------------------
+	public function new()
+	{
+		utils_checkClassSuperclass_tests();
+		utils_one_class_check();
+		utils_one_class_check();
+		
+		utils_checkClassSuperclass_tests();
+		utils_two_class_with_duplicated_constants_fails();
+	}
+	
 	
 	public function utils_one_class_check() : Void {
-		checkClassStringConstants(ConstantsA);
+		MvcExpressTools.checkClassStringConstants( [ConstantsA] );
 	}
 
 	
 	public function utils_two_class_check() : Void {
-		checkClassStringConstants(ConstantsA, ConstantsB);
+		MvcExpressTools.checkClassStringConstants( [ConstantsA, ConstantsB ] );
 	}
 
 	
-	public function utils_two_class_with_dublicated_constants_fails() : Void {
-		checkClassStringConstants(ConstantsA, ConstantsAB);
+	public function utils_two_class_with_duplicated_constants_fails() : Void {
+		MvcExpressTools.checkClassStringConstants( [ConstantsA, ConstantsAB ] );
 	}
 
 	//----------------------------------
@@ -52,11 +48,11 @@ class UtilsTests {
 	//----------------------------------
 	
 	public function utils_checkClassSuperclass_tests() : Void {
-		Assert.assertFalse("Same class is not a subclass to self", 			 MvcExpressTools.checkClassSuperclass(ClassA, ClassA));
-		Assert.assertTrue("Subclass of class should be true", 				 MvcExpressTools.checkClassSuperclass(ClassASubclass, ClassA));
-		Assert.assertTrue("Subclass of Subclass of class should be true", 	 MvcExpressTools.checkClassSuperclass(ClassASubclassSubclass, ClassA));
-		Assert.assertFalse("Two diferent classes sould return false", 		 MvcExpressTools.checkClassSuperclass(ClassB, ClassA));
-		Assert.assertFalse("superclass of another class sould return false", MvcExpressTools.checkClassSuperclass(ClassBSubclass, ClassA));
+		Assert.assertFalse("superclass of another class sould return false", MvcExpressTools.checkClassSuperClass(ClassBSubclass, ClassA));
+		Assert.assertFalse("Two diferent classes sould return false", 		 MvcExpressTools.checkClassSuperClass(ClassB, ClassA));
+		Assert.assertFalse("Same class is not a subclass to self", 			 MvcExpressTools.checkClassSuperClass(ClassA, ClassA));
+		Assert.assertTrue("Subclass of class should be true", 				 MvcExpressTools.checkClassSuperClass(ClassASubclass, ClassA));
+		Assert.assertTrue("Subclass of Subclass of class should be true", 	 MvcExpressTools.checkClassSuperClass(ClassASubclassSubclass, ClassA));
 	}
 
 }

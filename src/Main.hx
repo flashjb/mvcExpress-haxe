@@ -7,6 +7,8 @@ import suites.mediators.MediatorTests;
 import suites.mediatormap.MediatorMapTests;
 import suites.proxymap.OldProxyMapTests;
 import suites.proxymap.NamedInterfacedProxyMapTests;
+//import suites.modules.ModularTests;
+import suites.utils.UtilsTests;
 import mvcexpress.MvcExpress;
 
 class Main 
@@ -14,6 +16,7 @@ class Main
 	public function new()
 	{
 		MvcExpress.debugFunction = haxe.Log.trace;
+		//MvcExpress.pendingInjectsTimeOut = 5000;
 		
 		new GeneralTests();
 		//new ModuleInitTests();
@@ -21,7 +24,10 @@ class Main
 		//new OldProxyMapTests();
 		//new NamedInterfacedProxyMapTests();
 		//new MediatorMapTests();
-		new MediatorTests();
+		//new MediatorTests();
+		
+		//new ModularTests();
+		new UtilsTests();
 	}
 	
 	public static function main() 

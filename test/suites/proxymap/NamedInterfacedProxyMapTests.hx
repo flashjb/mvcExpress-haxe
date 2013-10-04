@@ -53,15 +53,15 @@ class NamedInterfacedProxyMapTests {
 		proxyMap.injectStuff(namedTestingProxy, NamedProxyTestingProxy);
 		
 		//TODO : make injection work
-		//Assert.assertNotNull("Fail at proxy must be not null:", namedTestingProxy.proxy);
+		Assert.assertNotNull("Fail at proxy must be not null:", namedTestingProxy.proxy);
 		//TODO : make injection work
-		//Assert.assertNotNull("Fail at proxyNamedNotNullClass must be not null:", namedTestingProxy.proxyNamedNotNullClass);
+		Assert.assertNotNull("Fail at proxyNamedNotNullClass must be not null:", namedTestingProxy.proxyNamedNotNullClass);
 		//TODO : make injection work
-		//Assert.assertNotNull("Fail at proxyInterface must be not null:", namedTestingProxy.proxyInterface);
+		Assert.assertNotNull("Fail at proxyInterface must be not null:", namedTestingProxy.proxyInterface);
 		//TODO : make injection work
-		//Assert.assertNotNull("Fail at proxyNamed must be not null:", namedTestingProxy.proxyNamed);
+		Assert.assertNotNull("Fail at proxyNamed must be not null:", namedTestingProxy.proxyNamed);
 		//TODO : make injection work
-		//Assert.assertNotNull("Fail at proxyNamedInterface must be not null:", namedTestingProxy.proxyNamedInterface);
+		Assert.assertNotNull("Fail at proxyNamedInterface must be not null:", namedTestingProxy.proxyNamedInterface);
 	}
 
 }

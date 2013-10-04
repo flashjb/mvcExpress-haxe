@@ -30,8 +30,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="27" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="14"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="33" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="16"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/html5/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -39,6 +39,11 @@
 		<meta><m n=":build"><e>'???'</e></m></meta>
 	</class>
 	<class path="Array" params="T" file="/usr/lib/haxe/std/js/_std/Array.hx" extern="1">
+		<iterator public="1" get="inline" set="null" line="55">
+			<f a=""><t path="Iterator"><c path="Array.T"/></t></f>
+			<meta><m n=":runtime"/></meta>
+			<haxe_doc>Returns an iterator of the Array values.</haxe_doc>
+		</iterator>
 		<unshift public="1" set="method">
 			<f a="x">
 				<c path="Array.T"/>
@@ -453,10 +458,29 @@
 		<meta><m n=":coreType"/></meta>
 	</abstract>
 	<class path="List" params="T" file="/usr/lib/haxe/std/List.hx">
+		<toString public="1" set="method" line="203">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>Returns a string representation of [this] List.
+		
+		The result is enclosed in { } with the individual elements being
+		separated by a comma.</haxe_doc>
+		</toString>
 		<iterator public="1" set="method" line="161">
 			<f a=""><t path="Iterator"><c path="List.T"/></t></f>
 			<haxe_doc>Returns an iterator on the elements of the list.</haxe_doc>
 		</iterator>
+		<remove public="1" set="method" line="138">
+			<f a="v">
+				<c path="List.T"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Removes the first occurence of [v] in [this] List.
+		
+		If [v] is found by checking standard equality, it is removed from [this]
+		List and the function returns true.
+		
+		Otherwise, false is returned.</haxe_doc>
+		</remove>
 		<isEmpty public="1" set="method" line="114">
 			<f a=""><x path="Bool"/></f>
 			<haxe_doc>Tells if [this] List is empty.</haxe_doc>
@@ -467,6 +491,12 @@
 		
 		The element is removed from [this] List.</haxe_doc>
 		</pop>
+		<last public="1" set="method" line="90">
+			<f a=""><t path="Null"><c path="List.T"/></t></f>
+			<haxe_doc>Returns the last element of [this] List, or null if no elements exist.
+		
+		This function does not modify [this] List.</haxe_doc>
+		</last>
 		<first public="1" set="method" line="81">
 			<f a=""><t path="Null"><c path="List.T"/></t></f>
 			<haxe_doc>Returns the first element of [this] List, or null if no elements exist.
@@ -1428,17 +1458,6 @@
 		
 		If [o] or [field] are null, the result is unspecified.</haxe_doc>
 		</deleteField>
-		<makeVarArgs public="1" set="method" line="107" static="1">
-			<f a="f">
-				<f a="">
-					<c path="Array"><d/></c>
-					<d/>
-				</f>
-				<d/>
-			</f>
-			<haxe_doc>Transform a function taking an array of arguments into a function that can
-		be called with any number of arguments.</haxe_doc>
-		</makeVarArgs>
 		<haxe_doc>The Reflect API is a way to manipulate values dynamicly through an
 	abstract interface in an untyped manner. Use with care.</haxe_doc>
 		<meta>
@@ -1756,6 +1775,24 @@
 	<class path="ArrayAccess" params="T" file="/usr/lib/haxe/std/StdTypes.hx" module="StdTypes" extern="1" interface="1"><haxe_doc>ArrayAccess is used to indicate a class that can be accessed using brackets.
 	The type parameter represent the type of the elements stored.</haxe_doc></class>
 	<class path="StringBuf" params="" file="/usr/lib/haxe/std/StringBuf.hx">
+		<addSub public="1" get="inline" set="null" line="79">
+			<f a="s:pos:?len">
+				<c path="String"/>
+				<x path="Int"/>
+				<x path="Int"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Appends a substring of [s] to [this] StringBuf.
+		
+		This function expects [pos] and [len] to describe a valid substring of
+		[s], or else the result is unspecified. To get more robust behavior,
+		[this].add(s.substr(pos,len)) can be used instead.
+		
+		If [s] or [pos] are null, the result is unspecified.
+		
+		If [len] is omitted or null, the substring ranges from [pos] to the end
+		of [s].</haxe_doc>
+		</addSub>
 		<b><c path="String"/></b>
 		<new public="1" set="method" line="42">
 			<f a=""><x path="Void"/></f>
@@ -1789,6 +1826,22 @@
 			</f>
 			<haxe_doc>Decode an URL using the standard format.</haxe_doc>
 		</urlDecode>
+		<htmlEscape public="1" set="method" line="95" static="1">
+			<f a="s:?quotes">
+				<c path="String"/>
+				<x path="Bool"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc><![CDATA[Escapes HTML special characters of the string [s].
+
+		The following replacements are made:
+			- & becomes &amp;
+			- < becomes &lt;
+			- > becomes &gt;
+		If [quotes] is true, the following characters are also replaced:
+			- " becomes &quot;
+			- ' becomes &#039;]]></haxe_doc>
+		</htmlEscape>
 		<startsWith public="1" set="method" line="124" static="1">
 			<f a="s:start">
 				<c path="String"/>
@@ -1801,6 +1854,55 @@
 
 		If [start] is the empty String "", the result is true.</haxe_doc>
 		</startsWith>
+		<isSpace public="1" set="method" line="162" static="1">
+			<f a="s:pos">
+				<c path="String"/>
+				<x path="Int"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Tells if the character in the string [s] at position [pos] is a space.
+
+		A character is considered to be a space character if its character code
+		is 9,10,11,12,13 or 32.
+
+		If [s] is the empty String "", or if pos is not a valid position within
+		[s], the result is false.</haxe_doc>
+		</isSpace>
+		<ltrim public="1" set="method" line="176" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes leading space characters of [s].
+
+		This function internally calls isSpace() to decide which characters to
+		remove.
+
+		If [s] is the empty String "" or consists only of space characters, the
+		result is the empty String "".</haxe_doc>
+		</ltrim>
+		<rtrim public="1" set="method" line="201" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes trailing space characters of [s].
+
+		This function internally calls isSpace() to decide which characters to
+		remove.
+
+		If [s] is the empty String "" or consists only of space characters, the
+		result is the empty String "".</haxe_doc>
+		</rtrim>
+		<trim public="1" set="method" line="223" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes leading and trailing space characters of [s].
+
+		This is a convenience function for ltrim(rtrim(s)).</haxe_doc>
+		</trim>
 		<replace public="1" set="method" line="288" static="1">
 			<f a="s:sub:by">
 				<c path="String"/>
@@ -1972,6 +2074,177 @@
 	
 	This class complements the more lightweight Reflect class, with a focus on
 	class and enum instances.</haxe_doc>
+		<meta>
+			<m n=":keep"/>
+			<m n=":coreApi"/>
+		</meta>
+	</class>
+	<enum path="XmlType" params="" file="/usr/lib/haxe/std/js/_std/Xml.hx" module="Xml"/>
+	<class path="Xml" params="" file="/usr/lib/haxe/std/js/_std/Xml.hx">
+		<Element public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Element>
+		<PCData public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</PCData>
+		<CData public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</CData>
+		<Comment public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Comment>
+		<DocType public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</DocType>
+		<ProcessingInstruction public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</ProcessingInstruction>
+		<Document public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Document>
+		<parse public="1" set="method" line="46" static="1">
+			<f a="str">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Parse a String into an Xml object.</haxe_doc>
+		</parse>
+		<createElement public="1" set="method" line="53" static="1">
+			<f a="name">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createElement>
+		<createPCData public="1" set="method" line="62" static="1">
+			<f a="data">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createPCData>
+		<createCData public="1" set="method" line="69" static="1">
+			<f a="data">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createCData>
+		<createComment public="1" set="method" line="76" static="1">
+			<f a="data">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createComment>
+		<createDocType public="1" set="method" line="83" static="1">
+			<f a="data">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createDocType>
+		<createProcessingInstruction public="1" set="method" line="90" static="1">
+			<f a="data">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createProcessingInstruction>
+		<createDocument public="1" set="method" line="97" static="1">
+			<f a=""><c path="Xml"/></f>
+			<haxe_doc>Creates a node of the given type.</haxe_doc>
+		</createDocument>
+		<toString public="1" set="method" line="281">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>Returns a String representation of the Xml node.</haxe_doc>
+		</toString>
+		<addChild public="1" set="method" line="259">
+			<f a="x">
+				<c path="Xml"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Adds a child node to the Document or Element.
+		One node can only be inside one given node which is indicated by the [parent] property.</haxe_doc>
+		</addChild>
+		<firstElement public="1" set="method" line="246">
+			<f a=""><c path="Xml"/></f>
+			<haxe_doc>Returns the first child node which is an Element.</haxe_doc>
+		</firstElement>
+		<elementsNamed public="1" set="method" line="208">
+			<f a="name">
+				<c path="String"/>
+				<t path="Iterator"><c path="Xml"/></t>
+			</f>
+			<haxe_doc>Returns an iterator of all child nodes which are Elements with the given nodeName.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</elementsNamed>
+		<elements public="1" set="method" line="176">
+			<f a=""><t path="Iterator"><c path="Xml"/></t></f>
+			<haxe_doc>Returns an iterator of all child nodes which are Elements.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</elements>
+		<iterator public="1" set="method" line="162">
+			<f a=""><t path="Iterator"><c path="Xml"/></t></f>
+			<haxe_doc>Returns an iterator of all child nodes.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</iterator>
+		<exists public="1" set="method" line="150">
+			<f a="att">
+				<c path="String"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Tells if the Element node has a given attribute.
+		Attributes are case-sensitive.</haxe_doc>
+		</exists>
+		<set public="1" set="method" line="138">
+			<f a="att:value">
+				<c path="String"/>
+				<c path="String"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Set the given attribute value for an Element node.
+		Attributes are case-sensitive.</haxe_doc>
+		</set>
+		<get public="1" set="method" line="132">
+			<f a="att">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Get the given attribute of an Element node. Returns [null] if not found.
+		Attributes are case-sensitive.</haxe_doc>
+		</get>
+		<set_nodeValue set="method" line="122"><f a="v">
+	<c path="String"/>
+	<c path="String"/>
+</f></set_nodeValue>
+		<get_nodeValue set="method" line="116"><f a=""><c path="String"/></f></get_nodeValue>
+		<set_nodeName set="method" line="110"><f a="n">
+	<c path="String"/>
+	<c path="String"/>
+</f></set_nodeName>
+		<get_nodeName set="method" line="104"><f a=""><c path="String"/></f></get_nodeName>
+		<_parent><c path="Xml"/></_parent>
+		<_children><c path="Array"><c path="Xml"/></c></_children>
+		<_attributes><c path="haxe.ds.StringMap"><c path="String"/></c></_attributes>
+		<_nodeValue><c path="String"/></_nodeValue>
+		<_nodeName><c path="String"/></_nodeName>
+		<nodeType public="1" set="null">
+			<e path="XmlType"/>
+			<haxe_doc>Returns the type of the Xml Node. This should be used before
+		accessing other functions since some might raise an exception
+		if the node type is not correct.</haxe_doc>
+		</nodeType>
+		<new set="method" line="50"><f a=""><x path="Void"/></f></new>
+		<haxe_doc>The standard Xml class and parsing.
+	More API to manipulate XML are available in the [haxe.xml] package.</haxe_doc>
 		<meta>
 			<m n=":keep"/>
 			<m n=":coreApi"/>
@@ -5545,6 +5818,10 @@
 			<c path="String"/>
 			<c path="haxe.ds.StringMap.T"/>
 		</implements>
+		<toString public="1" set="method" line="71">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>Returns an displayable representation of the hashtable content.</haxe_doc>
+		</toString>
 		<iterator public="1" set="method" line="62">
 			<f a=""><t path="Iterator"><c path="haxe.ds.StringMap.T"/></t></f>
 			<haxe_doc>Returns an iterator of all values in the hashtable.</haxe_doc>
@@ -5611,6 +5888,153 @@
 		<haxe_doc>This exception is raised when reading while data is no longer available in the [Input].</haxe_doc>
 		<meta><m n=":keep"/></meta>
 	</class>
+	<typedef path="haxe.rtti.Path" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="String"/></typedef>
+	<typedef path="haxe.rtti.Platforms" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="List"><c path="String"/></c></typedef>
+	<enum path="haxe.rtti.CType" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx">
+		<CUnknown/>
+		<CTypedef a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CTypedef>
+		<CFunction a="args:ret">
+			<c path="List"><a>
+	<t><e path="haxe.rtti.CType"/></t>
+	<opt><x path="Bool"/></opt>
+	<name><c path="String"/></name>
+</a></c>
+			<e path="haxe.rtti.CType"/>
+		</CFunction>
+		<CEnum a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CEnum>
+		<CDynamic a="?t"><e path="haxe.rtti.CType"/></CDynamic>
+		<CClass a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CClass>
+		<CAnonymous a="fields"><c path="List"><t path="haxe.rtti.ClassField"/></c></CAnonymous>
+		<CAbstract a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CAbstract>
+	</enum>
+	<typedef path="haxe.rtti.PathParams" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><c path="List"><e path="haxe.rtti.CType"/></c></params>
+</a></typedef>
+	<typedef path="haxe.rtti.TypeParams" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><c path="String"/></c></typedef>
+	<enum path="haxe.rtti.Rights" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType">
+		<RNormal/>
+		<RNo/>
+		<RMethod/>
+		<RInline/>
+		<RDynamic/>
+		<RCall a="m"><c path="String"/></RCall>
+	</enum>
+	<typedef path="haxe.rtti.MetaData" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><a>
+	<params><c path="Array"><c path="String"/></c></params>
+	<name><c path="String"/></name>
+</a></c></typedef>
+	<typedef path="haxe.rtti.ClassField" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<type><e path="haxe.rtti.CType"/></type>
+	<set><e path="haxe.rtti.Rights"/></set>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<name><c path="String"/></name>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<line><t path="Null"><x path="Int"/></t></line>
+	<isPublic><x path="Bool"/></isPublic>
+	<isOverride><x path="Bool"/></isOverride>
+	<get><e path="haxe.rtti.Rights"/></get>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.TypeInfos" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.Classdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<tdynamic><t path="Null"><e path="haxe.rtti.CType"/></t></tdynamic>
+	<superClass><t path="haxe.rtti.PathParams"/></superClass>
+	<statics><c path="List"><t path="haxe.rtti.ClassField"/></c></statics>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<isInterface><x path="Bool"/></isInterface>
+	<isExtern><x path="Bool"/></isExtern>
+	<interfaces><c path="List"><t path="haxe.rtti.PathParams"/></c></interfaces>
+	<file><t path="Null"><c path="String"/></t></file>
+	<fields><c path="List"><t path="haxe.rtti.ClassField"/></c></fields>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.EnumField" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<name><c path="String"/></name>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<doc><c path="String"/></doc>
+	<args><t path="Null"><c path="List"><a>
+	<t><e path="haxe.rtti.CType"/></t>
+	<opt><x path="Bool"/></opt>
+	<name><c path="String"/></name>
+</a></c></t></args>
+</a></typedef>
+	<typedef path="haxe.rtti.Enumdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<isExtern><x path="Bool"/></isExtern>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+	<constructors><c path="List"><t path="haxe.rtti.EnumField"/></c></constructors>
+</a></typedef>
+	<typedef path="haxe.rtti.Typedef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<types><c path="haxe.ds.StringMap"><e path="haxe.rtti.CType"/></c></types>
+	<type><e path="haxe.rtti.CType"/></type>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.Abstractdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<supers><c path="Array"><e path="haxe.rtti.CType"/></c></supers>
+	<subs><c path="Array"><e path="haxe.rtti.CType"/></c></subs>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<enum path="haxe.rtti.TypeTree" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType">
+		<TTypedecl a="t"><t path="haxe.rtti.Typedef"/></TTypedecl>
+		<TPackage a="name:full:subs">
+			<c path="String"/>
+			<c path="String"/>
+			<c path="Array"><e path="haxe.rtti.TypeTree"/></c>
+		</TPackage>
+		<TEnumdecl a="e"><t path="haxe.rtti.Enumdef"/></TEnumdecl>
+		<TClassdecl a="c"><t path="haxe.rtti.Classdef"/></TClassdecl>
+		<TAbstractdecl a="a"><t path="haxe.rtti.Abstractdef"/></TAbstractdecl>
+	</enum>
+	<typedef path="haxe.rtti.TypeRoot" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><e path="haxe.rtti.TypeTree"/></c></typedef>
 	<class path="haxe.rtti.Meta" params="" file="/usr/lib/haxe/std/haxe/rtti/Meta.hx">
 		<getFields public="1" set="method" line="56" static="1">
 			<f a="t">
@@ -5620,6 +6044,159 @@
 			<haxe_doc>Returns the metadata that were declared for the given class fields or enum constructors</haxe_doc>
 		</getFields>
 		<haxe_doc>An api to access classes and enums metadata at runtime.</haxe_doc>
+		<meta><m n=":keep"/></meta>
+	</class>
+	<class path="haxe.rtti.XmlParser" params="" file="/usr/lib/haxe/std/haxe/rtti/XmlParser.hx">
+		<defplat set="method" line="588"><f a=""><c path="List"><c path="String"/></c></f></defplat>
+		<xtypeparams set="method" line="581"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<c path="List"><e path="haxe.rtti.CType"/></c>
+</f></xtypeparams>
+		<xtype set="method" line="528"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<e path="haxe.rtti.CType"/>
+</f></xtype>
+		<xtypedef set="method" line="500"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Typedef"/>
+</f></xtypedef>
+		<xabstract set="method" line="467"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Abstractdef"/>
+</f></xabstract>
+		<xenumfield set="method" line="437"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.EnumField"/>
+</f></xenumfield>
+		<xenum set="method" line="412"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Enumdef"/>
+</f></xenum>
+		<xclassfield set="method" line="386"><f a="x:?defPublic">
+	<c path="haxe.xml.Fast"/>
+	<x path="Bool"/>
+	<t path="haxe.rtti.ClassField"/>
+</f></xclassfield>
+		<xclass set="method" line="346"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Classdef"/>
+</f></xclass>
+		<xpath set="method" line="335"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.PathParams"/>
+</f></xpath>
+		<xmeta set="method" line="324"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.MetaData"/>
+</f></xmeta>
+		<processElement public="1" set="method" line="313"><f a="x">
+	<c path="Xml"/>
+	<e path="haxe.rtti.TypeTree"/>
+</f></processElement>
+		<xerror set="method" line="303"><f a="c">
+	<c path="haxe.xml.Fast"/>
+	<d/>
+</f></xerror>
+		<mkRights set="method" line="293"><f a="r">
+	<c path="String"/>
+	<e path="haxe.rtti.Rights"/>
+</f></mkRights>
+		<mkTypeParams set="method" line="286"><f a="p">
+	<c path="String"/>
+	<t path="haxe.rtti.TypeParams"/>
+</f></mkTypeParams>
+		<mkPath set="method" line="282"><f a="p">
+	<c path="String"/>
+	<t path="haxe.rtti.Path"/>
+</f></mkPath>
+		<curplatform><c path="String"/></curplatform>
+		<root public="1"><t path="haxe.rtti.TypeRoot"/></root>
+		<new public="1" set="method" line="31"><f a=""><x path="Void"/></f></new>
+		<meta><m n=":keep"/></meta>
+	</class>
+	<class path="haxe.xml._Fast.NodeAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="32"><f a="name">
+	<c path="String"/>
+	<c path="haxe.xml.Fast"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="28"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="haxe.xml.Fast"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.AttribAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="51"><f a="name">
+	<c path="String"/>
+	<c path="String"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="47"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="String"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.HasAttribAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="70"><f a="name">
+	<c path="String"/>
+	<x path="Bool"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="66"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><x path="Bool"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.HasNodeAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="86"><f a="name">
+	<c path="String"/>
+	<x path="Bool"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="82"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><x path="Bool"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.NodeListAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="100"><f a="name">
+	<c path="String"/>
+	<c path="List"><c path="haxe.xml.Fast"/></c>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="96"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="List"><c path="haxe.xml.Fast"/></c></haxe_dynamic>
+	</class>
+	<class path="haxe.xml.Fast" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx">
+		<get_elements set="method" line="164"><f a=""><a>
+	<next><f a=""><c path="haxe.xml.Fast"/></f></next>
+	<hasNext><f a=""><x path="Bool"/></f></hasNext>
+</a></f></get_elements>
+		<get_innerHTML set="method" line="157"><f a=""><c path="String"/></f></get_innerHTML>
+		<get_innerData set="method" line="137"><f a=""><c path="String"/></f></get_innerData>
+		<get_name set="method" line="133"><f a=""><c path="String"/></f></get_name>
+		<hasNode public="1" set="null"><c path="haxe.xml._Fast.HasNodeAccess"/></hasNode>
+		<has public="1" set="null"><c path="haxe.xml._Fast.HasAttribAccess"/></has>
+		<att public="1" set="null"><c path="haxe.xml._Fast.AttribAccess"/></att>
+		<nodes public="1" set="null"><c path="haxe.xml._Fast.NodeListAccess"/></nodes>
+		<node public="1" set="null"><c path="haxe.xml._Fast.NodeAccess"/></node>
+		<x public="1" set="null"><c path="Xml"/></x>
+		<new public="1" set="method" line="122"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
 		<meta><m n=":keep"/></meta>
 	</class>
 	<class path="haxe.xml._Parser.S" params="" file="/usr/lib/haxe/std/haxe/xml/Parser.hx" private="1" module="haxe.xml.Parser" extern="1">
@@ -5642,6 +6219,20 @@
 		<DOCTYPE public="1" get="inline" set="null" line="44" static="1"><x path="Int"/></DOCTYPE>
 		<CDATA public="1" get="inline" set="null" line="45" static="1"><x path="Int"/></CDATA>
 		<ESCAPE public="1" get="inline" set="null" line="46" static="1"><x path="Int"/></ESCAPE>
+	</class>
+	<class path="haxe.xml.Parser" params="" file="/usr/lib/haxe/std/haxe/xml/Parser.hx">
+		<escapes line="51" static="1"><c path="haxe.ds.StringMap"><c path="String"/></c></escapes>
+		<parse public="1" set="method" line="62" static="1"><f a="str">
+	<c path="String"/>
+	<c path="Xml"/>
+</f></parse>
+		<doParse set="method" line="69" static="1"><f a="str:?p:?parent">
+	<c path="String"/>
+	<x path="Int"/>
+	<c path="Xml"/>
+	<x path="Int"/>
+</f></doParse>
+		<meta><m n=":keep"/></meta>
 	</class>
 	<class path="integration.moduleinittests.ModuleInitTests" params="" file="test/integration/moduleinittests/ModuleInitTests.hx">
 		<moduleInit_spritePostAutoInit_notNull public="1" set="method" line="135"><f a=""><x path="Void"/></f></moduleInit_spritePostAutoInit_notNull>
@@ -6080,14 +6671,6 @@
 			</f>
 			<meta><m n=":ifFeature"><e>"typed_catch"</e></m></meta>
 		</__instanceof>
-		<__cast set="method" line="198" static="1">
-			<f a="o:t">
-				<d/>
-				<d/>
-				<unknown/>
-			</f>
-			<meta><m n=":ifFeature"><e>"typed_cast"</e></m></meta>
-		</__cast>
 		<meta><m n=":keep"/></meta>
 	</class>
 	<class path="js.Browser" params="" file="/usr/lib/haxe/std/js/Browser.hx">
@@ -18640,26 +19223,22 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</c>
 			<haxe_doc>dictionary of (Vector of InjectRuleVO), stored by class names.</haxe_doc>
 		</classInjectRules>
-		<getMetaFields set="method" line="688"><f a="type">
-	<x path="Class"><d/></x>
-	<d/>
-</f></getMetaFields>
-		<getProxyById public="1" set="method" line="684"><f a="injectClassAndName">
+		<getProxyById public="1" set="method" line="647"><f a="injectClassAndName">
 	<c path="String"/>
 	<c path="mvcexpress.mvc.Proxy"/>
 </f></getProxyById>
-		<getInjectByConstName set="method" line="656"><f a="constName">
+		<getInjectByConstName set="method" line="619"><f a="constName">
 	<c path="String"/>
 	<c path="String"/>
 </f></getInjectByConstName>
-		<getInjectRules set="method" line="624">
+		<getInjectRules set="method" line="573">
 			<f a="signatureClass">
 				<x path="Class"><d/></x>
 				<c path="Array"><c path="mvcexpress.core.inject.InjectRuleVO"/></c>
 			</f>
 			<haxe_doc>* Finds and cashes class injection point rules.</haxe_doc>
 		</getInjectRules>
-		<injectPendingStuff set="method" line="576">
+		<injectPendingStuff set="method" line="525">
 			<f a="injectClassAndName:injectee">
 				<c path="String"/>
 				<d/>
@@ -18667,7 +19246,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>* Handle all pending injections for specified key.</haxe_doc>
 		</injectPendingStuff>
-		<addPendingInjection public="1" set="method" line="564">
+		<addPendingInjection public="1" set="method" line="513">
 			<f a="injectClassAndName:pendingInjection">
 				<c path="String"/>
 				<c path="mvcexpress.core.inject.PendingInject"/>
@@ -18678,7 +19257,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</addPendingInjection>
-		<injectStuff public="1" set="method" line="365">
+		<injectStuff public="1" set="method" line="364">
 			<f a="object:signatureClass:?tempValue:?tempClass">
 				<d/>
 				<x path="Class"><d/></x>
@@ -18690,12 +19269,12 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * tempValue and tempClass defines injection that will be done for current object only.
 	 *</haxe_doc>
 		</injectStuff>
-		<dispose public="1" set="method" line="339">
+		<dispose public="1" set="method" line="338">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose of proxyMap. Remove all registered proxies and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<initProxy public="1" set="method" line="323">
+		<initProxy public="1" set="method" line="322">
 			<f a="proxyObject:proxyClass:injectId">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -18706,16 +19285,16 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</initProxy>
-		<setCommandMap public="1" set="method" line="314"><f a="value">
+		<setCommandMap public="1" set="method" line="313"><f a="value">
 	<c path="mvcexpress.core.CommandMap"/>
 	<x path="Void"/>
 </f></setCommandMap>
-		<listMappings public="1" set="method" line="300">
+		<listMappings public="1" set="method" line="299">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns text of all mapped proxy objects, and keys they are mapped to. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMapped public="1" set="method" line="278">
+		<isMapped public="1" set="method" line="277">
 			<f a="proxyObject:?injectClass:?name">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -18725,7 +19304,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Checks if proxy object is already mapped.
 	 *</haxe_doc>
 		</isMapped>
-		<scopeUnmap public="1" set="method" line="260">
+		<scopeUnmap public="1" set="method" line="259">
 			<f a="scopeName:injectClass:?name">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -18738,7 +19317,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<scopeMap public="1" set="method" line="225">
+		<scopeMap public="1" set="method" line="224">
 			<f a="scopeName:proxyObject:?injectClass:?name">
 				<c path="String"/>
 				<c path="mvcexpress.mvc.Proxy"/>
@@ -18747,12 +19326,9 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 				<x path="Void"/>
 			</f>
 			<haxe_doc>* Maps proxy object to the scape with injectClass and name.
-	 * 
-	 * 
-	 * 
 	 *</haxe_doc>
 		</scopeMap>
-		<getProxy public="1" set="method" line="198">
+		<getProxy public="1" set="method" line="200">
 			<f a="injectClass:?name">
 				<x path="Class"><d/></x>
 				<c path="String"/>
@@ -18765,7 +19341,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *]]></haxe_doc>
 		</getProxy>
-		<lazyMap public="1" set="method" line="162">
+		<lazyMap public="1" set="method" line="164">
 			<f a="proxyClass:?injectClass:?name:?proxyParams">
 				<x path="Class"><d/></x>
 				<x path="Class"><d/></x>
@@ -18778,7 +19354,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	
 	 *</haxe_doc>
 		</lazyMap>
-		<unmap public="1" set="method" line="123">
+		<unmap public="1" set="method" line="125">
 			<f a="injectClass:?name">
 				<x path="Class"><d/></x>
 				<c path="String"/>
@@ -18819,10 +19395,10 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>dictionary of (Vector of PendingInject), it holds array of pending data with proxies and mediators that has pending injections,  stored by needed injection key(className + inject name).</haxe_doc>
 		</pendingInjectionsRegistry>
 		<injectObjectRegistry>
-			<x path="Map">
-				<c path="String"/>
-				<c path="mvcexpress.mvc.Proxy"/>
-			</x>
+			<c path="haxe.ds.ObjectMap">
+				<d/>
+				<d/>
+			</c>
 			<haxe_doc>all objects ready for injection stored by key. (className + inject name)</haxe_doc>
 		</injectObjectRegistry>
 		<commandMap><c path="mvcexpress.core.CommandMap"/></commandMap>
@@ -18843,10 +19419,9 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<injectClass public="1"><x path="Class"><d/></x></injectClass>
 		<proxyClass public="1">
 			<x path="Class"><d/></x>
-			<haxe_doc>* private class to store lazy proxy data.
-	 *</haxe_doc>
+			<haxe_doc>* private class to store lazy proxy data.</haxe_doc>
 		</proxyClass>
-		<new public="1" set="method" line="719"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="664"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.inject.InjectRuleVO" params="" file="mvcexpress/core/inject/InjectRuleVO.hx">
 		<toString public="1" set="method" line="19"><f a=""><c path="String"/></f></toString>
@@ -19890,27 +20465,30 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		</new>
 	</class>
 	<class path="mvcexpress.utils.MvcExpressTools" params="" file="mvcexpress/utils/MvcExpressTools.hx">
-		<checkClassStringConstants public="1" line="15" static="1"><unknown/></checkClassStringConstants>
-		<checkClassSuperClass public="1" set="method" line="17" static="1"><f a="classObject:superClass">
+		<checkClassSuperClass public="1" set="method" line="16" static="1"><f a="classObject:superClass">
 	<x path="Class"><d/></x>
 	<x path="Class"><d/></x>
 	<x path="Bool"/>
 </f></checkClassSuperClass>
-		<_checkClassStringConstants set="method" line="22" static="1"><f a="args">
+		<checkClassStringConstants public="1" set="method" line="21" static="1"><f a="args">
 	<c path="Array"><d/></c>
 	<x path="Void"/>
-</f></_checkClassStringConstants>
+</f></checkClassStringConstants>
 	</class>
 	<class path="mvcexpress.utils.StringConstantRegistry" params="" file="mvcexpress/utils/MvcExpressTools.hx" module="mvcexpress.utils.MvcExpressTools">
-		<registeredClasses public="1" line="57" static="1"><x path="Map">
+		<registeredClasses public="1" line="56" static="1"><x path="Map">
 	<d/>
 	<x path="Bool"/>
 </x></registeredClasses>
-		<stringRegistry public="1" line="59" static="1"><x path="Map">
+		<stringRegistry public="1" line="58" static="1"><x path="Map">
 	<d/>
 	<c path="String"/>
 </x></stringRegistry>
 	</class>
+	<class path="mvcexpress.utils.RttiHelper" params="" file="mvcexpress/utils/RttiHelper.hx"><getMetaFields public="1" set="method" line="8" static="1"><f a="type">
+	<x path="Class"><d/></x>
+	<c path="Array"><d/></c>
+</f></getMetaFields></class>
 	<class path="openfl.display.Tilesheet" params="" file="/usr/lib/haxe/lib/openfl-html5/1,0,5/openfl/display/Tilesheet.hx">
 		<TILE_SCALE public="1" get="inline" set="null" line="14" static="1"><x path="Int"/></TILE_SCALE>
 		<TILE_ROTATION public="1" get="inline" set="null" line="15" static="1"><x path="Int"/></TILE_ROTATION>
@@ -20087,32 +20665,32 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.OldProxyMapTests" params="" file="test/suites/proxymap/OldProxyMapTests.hx">
-		<callBackIncrease public="1" set="method" line="216"><f a="?obj">
+		<callBackIncrease public="1" set="method" line="219"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackIncrease>
-		<callBackCheck set="method" line="209"><f a="?obj">
+		<callBackCheck set="method" line="212"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackCheck>
-		<callBackSuccess public="1" set="method" line="203"><f a="?obj">
+		<callBackSuccess public="1" set="method" line="206"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackSuccess>
-		<callBackFail set="method" line="199"><f a="?obj">
+		<callBackFail set="method" line="202"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackFail>
-		<debug_test_isMapped_true public="1" set="method" line="189"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
-		<debug_test_isMapped_false public="1" set="method" line="181"><f a=""><x path="Void"/></f></debug_test_isMapped_false>
-		<removing_object_proxy public="1" set="method" line="168"><f a=""><x path="Void"/></f></removing_object_proxy>
-		<removing_class_proxy public="1" set="method" line="156"><f a=""><x path="Void"/></f></removing_class_proxy>
-		<mappings_does_not_exists_throws_error public="1" set="method" line="146"><f a=""><x path="Void"/></f></mappings_does_not_exists_throws_error>
-		<mapping_object_proxy_twice_throws_error public="1" set="method" line="136"><f a=""><x path="Void"/></f></mapping_object_proxy_twice_throws_error>
-		<using_object_proxy_twice_both_should_be_equal public="1" set="method" line="121"><f a=""><x path="Void"/></f></using_object_proxy_twice_both_should_be_equal>
-		<using_object_test public="1" set="method" line="106"><f a=""><x path="Void"/></f></using_object_test>
-		<mapping_class_proxy_twice_throws_error public="1" set="method" line="97"><f a=""><x path="Void"/></f></mapping_class_proxy_twice_throws_error>
-		<using_class_proxy_twice_both_should_be_equal public="1" set="method" line="81"><f a=""><x path="Void"/></f></using_class_proxy_twice_both_should_be_equal>
+		<debug_test_isMapped_true public="1" set="method" line="192"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
+		<debug_test_isMapped_false public="1" set="method" line="184"><f a=""><x path="Void"/></f></debug_test_isMapped_false>
+		<removing_object_proxy public="1" set="method" line="171"><f a=""><x path="Void"/></f></removing_object_proxy>
+		<removing_class_proxy public="1" set="method" line="159"><f a=""><x path="Void"/></f></removing_class_proxy>
+		<mappings_does_not_exists_throws_error public="1" set="method" line="149"><f a=""><x path="Void"/></f></mappings_does_not_exists_throws_error>
+		<mapping_object_proxy_twice_throws_error public="1" set="method" line="139"><f a=""><x path="Void"/></f></mapping_object_proxy_twice_throws_error>
+		<using_object_proxy_twice_both_should_be_equal public="1" set="method" line="124"><f a=""><x path="Void"/></f></using_object_proxy_twice_both_should_be_equal>
+		<using_object_test public="1" set="method" line="109"><f a=""><x path="Void"/></f></using_object_test>
+		<mapping_class_proxy_twice_throws_error public="1" set="method" line="100"><f a=""><x path="Void"/></f></mapping_class_proxy_twice_throws_error>
+		<using_class_proxy_twice_both_should_be_equal public="1" set="method" line="84"><f a=""><x path="Void"/></f></using_class_proxy_twice_both_should_be_equal>
 		<using_class_proxy public="1" set="method" line="67"><f a=""><x path="Void"/></f></using_class_proxy>
 		<runAfterEveryTest public="1" set="method" line="55"><f a=""><x path="Void"/></f></runAfterEveryTest>
 		<runBeforeEveryTest public="1" set="method" line="44"><f a=""><x path="Void"/></f></runBeforeEveryTest>
@@ -20137,8 +20715,15 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	</class>
 	<class path="suites.proxymap.proxytestobj.ITestProxy" params="" file="test/suites/proxymap/proxytestobj/ITestProxy.hx" interface="1"/>
 	<class path="suites.proxymap.proxytestobj.ProxyTestObj" params="" file="test/suites/proxymap/proxytestobj/ProxyTestObj.hx">
-		<testProxy public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></testProxy>
-		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+		<testProxy2 public="1">
+			<d/>
+			<meta><m n="inject"/></meta>
+		</testProxy2>
+		<testProxy public="1">
+			<c path="suites.proxymap.proxytestobj.TestProxy"/>
+			<meta><m n="inject"/></meta>
+		</testProxy>
+		<new public="1" set="method" line="20"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.proxytestobj.TestProxy" params="" file="test/suites/proxymap/proxytestobj/TestProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
@@ -20158,39 +20743,73 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<class path="suites.testobjects.view.MediatorSpriteMediator" params="" file="test/suites/testobjects/view/MediatorSpriteMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<instance public="1" static="1"><c path="suites.testobjects.view.MediatorSpriteMediator"/></instance>
-		<getIsReady public="1" set="method" line="55"><f a=""><x path="Bool"/></f></getIsReady>
-		<handleTestWithTwoParamsOneOptional public="1" set="method" line="52"><f a="params:?extraParam">
+		<getIsReady public="1" set="method" line="61"><f a=""><x path="Bool"/></f></getIsReady>
+		<handleTestWithTwoParamsOneOptional public="1" set="method" line="58"><f a="params:?extraParam">
 	<d/>
 	<c path="String"/>
 	<x path="Void"/>
 </f></handleTestWithTwoParamsOneOptional>
-		<handleTestWithTwoParams public="1" set="method" line="49"><f a="params:extraParam">
+		<handleTestWithTwoParams public="1" set="method" line="55"><f a="params:extraParam">
 	<d/>
 	<c path="String"/>
 	<x path="Void"/>
 </f></handleTestWithTwoParams>
-		<handleTestWithBadParams public="1" set="method" line="46"><f a="params">
+		<handleTestWithBadParams public="1" set="method" line="52"><f a="params">
 	<c path="suites.testobjects.TestObject"/>
 	<x path="Void"/>
 </f></handleTestWithBadParams>
-		<handleTestWithObjectParams public="1" set="method" line="43"><f a="params">
+		<handleTestWithObjectParams public="1" set="method" line="49"><f a="params">
 	<d/>
 	<x path="Void"/>
 </f></handleTestWithObjectParams>
-		<handleTestEmpty public="1" set="method" line="40"><f a=""><x path="Void"/></f></handleTestEmpty>
-		<handleTestEmptyHandler public="1" set="method" line="36"><f a="params">
+		<handleTestEmpty public="1" set="method" line="46"><f a=""><x path="Void"/></f></handleTestEmpty>
+		<handleTestEmptyHandler public="1" set="method" line="42"><f a="params">
 	<d/>
 	<x path="Void"/>
 </f></handleTestEmptyHandler>
-		<addTestHandler set="method" line="32"><f a="event">
+		<addTestHandler set="method" line="38"><f a="event">
 	<c path="flash.events.Event"/>
 	<x path="Void"/>
 </f></addTestHandler>
-		<onRemove public="1" set="method" line="28" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="suites.testobjects.view.MediatorSprite"/></view>
+		<onRemove public="1" set="method" line="34" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister public="1" set="method" line="20" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1">
+			<c path="suites.testobjects.view.MediatorSprite"/>
+			<meta><m n="inject"/></meta>
+		</view>
+		<test public="1">
+			<c path="suites.testobjects.TestObject"/>
+			<meta><m n="inject"/></meta>
+		</test>
 		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
 	</class>
+	<class path="suites.utils.UtilsTests" params="" file="test/suites/utils/UtilsTests.hx">
+		<utils_checkClassSuperclass_tests public="1" set="method" line="50"><f a=""><x path="Void"/></f></utils_checkClassSuperclass_tests>
+		<utils_two_class_with_duplicated_constants_fails public="1" set="method" line="42"><f a=""><x path="Void"/></f></utils_two_class_with_duplicated_constants_fails>
+		<utils_two_class_check public="1" set="method" line="37"><f a=""><x path="Void"/></f></utils_two_class_check>
+		<utils_one_class_check public="1" set="method" line="32"><f a=""><x path="Void"/></f></utils_one_class_check>
+		<new public="1" set="method" line="21"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.utils.objects.ClassA" params="" file="test/suites/utils/objects/ClassA.hx"><new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new></class>
+	<class path="suites.utils.objects.ClassASubclass" params="" file="test/suites/utils/objects/ClassASubclass.hx">
+		<extends path="suites.utils.objects.ClassA"/>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.utils.objects.ClassASubclassSubclass" params="" file="test/suites/utils/objects/ClassASubclassSubclass.hx">
+		<extends path="suites.utils.objects.ClassASubclass"/>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.utils.objects.ClassB" params="" file="test/suites/utils/objects/ClassB.hx"><new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new></class>
+	<class path="suites.utils.objects.ClassBSubclass" params="" file="test/suites/utils/objects/ClassBSubclass.hx">
+		<extends path="suites.utils.objects.ClassB"/>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.utils.objects.ConstantsA" params="" file="test/suites/utils/objects/ConstantsA.hx"><AAAA public="1" line="9" static="1"><c path="String"/></AAAA></class>
+	<class path="suites.utils.objects.ConstantsAB" params="" file="test/suites/utils/objects/ConstantsAB.hx">
+		<AAAA public="1" line="9" static="1"><c path="String"/></AAAA>
+		<BBBB public="1" line="10" static="1"><c path="String"/></BBBB>
+	</class>
+	<class path="suites.utils.objects.ConstantsB" params="" file="test/suites/utils/objects/ConstantsB.hx"><BBBB public="1" line="9" static="1"><c path="String"/></BBBB></class>
 	<class path="utils.Assert" params="" file="test/utils/Assert.hx">
 		<assertEquals public="1" set="method" line="14" static="1"><f a="?msg:?arg1:?arg2">
 	<c path="String"/>

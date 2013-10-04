@@ -12,14 +12,13 @@ import haxe.ds.ObjectMap;
 
 class MvcExpressTools 
 {
-	static public var checkClassStringConstants = Reflect.makeVarArgs(_checkClassStringConstants);
 	
-	static public function checkClassSuperClass( classObject:Class<Dynamic>, superClass:Class<Dynamic> )
+	static public function checkClassSuperClass( classObject:Class<Dynamic>, superClass:Class<Dynamic> ) : Bool 
 	{
 		return Type.getSuperClass(classObject) == superClass; 
 	}
 	
-	static function _checkClassStringConstants( args:Array<Dynamic> ) : Void 
+	static public function checkClassStringConstants( args:Array<Dynamic> ) : Void 
 	{
 		for( p in args ) 
 		{

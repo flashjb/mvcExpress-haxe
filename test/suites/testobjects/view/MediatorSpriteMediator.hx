@@ -14,14 +14,20 @@ class MediatorSpriteMediator extends Mediator {
 
 	static public var instance : MediatorSpriteMediator;
 	
-	public var view : MediatorSprite;
-	override public function onRegister() : Void {
+	@inject() public var test : TestObject;
+	@inject() public var view : MediatorSprite;
+	
+	override public function onRegister() : Void 
+	{
 		addHandler("test_add_empty_handler", handleTestEmptyHandler);
 		addHandler("test_handler_object_params", handleTestWithObjectParams);
 		addHandler("test_handler_bad_params", handleTestWithBadParams);
 		addHandler("test_handler_two_params", handleTestWithTwoParams);
 		addHandler("test_handler_two_params_one_optional", handleTestWithTwoParamsOneOptional);
+		
+		//TODO injection not work
 		view.addEventListener(TestViewEvent.TRIGER_ADD_HANDLER, addTestHandler);
+		
 		MediatorSpriteMediator.instance = this;
 	}
 
