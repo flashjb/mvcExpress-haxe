@@ -18,15 +18,17 @@ class RttiHelper
                 break;
 						
 			var infos = new haxe.rtti.XmlParser().processElement( Xml.parse(rtti).firstElement() );
+			for( i in Reflect.fields(infos) )
+			{
+				trace('infos:>>'+Reflect.field(infos, i));
+			}
 			for( field in Reflect.fields(typeMeta) )
 			{
 				var meta  = {};
 					Reflect.setField(meta, field, Reflect.field(typeMeta, field));
 					
 		            
-            	//	var iCls = Type.enumParameters(  type  ).get( field ) [0];
-					
-				trace("try "+field+" :> meta.type :>"+ infos );//	Reflect.setField(meta, "class", Type.getClassName(Reflect.field(typeMeta, field)));
+			//	trace("try "+field+" :> meta.type :>"+ infos );//	Reflect.setField(meta, "class", Type.getClassName(Reflect.field(typeMeta, field)));
 				metalist.push(meta);
 			}
 			

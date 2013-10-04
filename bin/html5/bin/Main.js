@@ -9,6 +9,11 @@ function $extend(from, fields) {
 var ApplicationMain = function() { }
 $hxClasses["ApplicationMain"] = ApplicationMain;
 ApplicationMain.__name__ = ["ApplicationMain"];
+ApplicationMain.completed = null;
+ApplicationMain.preloader = null;
+ApplicationMain.total = null;
+ApplicationMain.loaders = null;
+ApplicationMain.urlLoaders = null;
 ApplicationMain.main = function() {
 	ApplicationMain.completed = 0;
 	ApplicationMain.loaders = new haxe.ds.StringMap();
@@ -175,20 +180,7 @@ var List = function() {
 $hxClasses["List"] = List;
 List.__name__ = ["List"];
 List.prototype = {
-	toString: function() {
-		var s = new StringBuf();
-		var first = true;
-		var l = this.h;
-		s.b += "{";
-		while(l != null) {
-			if(first) first = false; else s.b += ", ";
-			s.b += Std.string(Std.string(l[0]));
-			l = l[1];
-		}
-		s.b += "}";
-		return s.b;
-	}
-	,iterator: function() {
+	iterator: function() {
 		return { h : this.h, hasNext : function() {
 			return this.h != null;
 		}, next : function() {
@@ -1654,6 +1646,15 @@ Type.createEmptyInstance = function(cl) {
 	function empty() {}; empty.prototype = cl.prototype;
 	return new empty();
 }
+Type.getClassFields = function(c) {
+	var a = Reflect.fields(c);
+	HxOverrides.remove(a,"__name__");
+	HxOverrides.remove(a,"__interfaces__");
+	HxOverrides.remove(a,"__properties__");
+	HxOverrides.remove(a,"__super__");
+	HxOverrides.remove(a,"prototype");
+	return a;
+}
 Type["typeof"] = function(v) {
 	var _g = typeof(v);
 	switch(_g) {
@@ -1685,6 +1686,13 @@ var Xml = function() {
 };
 $hxClasses["Xml"] = Xml;
 Xml.__name__ = ["Xml"];
+Xml.Element = null;
+Xml.PCData = null;
+Xml.CData = null;
+Xml.Comment = null;
+Xml.DocType = null;
+Xml.ProcessingInstruction = null;
+Xml.Document = null;
 Xml.parse = function(str) {
 	return haxe.xml.Parser.parse(str);
 }
@@ -1919,6 +1927,12 @@ flash.Lib = function(rootElement,width,height) {
 $hxClasses["flash.Lib"] = flash.Lib;
 flash.Lib.__name__ = ["flash","Lib"];
 flash.Lib.__properties__ = {get_current:"get_current"}
+flash.Lib.current = null;
+flash.Lib.mCurrent = null;
+flash.Lib.mForce2DTransform = null;
+flash.Lib.mMainClassRoot = null;
+flash.Lib.mMe = null;
+flash.Lib.mStage = null;
 flash.Lib["as"] = function(v,c) {
 	return js.Boot.__instanceof(v,c)?v:null;
 }
@@ -6521,6 +6535,8 @@ flash.ui = {}
 flash.ui.Keyboard = function() { }
 $hxClasses["flash.ui.Keyboard"] = flash.ui.Keyboard;
 flash.ui.Keyboard.__name__ = ["flash","ui","Keyboard"];
+flash.ui.Keyboard.capsLock = null;
+flash.ui.Keyboard.numLock = null;
 flash.ui.Keyboard.isAccessible = function() {
 	return false;
 }
@@ -7005,6 +7021,7 @@ haxe.Log.trace = function(v,infos) {
 haxe.Resource = function() { }
 $hxClasses["haxe.Resource"] = haxe.Resource;
 haxe.Resource.__name__ = ["haxe","Resource"];
+haxe.Resource.content = null;
 haxe.Resource.listNames = function() {
 	var names = new Array();
 	var _g = 0, _g1 = haxe.Resource.content;
@@ -7485,21 +7502,7 @@ $hxClasses["haxe.ds.StringMap"] = haxe.ds.StringMap;
 haxe.ds.StringMap.__name__ = ["haxe","ds","StringMap"];
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	toString: function() {
-		var s = new StringBuf();
-		s.b += "{";
-		var it = this.keys();
-		while( it.hasNext() ) {
-			var i = it.next();
-			s.b += Std.string(i);
-			s.b += " => ";
-			s.b += Std.string(Std.string(this.get(i)));
-			if(it.hasNext()) s.b += ", ";
-		}
-		s.b += "}";
-		return s.b;
-	}
-	,iterator: function() {
+	iterator: function() {
 		return { ref : this.h, it : this.keys(), hasNext : function() {
 			return this.it.hasNext();
 		}, next : function() {
@@ -9221,6 +9224,7 @@ mvcexpress.core.ModuleBase = function(moduleName,autoInit) {
 };
 $hxClasses["mvcexpress.core.ModuleBase"] = mvcexpress.core.ModuleBase;
 mvcexpress.core.ModuleBase.__name__ = ["mvcexpress","core","ModuleBase"];
+mvcexpress.core.ModuleBase.allowInstantiation = null;
 mvcexpress.core.ModuleBase.getModuleInstance = function(moduleName,autoInit) {
 	var retVal;
 	mvcexpress.core.ModuleBase.allowInstantiation = true;
@@ -9304,6 +9308,7 @@ mvcexpress.core.ModuleManager = function() {
 };
 $hxClasses["mvcexpress.core.ModuleManager"] = mvcexpress.core.ModuleManager;
 mvcexpress.core.ModuleManager.__name__ = ["mvcexpress","core","ModuleManager"];
+mvcexpress.core.ModuleManager._moduleId = null;
 mvcexpress.core.ModuleManager.createModule = function(moduleName,autoInit) {
 	if(mvcexpress.core.ModuleManager.needMetadataTest) {
 		mvcexpress.core.ModuleManager.needMetadataTest = false;
@@ -9934,6 +9939,7 @@ mvcexpress.core.messenger.Messenger = function(moduleName) {
 };
 $hxClasses["mvcexpress.core.messenger.Messenger"] = mvcexpress.core.messenger.Messenger;
 mvcexpress.core.messenger.Messenger.__name__ = ["mvcexpress","core","messenger","Messenger"];
+mvcexpress.core.messenger.Messenger.allowInstantiation = null;
 mvcexpress.core.messenger.Messenger.prototype = {
 	dispose: function() {
 		this.messageRegistry = null;
@@ -10534,6 +10540,7 @@ mvcexpress.mvc.Command = function() {
 };
 $hxClasses["mvcexpress.mvc.Command"] = mvcexpress.mvc.Command;
 mvcexpress.mvc.Command.__name__ = ["mvcexpress","mvc","Command"];
+mvcexpress.mvc.Command.canConstruct = null;
 mvcexpress.mvc.Command.prototype = {
 	getMessageType: function() {
 		return this.messageType;
@@ -10567,6 +10574,7 @@ mvcexpress.mvc.Mediator = function() {
 };
 $hxClasses["mvcexpress.mvc.Mediator"] = mvcexpress.mvc.Mediator;
 mvcexpress.mvc.Mediator.__name__ = ["mvcexpress","mvc","Mediator"];
+mvcexpress.mvc.Mediator.canConstruct = null;
 mvcexpress.mvc.Mediator.prototype = {
 	remove: function() {
 		this.onRemove();
@@ -10794,23 +10802,30 @@ mvcexpress.utils.MvcExpressTools = function() { }
 $hxClasses["mvcexpress.utils.MvcExpressTools"] = mvcexpress.utils.MvcExpressTools;
 mvcexpress.utils.MvcExpressTools.__name__ = ["mvcexpress","utils","MvcExpressTools"];
 mvcexpress.utils.MvcExpressTools.checkClassSuperClass = function(classObject,superClass) {
-	return Type.getSuperClass(classObject) == superClass;
+	var retVal = false;
+	var classParent = Type.getSuperClass(classObject);
+	if(classParent != superClass) while(classParent != superClass && classParent != null) {
+		classParent = Type.getSuperClass(classParent);
+		if(classParent == superClass) retVal = true;
+	} else retVal = true;
+	return retVal;
 }
 mvcexpress.utils.MvcExpressTools.checkClassStringConstants = function(args) {
-	var _g = 0;
-	while(_g < args.length) {
-		var p = args[_g];
-		++_g;
-		var constantClass = js.Boot.__cast(p , Class);
+	var _g1 = 0, _g = args.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var constantClass = args[i];
 		if(constantClass != null) {
-			if(mvcexpress.utils.StringConstantRegistry.registeredClasses.exists(constantClass) && mvcexpress.utils.StringConstantRegistry.registeredClasses.get(constantClass) != true) {
-				var _g1 = 0, _g2 = Reflect.fields(constantClass);
-				while(_g1 < _g2.length) {
-					var j = _g2[_g1];
-					++_g1;
+			haxe.Log.trace("register class ?",{ fileName : "MvcExpressTools.hx", lineNumber : 44, className : "mvcexpress.utils.MvcExpressTools", methodName : "checkClassStringConstants", customParams : [mvcexpress.utils.StringConstantRegistry.registeredClasses.h[constantClass.__id__] == true]});
+			if(mvcexpress.utils.StringConstantRegistry.registeredClasses.h[constantClass.__id__] != true) {
+				var _g2 = 0, _g3 = Type.getClassFields(constantClass);
+				while(_g2 < _g3.length) {
+					var j = _g3[_g2];
+					++_g2;
 					var value = Reflect.field(constantClass,j);
+					haxe.Log.trace("eee:",{ fileName : "MvcExpressTools.hx", lineNumber : 51, className : "mvcexpress.utils.MvcExpressTools", methodName : "checkClassStringConstants", customParams : [value]});
 					if(js.Boot.__instanceof(value,String)) {
-						if(Reflect.hasField(mvcexpress.utils.StringConstantRegistry.stringRegistry,value)) throw "Class " + Std.string(constantClass) + " and " + Std.string(Reflect.field(mvcexpress.utils.StringConstantRegistry.stringRegistry,value)) + " have same string constant value : " + value; else mvcexpress.utils.StringConstantRegistry.stringRegistry[value] = constantClass;
+						if(mvcexpress.utils.StringConstantRegistry.stringRegistry.exists(value)) throw "Class " + Std.string(constantClass) + " and " + Std.string(Reflect.field(mvcexpress.utils.StringConstantRegistry.stringRegistry,value)) + " have same string constant value : " + value; else mvcexpress.utils.StringConstantRegistry.stringRegistry.set(value,constantClass);
 					}
 				}
 				mvcexpress.utils.StringConstantRegistry.registeredClasses.set(constantClass,true);
@@ -10831,13 +10846,18 @@ mvcexpress.utils.RttiHelper.getMetaFields = function(type) {
 		var rtti = type.__rtti;
 		if(rtti == null) break;
 		var infos = new haxe.rtti.XmlParser().processElement(Xml.parse(rtti).firstElement());
+		var _g = 0, _g1 = Reflect.fields(infos);
+		while(_g < _g1.length) {
+			var i = _g1[_g];
+			++_g;
+			haxe.Log.trace("infos:>>" + Std.string(Reflect.field(infos,i)),{ fileName : "RttiHelper.hx", lineNumber : 23, className : "mvcexpress.utils.RttiHelper", methodName : "getMetaFields"});
+		}
 		var _g = 0, _g1 = Reflect.fields(typeMeta);
 		while(_g < _g1.length) {
 			var field = _g1[_g];
 			++_g;
 			var meta = { };
 			meta[field] = Reflect.field(typeMeta,field);
-			haxe.Log.trace("try " + field + " :> meta.type :>" + Std.string(infos),{ fileName : "RttiHelper.hx", lineNumber : 29, className : "mvcexpress.utils.RttiHelper", methodName : "getMetaFields"});
 			metalist.push(meta);
 		}
 		type = Type.getSuperClass(type);
@@ -11365,6 +11385,7 @@ suites.testobjects.view.MediatorSpriteMediator = function() {
 };
 $hxClasses["suites.testobjects.view.MediatorSpriteMediator"] = suites.testobjects.view.MediatorSpriteMediator;
 suites.testobjects.view.MediatorSpriteMediator.__name__ = ["suites","testobjects","view","MediatorSpriteMediator"];
+suites.testobjects.view.MediatorSpriteMediator.instance = null;
 suites.testobjects.view.MediatorSpriteMediator.__super__ = mvcexpress.mvc.Mediator;
 suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
 	getIsReady: function() {
@@ -11403,9 +11424,8 @@ suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mv
 suites.utils = {}
 suites.utils.UtilsTests = function() {
 	this.utils_checkClassSuperclass_tests();
+	this.utils_two_class_check();
 	this.utils_one_class_check();
-	this.utils_one_class_check();
-	this.utils_checkClassSuperclass_tests();
 	this.utils_two_class_with_duplicated_constants_fails();
 };
 $hxClasses["suites.utils.UtilsTests"] = suites.utils.UtilsTests;
@@ -12068,6 +12088,8 @@ mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
 mvcexpress.MvcExpress.REVISION = 4;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
+mvcexpress.MvcExpress.debugFunction = null;
+mvcexpress.MvcExpress.loggerFunction = null;
 mvcexpress.core.CommandMap.commandClassParamTypes = new haxe.ds.ObjectMap();
 mvcexpress.core.CommandMap.validatedCommands = new haxe.ds.ObjectMap();
 mvcexpress.core.ModuleManager.moduleRegistry = new haxe.ds.StringMap();
@@ -12120,7 +12142,7 @@ mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDMESSAGE_CLEAN = "Proxy.se
 mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE = "Proxy.sendScopeMessage";
 mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE_CLEAN = "Proxy.sendScopeMessage.CLEAN";
 mvcexpress.utils.StringConstantRegistry.registeredClasses = new haxe.ds.ObjectMap();
-mvcexpress.utils.StringConstantRegistry.stringRegistry = new haxe.ds.ObjectMap();
+mvcexpress.utils.StringConstantRegistry.stringRegistry = new haxe.ds.StringMap();
 openfl.display.Tilesheet.TILE_SCALE = 1;
 openfl.display.Tilesheet.TILE_ROTATION = 2;
 openfl.display.Tilesheet.TILE_RGB = 4;
@@ -12140,6 +12162,7 @@ suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_
 suites.proxymap.proxytestobj.ProxyTestObj.__meta__ = { fields : { testProxy2 : { inject : null}, testProxy : { inject : null}}};
 suites.testobjects.view.MediatorSpriteMediator.__meta__ = { fields : { view : { inject : null}, test : { inject : null}}};
 suites.utils.objects.ConstantsA.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
+suites.utils.objects.ConstantsA.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";
 suites.utils.objects.ConstantsAB.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";
 suites.utils.objects.ConstantsB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";

@@ -458,13 +458,6 @@
 		<meta><m n=":coreType"/></meta>
 	</abstract>
 	<class path="List" params="T" file="/usr/lib/haxe/std/List.hx">
-		<toString public="1" set="method" line="203">
-			<f a=""><c path="String"/></f>
-			<haxe_doc>Returns a string representation of [this] List.
-		
-		The result is enclosed in { } with the individual elements being
-		separated by a comma.</haxe_doc>
-		</toString>
 		<iterator public="1" set="method" line="161">
 			<f a=""><t path="Iterator"><c path="List.T"/></t></f>
 			<haxe_doc>Returns an iterator on the elements of the list.</haxe_doc>
@@ -2059,6 +2052,21 @@
 		
 		If [cl] is null, the result is unspecified.</haxe_doc>
 		</createEmptyInstance>
+		<getClassFields public="1" set="method" line="136" static="1">
+			<f a="c">
+				<x path="Class"><d/></x>
+				<c path="Array"><c path="String"/></c>
+			</f>
+			<haxe_doc>Returns a list of static fields of class [c].
+		
+		This does not include static fields of parent classes.
+		
+		The order of the fields in the returned Array is unspecified.
+		
+		If [c] is null, the result is unspecified.
+		
+		(As3) This method only returns class fields that are public.</haxe_doc>
+		</getClassFields>
 		<typeof public="1" set="method" line="151" static="1">
 			<f a="v">
 				<d/>
@@ -5818,10 +5826,6 @@
 			<c path="String"/>
 			<c path="haxe.ds.StringMap.T"/>
 		</implements>
-		<toString public="1" set="method" line="71">
-			<f a=""><c path="String"/></f>
-			<haxe_doc>Returns an displayable representation of the hashtable content.</haxe_doc>
-		</toString>
 		<iterator public="1" set="method" line="62">
 			<f a=""><t path="Iterator"><c path="haxe.ds.StringMap.T"/></t></f>
 			<haxe_doc>Returns an iterator of all values in the hashtable.</haxe_doc>
@@ -20465,24 +20469,24 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		</new>
 	</class>
 	<class path="mvcexpress.utils.MvcExpressTools" params="" file="mvcexpress/utils/MvcExpressTools.hx">
-		<checkClassSuperClass public="1" set="method" line="16" static="1"><f a="classObject:superClass">
+		<checkClassSuperClass public="1" set="method" line="17" static="1"><f a="classObject:superClass">
 	<x path="Class"><d/></x>
 	<x path="Class"><d/></x>
 	<x path="Bool"/>
 </f></checkClassSuperClass>
-		<checkClassStringConstants public="1" set="method" line="21" static="1"><f a="args">
-	<c path="Array"><d/></c>
+		<checkClassStringConstants public="1" set="method" line="36" static="1"><f a="args">
+	<c path="Array"><x path="Class"><d/></x></c>
 	<x path="Void"/>
 </f></checkClassStringConstants>
 	</class>
 	<class path="mvcexpress.utils.StringConstantRegistry" params="" file="mvcexpress/utils/MvcExpressTools.hx" module="mvcexpress.utils.MvcExpressTools">
-		<registeredClasses public="1" line="56" static="1"><x path="Map">
+		<registeredClasses public="1" line="74" static="1"><c path="haxe.ds.ObjectMap">
 	<d/>
 	<x path="Bool"/>
-</x></registeredClasses>
-		<stringRegistry public="1" line="58" static="1"><x path="Map">
-	<d/>
+</c></registeredClasses>
+		<stringRegistry public="1" line="76" static="1"><x path="Map">
 	<c path="String"/>
+	<x path="Class"><d/></x>
 </x></stringRegistry>
 	</class>
 	<class path="mvcexpress.utils.RttiHelper" params="" file="mvcexpress/utils/RttiHelper.hx"><getMetaFields public="1" set="method" line="8" static="1"><f a="type">
@@ -20784,10 +20788,10 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.utils.UtilsTests" params="" file="test/suites/utils/UtilsTests.hx">
-		<utils_checkClassSuperclass_tests public="1" set="method" line="50"><f a=""><x path="Void"/></f></utils_checkClassSuperclass_tests>
-		<utils_two_class_with_duplicated_constants_fails public="1" set="method" line="42"><f a=""><x path="Void"/></f></utils_two_class_with_duplicated_constants_fails>
-		<utils_two_class_check public="1" set="method" line="37"><f a=""><x path="Void"/></f></utils_two_class_check>
-		<utils_one_class_check public="1" set="method" line="32"><f a=""><x path="Void"/></f></utils_one_class_check>
+		<utils_checkClassSuperclass_tests public="1" set="method" line="49"><f a=""><x path="Void"/></f></utils_checkClassSuperclass_tests>
+		<utils_two_class_with_duplicated_constants_fails public="1" set="method" line="41"><f a=""><x path="Void"/></f></utils_two_class_with_duplicated_constants_fails>
+		<utils_two_class_check public="1" set="method" line="36"><f a=""><x path="Void"/></f></utils_two_class_check>
+		<utils_one_class_check public="1" set="method" line="31"><f a=""><x path="Void"/></f></utils_one_class_check>
 		<new public="1" set="method" line="21"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.utils.objects.ClassA" params="" file="test/suites/utils/objects/ClassA.hx"><new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new></class>
@@ -20804,7 +20808,10 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<extends path="suites.utils.objects.ClassB"/>
 		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
 	</class>
-	<class path="suites.utils.objects.ConstantsA" params="" file="test/suites/utils/objects/ConstantsA.hx"><AAAA public="1" line="9" static="1"><c path="String"/></AAAA></class>
+	<class path="suites.utils.objects.ConstantsA" params="" file="test/suites/utils/objects/ConstantsA.hx">
+		<AAAA public="1" line="9" static="1"><c path="String"/></AAAA>
+		<BBBB public="1" line="10" static="1"><c path="String"/></BBBB>
+	</class>
 	<class path="suites.utils.objects.ConstantsAB" params="" file="test/suites/utils/objects/ConstantsAB.hx">
 		<AAAA public="1" line="9" static="1"><c path="String"/></AAAA>
 		<BBBB public="1" line="10" static="1"><c path="String"/></BBBB>

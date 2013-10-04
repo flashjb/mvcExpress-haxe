@@ -8,6 +8,7 @@
 package mvcexpress.utils;
 
 import haxe.ds.ObjectMap;
+import haxe.rtti.Meta;
 
 
 class MvcExpressTools 
@@ -15,28 +16,45 @@ class MvcExpressTools
 	
 	static public function checkClassSuperClass( classObject:Class<Dynamic>, superClass:Class<Dynamic> ) : Bool 
 	{
-		return Type.getSuperClass(classObject) == superClass; 
+		var retVal = false;
+		var classParent = Type.getSuperClass(classObject);
+		if (classParent != superClass) 
+		{
+			while ( classParent != superClass && classParent != null ) 
+			{
+				classParent = Type.getSuperClass(classParent);
+				if (classParent == superClass) {
+					retVal = true;
+				}
+			}
+		} else {
+			retVal = true;
+		}
+		return retVal;
 	}
 	
-	static public function checkClassStringConstants( args:Array<Dynamic> ) : Void 
+	static public function checkClassStringConstants( args:Array<Class<Dynamic>> ) : Void 
 	{
-		for( p in args ) 
+		for( i in 0...args.length ) 
 		{
-			var constantClass : Class<Dynamic> = cast( p, Class<Dynamic> );
+			var constantClass = args[i];
 			if( constantClass != null )  
 			{
 				// check if class is already analyzed.
-				if( StringConstantRegistry.registeredClasses.exists(constantClass) && StringConstantRegistry.registeredClasses.get(constantClass) != true )  
+				trace( "register class ?", StringConstantRegistry.registeredClasses.get(constantClass) == true);
+				
+				if( StringConstantRegistry.registeredClasses.get(constantClass) != true )  
 				{
-					for (j in Reflect.fields(constantClass) ) 
+					for ( j in Type.getClassFields(constantClass) ) 
 					{
 						var value = Reflect.field(constantClass, j);
+						trace("eee:",value);
 						if( Std.is( value, String) )  
 						{
-							if( Reflect.hasField(StringConstantRegistry.stringRegistry, value) )  {
+							if(  StringConstantRegistry.stringRegistry.exists(value) )  {
 								throw ("Class " + constantClass + " and " + Reflect.field(StringConstantRegistry.stringRegistry, value) + " have same string constant value : " + value);
 							} else {
-								Reflect.setField(StringConstantRegistry.stringRegistry, value, constantClass);
+								StringConstantRegistry.stringRegistry.set(value, cast constantClass);
 							}
 						}
 					}
@@ -53,8 +71,8 @@ class MvcExpressTools
 class StringConstantRegistry 
 {
 
-	static public var registeredClasses : Map<Dynamic, Bool> = new ObjectMap();
+	static public var registeredClasses : ObjectMap<Dynamic, Bool> = new ObjectMap();
 	/* of Boolean by Class */
-	static public var stringRegistry : Map<Dynamic, String> = new ObjectMap();
+	static public var stringRegistry : Map<String, Class<Dynamic>> = new Map();
 	/* of Class by String */
 }

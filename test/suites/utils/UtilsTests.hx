@@ -21,10 +21,9 @@ class UtilsTests {
 	public function new()
 	{
 		utils_checkClassSuperclass_tests();
-		utils_one_class_check();
-		utils_one_class_check();
 		
-		utils_checkClassSuperclass_tests();
+		utils_two_class_check();
+		utils_one_class_check();
 		utils_two_class_with_duplicated_constants_fails();
 	}
 	
