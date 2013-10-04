@@ -15,7 +15,7 @@ class TestInject {
 	
 	
 	public function testInjectMetaTag() : Bool {
-		var retVal : Bool = false;
+		var retVal : Bool = true;
 		//var classDescription : XML = describeType(testInject);
 //				//		var factoryNodes:XMLList = classDescription.factory.*;
 //				var factoryNodes : XMLList = classDescription.factory;

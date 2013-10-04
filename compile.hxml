@@ -5,7 +5,7 @@
 -cp test
 -cp Source
 -D tools=1
--D openfl_ver=1.0.10
+-D openfl_ver=1.0.2
 -D openfl
 -D debug
 -D web
@@ -20,13 +20,13 @@
 --next
 
 -main ApplicationMain
+-lib openfl
+-lib openfl-html5
 -cp mvcexpress
 -cp src
 -cp test
--lib openfl
--lib openfl-html5
 -D tools=1
--D openfl_ver=1.0.10
+-D openfl_ver=1.0.2
 -D openfl
 -D debug
 -D html5

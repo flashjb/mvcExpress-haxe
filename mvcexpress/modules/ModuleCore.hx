@@ -21,10 +21,10 @@ class ModuleCore
 {
 	public var moduleName(get_moduleName, never) : String;
 
-	var moduleBase : ModuleBase;
-	var proxyMap : ProxyMap;
+	var moduleBase 	: ModuleBase;
+	var proxyMap 	: ProxyMap;
 	var mediatorMap : MediatorMap;
-	var commandMap : CommandMap;
+	var commandMap 	: CommandMap;
 	/**
 	 * CONSTRUCTOR
 	 * 

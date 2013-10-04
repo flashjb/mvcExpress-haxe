@@ -109,7 +109,7 @@ class ModuleManager
 			MvcExpress.debug(new TraceModuleManager_disposeModule(moduleName));
 		#end
 		
-		if( moduleRegistry[moduleName] != null )  
+		if( moduleRegistry.exists(moduleName) )  
 		{
 			// remove scoped proxies from this module
 			var scopiedProxies : Map<String, ScopedProxyData> = scopedProxiesByScope[moduleName];
@@ -123,7 +123,7 @@ class ModuleManager
 				}
 			}
 
-			Reflect.deleteField(moduleRegistry, moduleName);
+			moduleRegistry.remove(moduleName);
 			
 			var moduleCount : Int = allModules.length;
 			var j : Int = 0;
@@ -134,7 +134,8 @@ class ModuleManager
 				}
 				j++;
 			}
-			Reflect.deleteField(scopePermissionsRegistry, moduleName);
+			
+			scopePermissionsRegistry.remove(moduleName);
 			//
 		} else {
 			throw ("Module with moduleName:" + moduleName + " doesn't exist.");

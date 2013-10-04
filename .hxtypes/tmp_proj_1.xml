@@ -16,8 +16,6 @@
 			<meta>
 				<m n=":keep"/>
 				<m n=":keep"/>
-				<m n=":keep"/>
-				<m n=":keep"/>
 			</meta>
 		</main>
 		<begin set="method" line="86" static="1"><f a=""><x path="Void"/></f></begin>
@@ -35,10 +33,7 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="17" static="1">
-			<f a=""><x path="Void"/></f>
-			<meta><m n=":keep"/></meta>
-		</main>
+		<main public="1" set="method" line="17" static="1"><f a=""><x path="Void"/></f></main>
 		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/html5/haxe/ApplicationMain.hx" module="ApplicationMain">
@@ -5652,15 +5647,15 @@
 		<ESCAPE public="1" get="inline" set="null" line="46" static="1"><x path="Int"/></ESCAPE>
 	</class>
 	<class path="integration.moduleinittests.ModuleInitTests" params="" file="test/integration/moduleinittests/ModuleInitTests.hx">
-		<moduleInit_spritePostAutoInit_notNull public="1" set="method" line="134"><f a=""><x path="Void"/></f></moduleInit_spritePostAutoInit_notNull>
-		<moduleInit_spriteNoAutoInit_null public="1" set="method" line="125"><f a=""><x path="Void"/></f></moduleInit_spriteNoAutoInit_null>
-		<moduleInit_spriteAutoInit_notNull public="1" set="method" line="116"><f a=""><x path="Void"/></f></moduleInit_spriteAutoInit_notNull>
-		<moduleInit_movieClipPostAutoInit_notNull public="1" set="method" line="103"><f a=""><x path="Void"/></f></moduleInit_movieClipPostAutoInit_notNull>
-		<moduleInit_movieClipNoAutoInit_null public="1" set="method" line="94"><f a=""><x path="Void"/></f></moduleInit_movieClipNoAutoInit_null>
-		<moduleInit_movieClipAutoInit_notNull public="1" set="method" line="86"><f a=""><x path="Void"/></f></moduleInit_movieClipAutoInit_notNull>
-		<moduleInit_corePostAutoInit_notNull public="1" set="method" line="73"><f a=""><x path="Void"/></f></moduleInit_corePostAutoInit_notNull>
-		<moduleInit_coreNoAutoInit_null public="1" set="method" line="64"><f a=""><x path="Void"/></f></moduleInit_coreNoAutoInit_null>
-		<moduleInit_coreAutoInit_notNull public="1" set="method" line="55"><f a=""><x path="Void"/></f></moduleInit_coreAutoInit_notNull>
+		<moduleInit_spritePostAutoInit_notNull public="1" set="method" line="135"><f a=""><x path="Void"/></f></moduleInit_spritePostAutoInit_notNull>
+		<moduleInit_spriteNoAutoInit_null public="1" set="method" line="126"><f a=""><x path="Void"/></f></moduleInit_spriteNoAutoInit_null>
+		<moduleInit_spriteAutoInit_notNull public="1" set="method" line="117"><f a=""><x path="Void"/></f></moduleInit_spriteAutoInit_notNull>
+		<moduleInit_movieClipPostAutoInit_notNull public="1" set="method" line="104"><f a=""><x path="Void"/></f></moduleInit_movieClipPostAutoInit_notNull>
+		<moduleInit_movieClipNoAutoInit_null public="1" set="method" line="95"><f a=""><x path="Void"/></f></moduleInit_movieClipNoAutoInit_null>
+		<moduleInit_movieClipAutoInit_notNull public="1" set="method" line="87"><f a=""><x path="Void"/></f></moduleInit_movieClipAutoInit_notNull>
+		<moduleInit_corePostAutoInit_notNull public="1" set="method" line="74"><f a=""><x path="Void"/></f></moduleInit_corePostAutoInit_notNull>
+		<moduleInit_coreNoAutoInit_null public="1" set="method" line="65"><f a=""><x path="Void"/></f></moduleInit_coreNoAutoInit_null>
+		<moduleInit_coreAutoInit_notNull public="1" set="method" line="56"><f a=""><x path="Void"/></f></moduleInit_coreAutoInit_notNull>
 		<runAfterEveryTest public="1" set="method" line="44"><f a=""><x path="Void"/></f></runAfterEveryTest>
 		<module><d/></module>
 		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
@@ -18456,7 +18451,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</disposeModule>
-		<sendScopeMessage public="1" set="method" line="149" static="1">
+		<sendScopeMessage public="1" set="method" line="150" static="1">
 			<f a="moduleName:scopeName:type:params:?checkPermisions">
 				<c path="String"/>
 				<c path="String"/>
@@ -18467,7 +18462,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>sends scoped message</haxe_doc>
 		</sendScopeMessage>
-		<addScopeHandler public="1" set="method" line="168" static="1">
+		<addScopeHandler public="1" set="method" line="169" static="1">
 			<f a="moduleName:scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -18477,7 +18472,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>add scoped handler</haxe_doc>
 		</addScopeHandler>
-		<removeScopeHandler public="1" set="method" line="189" static="1">
+		<removeScopeHandler public="1" set="method" line="190" static="1">
 			<f a="scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -18486,7 +18481,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>remove scoped handler</haxe_doc>
 		</removeScopeHandler>
-		<scopedCommandMap public="1" set="method" line="204" static="1">
+		<scopedCommandMap public="1" set="method" line="205" static="1">
 			<f a="moduleName:handleCommandExecute:scopeName:type:commandClass">
 				<c path="String"/>
 				<d/>
@@ -18499,7 +18494,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * Map command to scoped message.
 	 *</haxe_doc>
 		</scopedCommandMap>
-		<scopeMap public="1" set="method" line="236" static="1">
+		<scopeMap public="1" set="method" line="237" static="1">
 			<f a="moduleName:scopeName:proxyObject:injectClass:name">
 				<c path="String"/>
 				<c path="String"/>
@@ -18516,7 +18511,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeMap>
-		<scopeUnmap public="1" set="method" line="283" static="1">
+		<scopeUnmap public="1" set="method" line="284" static="1">
 			<f a="moduleName:scopeName:injectClass:name">
 				<c path="String"/>
 				<c path="String"/>
@@ -18531,7 +18526,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<injectScopedProxy public="1" set="method" line="307" static="1">
+		<injectScopedProxy public="1" set="method" line="308" static="1">
 			<f a="recipientObject:injectRule">
 				<d/>
 				<c path="mvcexpress.core.inject.InjectRuleVO"/>
@@ -18543,7 +18538,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</injectScopedProxy>
-		<addPendingScopedInjection public="1" set="method" line="325" static="1">
+		<addPendingScopedInjection public="1" set="method" line="326" static="1">
 			<f a="scopeName:injectClassAndName:pendingInject">
 				<c path="String"/>
 				<c path="String"/>
@@ -18553,7 +18548,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Adds pending scoped injection.
 	 *</haxe_doc>
 		</addPendingScopedInjection>
-		<initScopedProxyMap public="1" set="method" line="339" static="1">
+		<initScopedProxyMap public="1" set="method" line="340" static="1">
 			<f a="scopeName">
 				<c path="String"/>
 				<x path="Void"/>
@@ -18561,7 +18556,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Initiates scoped proxy map.
 	 *</haxe_doc>
 		</initScopedProxyMap>
-		<registerScope public="1" set="method" line="355" static="1"><f a="moduleName:scopeName:messageSending:messageReceiving:proxieMapping">
+		<registerScope public="1" set="method" line="356" static="1"><f a="moduleName:scopeName:messageSending:messageReceiving:proxieMapping">
 	<c path="String"/>
 	<c path="String"/>
 	<x path="Bool"/>
@@ -18569,33 +18564,33 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<x path="Bool"/>
 	<x path="Void"/>
 </f></registerScope>
-		<unregisterScope public="1" set="method" line="376" static="1"><f a="moduleName:scopeName">
+		<unregisterScope public="1" set="method" line="377" static="1"><f a="moduleName:scopeName">
 	<c path="String"/>
 	<c path="String"/>
 	<x path="Void"/>
 </f></unregisterScope>
-		<listModules public="1" set="method" line="398" static="1">
+		<listModules public="1" set="method" line="399" static="1">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns string with all module names.
 	 *</haxe_doc>
 		</listModules>
-		<listMappedMessages public="1" set="method" line="410" static="1"><f a="moduleName">
+		<listMappedMessages public="1" set="method" line="411" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedMessages>
-		<listMappedMediators public="1" set="method" line="417" static="1"><f a="moduleName">
+		<listMappedMediators public="1" set="method" line="418" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedMediators>
-		<listMappedProxies public="1" set="method" line="425" static="1"><f a="moduleName">
+		<listMappedProxies public="1" set="method" line="426" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedProxies>
-		<listMappedCommands public="1" set="method" line="433" static="1"><f a="moduleName">
+		<listMappedCommands public="1" set="method" line="434" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedCommands>
-		<listModuleMessageCommands public="1" set="method" line="441" static="1"><f a="moduleName:key">
+		<listModuleMessageCommands public="1" set="method" line="442" static="1"><f a="moduleName:key">
 	<c path="String"/>
 	<c path="String"/>
 	<c path="String"/>
@@ -18611,13 +18606,13 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<injectClass public="1"><x path="Class"><d/></x></injectClass>
 		<scopeName public="1"><c path="String"/></scopeName>
 		<scopedProxy public="1"><c path="mvcexpress.mvc.Proxy"/></scopedProxy>
-		<new public="1" set="method" line="454"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="455"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.ScopePermissionData" params="" file="mvcexpress/core/ModuleManager.hx" module="mvcexpress.core.ModuleManager">
 		<proxieMapping public="1"><x path="Bool"/></proxieMapping>
 		<messageReceiving public="1"><x path="Bool"/></messageReceiving>
 		<messageSending public="1"><x path="Bool"/></messageSending>
-		<new public="1" set="method" line="465"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="466"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.interfaces.IProxyMap" params="" file="mvcexpress/core/interfaces/IProxyMap.hx" interface="1"><getProxy public="1" set="method"><f a="injectClass:?name">
 	<x path="Class"><d/></x>
@@ -19956,114 +19951,79 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="utils.Assert" params="" file="test/utils/Assert.hx">
-		<assertEquals public="1" line="9" static="1"><f a="::">
+		<assertEquals public="1" set="method" line="14" static="1"><f a="?msg:?arg1:?arg2">
 	<c path="String"/>
-	<x path="Int"/>
-	<x path="Int"/>
-	<unknown/>
-</f></assertEquals>
-		<assertStrictlyEquals public="1" line="10" static="1"><unknown/></assertStrictlyEquals>
-		<assertTrue public="1" line="11" static="1"><f a=":">
-	<c path="String"/>
-	<x path="Bool"/>
-	<unknown/>
-</f></assertTrue>
-		<assertFalse public="1" line="12" static="1"><f a=":">
-	<c path="String"/>
-	<x path="Bool"/>
-	<unknown/>
-</f></assertFalse>
-		<assertNull public="1" line="13" static="1"><unknown/></assertNull>
-		<assertNotNull public="1" line="14" static="1"><f a=":">
-	<c path="String"/>
-	<c path="mvcexpress.core.ProxyMap"/>
-	<unknown/>
-</f></assertNotNull>
-		<assertUndefined public="1" line="15" static="1"><unknown/></assertUndefined>
-		<assertNotUndefined public="1" line="16" static="1"><unknown/></assertNotUndefined>
-		<_assertEquals public="1" set="method" line="22" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+	<d/>
+	<d/>
 	<x path="Void"/>
-</f></_assertEquals>
-		<failNotEquals public="1" set="method" line="28" static="1"><f a="message:expected:actual">
+</f></assertEquals>
+		<failNotEquals public="1" set="method" line="20" static="1"><f a="message:expected:actual">
 	<c path="String"/>
 	<d/>
 	<d/>
 	<x path="Void"/>
 </f></failNotEquals>
-		<_assertStrictlyEquals set="method" line="33" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+		<assertStrictlyEquals public="1" set="method" line="25" static="1"><f a="?msg:?arg1:?arg2">
+	<c path="String"/>
+	<d/>
+	<d/>
 	<x path="Void"/>
-</f></_assertStrictlyEquals>
-		<failNotStrictlyEquals public="1" set="method" line="39" static="1"><f a="message:expected:actual">
+</f></assertStrictlyEquals>
+		<failNotStrictlyEquals public="1" set="method" line="31" static="1"><f a="message:expected:actual">
 	<c path="String"/>
 	<d/>
 	<d/>
 	<x path="Void"/>
 </f></failNotStrictlyEquals>
-		<_assertTrue public="1" set="method" line="44" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+		<assertTrue public="1" set="method" line="36" static="1"><f a="?msg:?arg">
+	<c path="String"/>
+	<d/>
 	<x path="Void"/>
-</f></_assertTrue>
-		<failNotTrue public="1" set="method" line="50" static="1"><f a="message:condition">
+</f></assertTrue>
+		<failNotTrue public="1" set="method" line="42" static="1"><f a="message:condition">
 	<c path="String"/>
 	<x path="Bool"/>
 	<x path="Void"/>
 </f></failNotTrue>
-		<_assertFalse public="1" set="method" line="55" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+		<assertFalse public="1" set="method" line="47" static="1"><f a="?msg:?arg">
+	<c path="String"/>
+	<d/>
 	<x path="Void"/>
-</f></_assertFalse>
-		<failTrue public="1" set="method" line="61" static="1"><f a="message:condition">
+</f></assertFalse>
+		<failTrue public="1" set="method" line="53" static="1"><f a="message:condition">
 	<c path="String"/>
 	<x path="Bool"/>
 	<x path="Void"/>
 </f></failTrue>
-		<_assertNull public="1" set="method" line="66" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+		<assertNull public="1" set="method" line="58" static="1"><f a="?msg:?arg">
+	<c path="String"/>
+	<d/>
 	<x path="Void"/>
-</f></_assertNull>
-		<failNull public="1" set="method" line="72" static="1"><f a="message:object">
+</f></assertNull>
+		<failNull public="1" set="method" line="64" static="1"><f a="message:object">
 	<c path="String"/>
 	<d/>
 	<x path="Void"/>
 </f></failNull>
-		<_assertNotNull public="1" set="method" line="77" static="1"><f a="rest">
-	<c path="Array"><d/></c>
+		<assertNotNull public="1" set="method" line="69" static="1"><f a="?msg:?arg">
+	<c path="String"/>
+	<d/>
 	<x path="Void"/>
-</f></_assertNotNull>
-		<failNotNull public="1" set="method" line="83" static="1"><f a="message:object">
+</f></assertNotNull>
+		<failNotNull public="1" set="method" line="75" static="1"><f a="message:object">
 	<c path="String"/>
 	<d/>
 	<x path="Void"/>
 </f></failNotNull>
-		<_assertUndefined public="1" set="method" line="89" static="1"><f a="rest">
-	<c path="Array"><d/></c>
-	<x path="Void"/>
-</f></_assertUndefined>
-		<failUndefined public="1" set="method" line="96" static="1"><f a="message:object">
-	<c path="String"/>
-	<d/>
-	<x path="Void"/>
-</f></failUndefined>
-		<_assertNotUndefined public="1" set="method" line="102" static="1"><f a="rest">
-	<c path="Array"><d/></c>
-	<x path="Void"/>
-</f></_assertNotUndefined>
-		<failNotUndefined public="1" set="method" line="109" static="1"><f a="message:object">
-	<c path="String"/>
-	<d/>
-	<x path="Void"/>
-</f></failNotUndefined>
-		<fail public="1" set="method" line="114" static="1"><f a="?failMessage">
+		<fail public="1" set="method" line="106" static="1"><f a="?failMessage">
 	<c path="String"/>
 	<x path="Void"/>
 </f></fail>
-		<failWithUserMessage public="1" set="method" line="119" static="1"><f a="userMessage:failMessage">
+		<failWithUserMessage public="1" set="method" line="111" static="1"><f a="userMessage:failMessage">
 	<c path="String"/>
 	<c path="String"/>
 	<x path="Void"/>
 </f></failWithUserMessage>
-		<new public="1" set="method" line="18"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
 	</class>
 </haxe>

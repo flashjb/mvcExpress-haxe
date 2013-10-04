@@ -6,22 +6,14 @@ package utils;
 class Assert 
 {
 
-	static public var assertEquals = Reflect.makeVarArgs(_assertEquals);
-	static public var assertStrictlyEquals = Reflect.makeVarArgs(_assertStrictlyEquals);
-	static public var assertTrue 	= Reflect.makeVarArgs(_assertTrue);
-	static public var assertFalse 	= Reflect.makeVarArgs(_assertFalse);
-	static public var assertNull 	= Reflect.makeVarArgs(_assertNull);
-	static public var assertNotNull = Reflect.makeVarArgs(_assertNotNull);
-	static public var assertUndefined = Reflect.makeVarArgs(_assertUndefined);
-	static public var assertNotUndefined = Reflect.makeVarArgs(_assertNotUndefined);
 	
 	public function new() {
 	}
 
 	//------------------------------------------------------------------------------
-	static public function _assertEquals( rest : Array<Dynamic>  ) : Void {
-		if(rest.length == 3) failNotStrictlyEquals(rest[0], rest[1], rest[2])
-		else failNotEquals("", rest[0], rest[1]);
+	static public function assertEquals( msg : String = "", ?arg1 : Dynamic, ?arg2 : Dynamic  ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertEquals need a message to display - current message : '", msg+"'" );
+		else failNotEquals(msg, arg1, arg2);
 	}
 
 	//------------------------------------------------------------------------------
@@ -30,9 +22,9 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	static  function _assertStrictlyEquals( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 3) failNotStrictlyEquals(rest[0], rest[1], rest[2])
-		else failNotStrictlyEquals("", rest[0], rest[1]);
+	static public function assertStrictlyEquals( msg : String = "", ?arg1 : Dynamic, ?arg2 : Dynamic ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertStrictlyEquals need a message to display - current message : '", msg+"'" );
+		else failNotStrictlyEquals(msg, arg1, arg2);
 	}
 
 	//------------------------------------------------------------------------------
@@ -41,9 +33,9 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	static public function _assertTrue( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failNotTrue(rest[0], rest[1])
-		else failNotTrue("", rest[0]);
+	static public function assertTrue( msg : String = "", ?arg : Dynamic  ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertTrue need a message to display - current message : '", msg+"'" );
+		else failNotTrue(msg, arg);
 	}
 
 	//------------------------------------------------------------------------------
@@ -52,9 +44,9 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	static public function _assertFalse( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failTrue(rest[0], rest[1])
-		else failTrue("", rest[0]);
+	static public function assertFalse( msg : String = "", ?arg : Dynamic ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertFalse need a message to display - current message : '", msg+"'" );
+		else failTrue(msg, arg);
 	}
 
 	//------------------------------------------------------------------------------
@@ -63,9 +55,9 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	static public function _assertNull( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failNotNull(rest[0], rest[1])
-		else failNotNull("", rest[0]);
+	static public function assertNull( msg : String = "", ?arg : Dynamic ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertNull need a message to display - current message : '", msg+"'" );
+		else failNotNull(msg, arg);
 	}
 
 	//------------------------------------------------------------------------------
@@ -74,9 +66,9 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	static public function _assertNotNull( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failNull(rest[0], rest[1])
-		else failNull("", rest[0]);
+	static public function assertNotNull( msg : String = "", ?arg : Dynamic ) : Void {
+		if(msg == "") failWithUserMessage( "Assert assertNotNull need a message to display - current message : '", msg+"'" );
+		else failNull(msg, arg);
 	}
 
 	//------------------------------------------------------------------------------
@@ -85,30 +77,30 @@ class Assert
 	}
 
 	//------------------------------------------------------------------------------
-	//TODO: undefined has lost most of its meaning in AS3, we could probably just use the null test
-	static public function _assertUndefined( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failNotUndefined(rest[0], rest[1])
-		else failNotUndefined("", rest[0]);
-	}
+	//: undefined has lost most of its meaning in AS3, we could probably just use the null test
+	//static public function assertUndefined( rest : Array<Dynamic> ) : Void {
+	//	if(rest.length == 2) failNotUndefined(rest[0], rest[1])
+	//	else failNotUndefined("", rest[0]);
+	//}
 
 	//------------------------------------------------------------------------------
-	//TODO: undefined has lost most of its meaning in AS3, we could probably just use the null test
-	static public function failUndefined(message : String, object : Dynamic) : Void {
-		if(object == null) failWithUserMessage(message, "object was undefined: " + object);
-	}
+	//: undefined has lost most of its meaning in AS3, we could probably just use the null test
+	//static public function failUndefined(message : String, object : Dynamic) : Void {
+	//	if(object == null) failWithUserMessage(message, "object was undefined: " + object);
+	//}
 
 	//------------------------------------------------------------------------------
-	//TODO: undefined has lost most of its meaning in AS3, we could probably just use the null test
-	static public function _assertNotUndefined( rest : Array<Dynamic> ) : Void {
-		if(rest.length == 2) failUndefined(rest[0], rest[1])
-		else failUndefined("", rest[0]);
-	}
+	//: undefined has lost most of its meaning in AS3, we could probably just use the null test
+	//static public function _assertNotUndefined( rest : Array<Dynamic> ) : Void {
+	//	if(rest.length == 2) failUndefined(rest[0], rest[1])
+	//	else failUndefined("", rest[0]);
+	//}
 
 	//------------------------------------------------------------------------------
-	//TODO: undefined has lost most of its meaning in AS3, we could probably just use the null test
-	static public function failNotUndefined(message : String, object : Dynamic) : Void {
-		if(object != null) failWithUserMessage(message, "object was not undefined: " + object);
-	}
+	//: undefined has lost most of its meaning in AS3, we could probably just use the null test
+	//static public function failNotUndefined(message : String, object : Dynamic) : Void {
+	//	if(object != null) failWithUserMessage(message, "object was not undefined: " + object);
+	//}
 
 	//------------------------------------------------------------------------------
 	static public function fail(failMessage : String = "") : Void {

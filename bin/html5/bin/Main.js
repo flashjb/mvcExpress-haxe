@@ -85,7 +85,6 @@ var Main = function() {
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
 Main.main = function() {
-	haxe.Log.trace("Hello From FDT haXe !",{ fileName : "Main.hx", lineNumber : 19, className : "Main", methodName : "main"});
 	new Main();
 }
 Main.prototype = {
@@ -7324,44 +7323,70 @@ integration.moduleinittests.ModuleInitTests.prototype = {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleSprite(false);
 		this.module = testModule;
 		testModule.start();
+		utils.Assert.assertNotNull("ModuleSprite proxyMap should be not null after later init",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleSprite commandMap should be not null after later init",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleSprite mediatorMap should be not null after later init",testModule.getMediatorMap());
 	}
 	,moduleInit_spriteNoAutoInit_null: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleSprite(false);
 		this.module = testModule;
+		utils.Assert.assertNull("ModuleSprite proxyMap should be null after no autoInit",testModule.getProxyMap());
+		utils.Assert.assertNull("ModuleSprite commandMap should be null after no autoInit",testModule.getCommandMap());
+		utils.Assert.assertNull("ModuleSprite mediatorMap should be null after no autoInit",testModule.getMediatorMap());
 	}
 	,moduleInit_spriteAutoInit_notNull: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleSprite(true);
 		this.module = testModule;
 		utils.Assert.assertNotNull("ModuleSprite proxyMap should be not null after autoInit",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleSprite commandMap should be not null after autoInit",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleSprite mediatorMap should be not null after autoInit",testModule.getMediatorMap());
 	}
 	,moduleInit_movieClipPostAutoInit_notNull: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleMovieClip(false);
 		this.module = testModule;
 		testModule.start();
+		utils.Assert.assertNotNull("ModuleMovieClip proxyMap should be not null after later init",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleMovieClip commandMap should be not null after later init",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleMovieClip mediatorMap should be not null after later init",testModule.getMediatorMap());
 	}
 	,moduleInit_movieClipNoAutoInit_null: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleMovieClip(false);
 		this.module = testModule;
+		utils.Assert.assertNull("ModuleMovieClip proxyMap should be null after no autoInit",testModule.getProxyMap());
+		utils.Assert.assertNull("ModuleMovieClip commandMap should be null after no autoInit",testModule.getCommandMap());
+		utils.Assert.assertNull("ModuleMovieClip mediatorMap should be null after no autoInit",testModule.getMediatorMap());
 	}
 	,moduleInit_movieClipAutoInit_notNull: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleMovieClip(true);
 		this.module = testModule;
+		utils.Assert.assertNotNull("ModuleMovieClip proxyMap should be not null after autoInit",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleMovieClip commandMap should be not null after autoInit",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleMovieClip mediatorMap should be not null after autoInit",testModule.getMediatorMap());
 	}
 	,moduleInit_corePostAutoInit_notNull: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleCore(false);
 		this.module = testModule;
 		testModule.start();
+		utils.Assert.assertNotNull("ModuleCore proxyMap should be not null after later init",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleCore commandMap should be not null after later init",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleCore mediatorMap should be not null after later init",testModule.getMediatorMap());
 	}
 	,moduleInit_coreNoAutoInit_null: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleCore(false);
 		this.module = testModule;
+		utils.Assert.assertNull("ModuleCore proxyMap should be null after no autoInit",testModule.getProxyMap());
+		utils.Assert.assertNull("ModuleCore commandMap should be null after no autoInit",testModule.getCommandMap());
+		utils.Assert.assertNull("ModuleCore mediatorMap should be null after no autoInit",testModule.getMediatorMap());
 	}
 	,moduleInit_coreAutoInit_notNull: function() {
 		var testModule = new integration.moduleinittests.testobj.InitTestModuleCore(true);
 		this.module = testModule;
+		utils.Assert.assertNotNull("ModuleCore proxyMap should be not null after autoInit",testModule.getProxyMap());
+		utils.Assert.assertNotNull("ModuleCore commandMap should be not null after autoInit",testModule.getCommandMap());
+		utils.Assert.assertNotNull("ModuleCore mediatorMap should be not null after autoInit",testModule.getMediatorMap());
 	}
 	,runAfterEveryTest: function() {
-		if(this.module) "disposeModule".apply(this.module,[]);
+		if(this.module) this.module.disposeModule();
 	}
 	,__class__: integration.moduleinittests.ModuleInitTests
 }
@@ -8314,7 +8339,7 @@ mvcexpress.core.ModuleManager.getMessenger = function(moduleName) {
 }
 mvcexpress.core.ModuleManager.disposeModule = function(moduleName) {
 	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_disposeModule(moduleName));
-	if(mvcexpress.core.ModuleManager.moduleRegistry.get(moduleName) != null) {
+	if(mvcexpress.core.ModuleManager.moduleRegistry.exists(moduleName)) {
 		var scopiedProxies = mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName);
 		if(scopiedProxies != null) {
 			var $it0 = ((function(_e) {
@@ -8329,7 +8354,7 @@ mvcexpress.core.ModuleManager.disposeModule = function(moduleName) {
 				Reflect.deleteField(scopiedProxies,scopedProxyData.injectId);
 			}
 		}
-		Reflect.deleteField(mvcexpress.core.ModuleManager.moduleRegistry,moduleName);
+		mvcexpress.core.ModuleManager.moduleRegistry.remove(moduleName);
 		var moduleCount = mvcexpress.core.ModuleManager.allModules.length;
 		var j = 0;
 		while(j < moduleCount) {
@@ -8339,7 +8364,7 @@ mvcexpress.core.ModuleManager.disposeModule = function(moduleName) {
 			}
 			j++;
 		}
-		Reflect.deleteField(mvcexpress.core.ModuleManager.scopePermissionsRegistry,moduleName);
+		mvcexpress.core.ModuleManager.scopePermissionsRegistry.remove(moduleName);
 	} else throw "Module with moduleName:" + moduleName + " doesn't exist.";
 }
 mvcexpress.core.ModuleManager.sendScopeMessage = function(moduleName,scopeName,type,params,checkPermisions) {
@@ -8918,7 +8943,7 @@ $hxClasses["mvcexpress.core.inject.TestInject"] = mvcexpress.core.inject.TestInj
 mvcexpress.core.inject.TestInject.__name__ = ["mvcexpress","core","inject","TestInject"];
 mvcexpress.core.inject.TestInject.prototype = {
 	testInjectMetaTag: function() {
-		var retVal = false;
+		var retVal = true;
 		return retVal;
 	}
 	,__class__: mvcexpress.core.inject.TestInject
@@ -9877,53 +9902,47 @@ utils.Assert = function() {
 };
 $hxClasses["utils.Assert"] = utils.Assert;
 utils.Assert.__name__ = ["utils","Assert"];
-utils.Assert._assertEquals = function(rest) {
-	if(rest.length == 3) utils.Assert.failNotStrictlyEquals(rest[0],rest[1],rest[2]); else utils.Assert.failNotEquals("",rest[0],rest[1]);
+utils.Assert.assertEquals = function(msg,arg1,arg2) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertEquals need a message to display - current message : '",msg + "'"); else utils.Assert.failNotEquals(msg,arg1,arg2);
 }
 utils.Assert.failNotEquals = function(message,expected,actual) {
 	if(expected != actual) utils.Assert.failWithUserMessage(message,"expected:<" + Std.string(expected) + "> but was:<" + Std.string(actual) + ">");
 }
-utils.Assert._assertStrictlyEquals = function(rest) {
-	if(rest.length == 3) utils.Assert.failNotStrictlyEquals(rest[0],rest[1],rest[2]); else utils.Assert.failNotStrictlyEquals("",rest[0],rest[1]);
+utils.Assert.assertStrictlyEquals = function(msg,arg1,arg2) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertStrictlyEquals need a message to display - current message : '",msg + "'"); else utils.Assert.failNotStrictlyEquals(msg,arg1,arg2);
 }
 utils.Assert.failNotStrictlyEquals = function(message,expected,actual) {
 	if(expected != actual) utils.Assert.failWithUserMessage(message,"expected:<" + Std.string(expected) + "> but was:<" + Std.string(actual) + ">");
 }
-utils.Assert._assertTrue = function(rest) {
-	if(rest.length == 2) utils.Assert.failNotTrue(rest[0],rest[1]); else utils.Assert.failNotTrue("",rest[0]);
+utils.Assert.assertTrue = function(msg,arg) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertTrue need a message to display - current message : '",msg + "'"); else utils.Assert.failNotTrue(msg,arg);
 }
 utils.Assert.failNotTrue = function(message,condition) {
 	if(!condition) utils.Assert.failWithUserMessage(message,"expected true but was false");
 }
-utils.Assert._assertFalse = function(rest) {
-	if(rest.length == 2) utils.Assert.failTrue(rest[0],rest[1]); else utils.Assert.failTrue("",rest[0]);
+utils.Assert.assertFalse = function(msg,arg) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertFalse need a message to display - current message : '",msg + "'"); else utils.Assert.failTrue(msg,arg);
 }
 utils.Assert.failTrue = function(message,condition) {
 	if(condition) utils.Assert.failWithUserMessage(message,"expected false but was true");
 }
-utils.Assert._assertNull = function(rest) {
-	if(rest.length == 2) utils.Assert.failNotNull(rest[0],rest[1]); else utils.Assert.failNotNull("",rest[0]);
+utils.Assert.assertNull = function(msg,arg) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertNull need a message to display - current message : '",msg + "'"); else utils.Assert.failNotNull(msg,arg);
 }
 utils.Assert.failNull = function(message,object) {
 	if(object == null) utils.Assert.failWithUserMessage(message,"object was null: " + Std.string(object));
 }
-utils.Assert._assertNotNull = function(rest) {
-	if(rest.length == 2) utils.Assert.failNull(rest[0],rest[1]); else utils.Assert.failNull("",rest[0]);
+utils.Assert.assertNotNull = function(msg,arg) {
+	if(msg == null) msg = "";
+	if(msg == "") utils.Assert.failWithUserMessage("Assert assertNotNull need a message to display - current message : '",msg + "'"); else utils.Assert.failNull(msg,arg);
 }
 utils.Assert.failNotNull = function(message,object) {
 	if(object != null) utils.Assert.failWithUserMessage(message,"object was not null: " + Std.string(object));
-}
-utils.Assert._assertUndefined = function(rest) {
-	if(rest.length == 2) utils.Assert.failNotUndefined(rest[0],rest[1]); else utils.Assert.failNotUndefined("",rest[0]);
-}
-utils.Assert.failUndefined = function(message,object) {
-	if(object == null) utils.Assert.failWithUserMessage(message,"object was undefined: " + Std.string(object));
-}
-utils.Assert._assertNotUndefined = function(rest) {
-	if(rest.length == 2) utils.Assert.failUndefined(rest[0],rest[1]); else utils.Assert.failUndefined("",rest[0]);
-}
-utils.Assert.failNotUndefined = function(message,object) {
-	if(object != null) utils.Assert.failWithUserMessage(message,"object was not undefined: " + Std.string(object));
 }
 utils.Assert.fail = function(failMessage) {
 	if(failMessage == null) failMessage = "";
@@ -10374,7 +10393,7 @@ mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 1;
+mvcexpress.MvcExpress.REVISION = 2;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.core.CommandMap.commandClassParamTypes = new haxe.ds.ObjectMap();
 mvcexpress.core.CommandMap.validatedCommands = new haxe.ds.ObjectMap();
@@ -10439,14 +10458,6 @@ openfl.display.Tilesheet.TILE_BLEND_NORMAL = 0;
 openfl.display.Tilesheet.TILE_BLEND_ADD = 65536;
 openfl.display.Tilesheet.TILE_BLEND_MULTIPLY = 131072;
 openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
-utils.Assert.assertEquals = Reflect.makeVarArgs(utils.Assert._assertEquals);
-utils.Assert.assertStrictlyEquals = Reflect.makeVarArgs(utils.Assert._assertStrictlyEquals);
-utils.Assert.assertTrue = Reflect.makeVarArgs(utils.Assert._assertTrue);
-utils.Assert.assertFalse = Reflect.makeVarArgs(utils.Assert._assertFalse);
-utils.Assert.assertNull = Reflect.makeVarArgs(utils.Assert._assertNull);
-utils.Assert.assertNotNull = Reflect.makeVarArgs(utils.Assert._assertNotNull);
-utils.Assert.assertUndefined = Reflect.makeVarArgs(utils.Assert._assertUndefined);
-utils.Assert.assertNotUndefined = Reflect.makeVarArgs(utils.Assert._assertNotUndefined);
 ApplicationMain.main();
 })();
 
