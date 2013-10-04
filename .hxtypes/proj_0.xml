@@ -16,8 +16,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="17" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="19" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/flash/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -18960,6 +18960,32 @@
 		<general_framework_version public="1" set="method" line="18"><f a=""><x path="Void"/></f></general_framework_version>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
+	<class path="suites.messenger.MessengerTests" params="" file="test/suites/messenger/MessengerTests.hx">
+		<callbacknormal public="1" set="method" line="106"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callbacknormal>
+		<callBackSuccess public="1" set="method" line="103"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackSuccess>
+		<callBackFail set="method" line="99"><f a="obj">
+	<d/>
+	<x path="Void"/>
+</f></callBackFail>
+		<add_and_remove_callback_then_message_fails_silently public="1" set="method" line="88"><f a=""><x path="Void"/></f></add_and_remove_callback_then_message_fails_silently>
+		<add_callback_and_disable_then_message_fails_silently public="1" set="method" line="76"><f a=""><x path="Void"/></f></add_callback_and_disable_then_message_fails_silently>
+		<add_callback_and_sendNot_then_message_fails_silently public="1" set="method" line="66"><f a=""><x path="Void"/></f></add_callback_and_sendNot_then_message_fails_silently>
+		<add_and_handle_callback public="1" set="method" line="56"><f a=""><x path="Void"/></f></add_and_handle_callback>
+		<runAfterEveryTest public="1" set="method" line="47"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="39"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="30"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<new public="1" set="method" line="21"><f a=""><x path="Void"/></f></new>
+	</class>
 	<class path="utils.Assert" params="" file="test/utils/Assert.hx">
 		<assertEquals public="1" set="method" line="14" static="1"><f a="?msg:?arg1:?arg2">
 	<c path="String"/>
@@ -19035,5 +19061,159 @@
 	<x path="Void"/>
 </f></failWithUserMessage>
 		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="utils.Async" params="" file="test/utils/Async.hx">
+		<proceedOnEvent public="1" set="method" line="8" static="1"><f a="testCase:target:eventName:?timeout:?timeoutHandler">
+	<d/>
+	<c path="flash.events.IEventDispatcher"/>
+	<c path="String"/>
+	<x path="Int"/>
+	<d/>
+	<x path="Void"/>
+</f></proceedOnEvent>
+		<failOnEvent public="1" set="method" line="32" static="1">
+			<f a="testCase:target:eventName:?timeout:?timeoutHandler">
+				<d/>
+				<c path="flash.events.IEventDispatcher"/>
+				<c path="String"/>
+				<x path="Int"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc><![CDATA[* This method is used when you want to fail if a given event occurs, within a given amount of time, during an asynchronous test. When the event fires, 
+		 * the flex unit framework causes the test to fail. If the timout is reached before the failure occurs, then the framework will no longer watch for 
+		 * this event. So, for example, if you want to verify that you do not receive a failure within 300ms, this would be a good method to use.
+		 *  
+		 * This method is generally used when the existance of the event, and not the even't data is sufficient to indicate failure. If you need to inspect
+		 * the event's data before making a decision, then use <code>handleEvent</code> instead. 
+		 * 
+		 * @param testCase The current asynchronous test case.
+		 * @param target The target that will listen for the dispatched <code>eventName</code>.
+		 * @param eventName The name of the event being listend for by the <code>target</code>.
+		 * @param timeout The length of time, in milliseconds, before the calling the <code>timeoutHandler</code>
+		 * if the <code>eventName</code> event is not dispatched.
+		 * @param timeoutHandler The function that will be executed if the <code>target</code> does not 
+		 * receive expected <code>eventName</code> before the <code>timeout</code> time is reached.]]></haxe_doc>
+		</failOnEvent>
+		<registerFailureEvent public="1" set="method" line="62" static="1">
+			<f a="testCase:target:eventName">
+				<d/>
+				<c path="flash.events.IEventDispatcher"/>
+				<c path="String"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc><![CDATA[* Causes the failure of the existing block (Before, After or the Test itself dependent upon where this statement is located) when an event occurs. In
+		 * practice, this method is used to handle an event dispatched from an Dynamic under test that, while not necessarily part of the test itself, would indicate
+		 * a failure if dispatched. A valid example might be an service call. You may want to test that the data is correct and returns within a given period of time,
+		 * however, if at any time during that test a Failure event is dispatched, you likely wish to end the test. 
+		 * 
+		 * @param testCase The current asynchronous test case.
+		 * @param target The target that will listen for the dispatched <code>eventName</code>.
+		 * @param eventName The name of the event being listend for by the <code>target</code>.
+		 * 
+		 * Example:
+		 * 		[Test(async)]
+		 *      public function doTest():void {
+		 *	      Async.registerFailureEvent( this, httpService, FaultEvent.FAULT );
+		 *	      Async.handleEvent( this, httpService, ResultEvent.RESULT, handleResult, 2000 );
+		 *        httpService.send();			
+		 *      }
+		 * 
+		 * Without the registerFailureEvent, you would need to wait 2 full seconds for the timeout to occur before declaring this test a failure when a fault
+		 * event occurs.
+		 *]]></haxe_doc>
+		</registerFailureEvent>
+		<handleEvent public="1" set="method" line="89" static="1">
+			<f a="testCase:target:eventName:eventHandler:?timeout:?passThroughData:?timeoutHandler">
+				<d/>
+				<c path="flash.events.IEventDispatcher"/>
+				<c path="String"/>
+				<d/>
+				<x path="Int"/>
+				<d/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc><![CDATA[* Allow you to continue a test while waiting for a given asynchronous event to occur. Normally a test ends when you reach the method closure at the end
+		 * of your test method. This event tells the FlexUnit framework to continue that test pending the dispatch of an event by the <code>target</code> of an
+		 * event named <code>eventName</code>. If that event does not occur within the <code>timeOut</code> then the timeout handler (if specified) will be called, 
+		 * else the test will be declared a failure. 
+		 * 
+		 * @param testCase The current asynchronous test case.
+		 * @param target The target that will listen for the dispatched <code>eventName</code>.
+		 * @param eventName The name of the event being listend for by the <code>target</code>.
+		 * @param eventHandler The function that will be executed if the the <code>target</code> dispatches an event with 
+		 * a name of <code>eventName</code> within the provided <code>timemout</code> period.
+		 * @param timeout The length of time, in milliseconds, before the calling the <code>timeoutHandler</code>
+		 * if the <code>eventName</code> event is not dispatched.
+		 * @param passThroughData An Dynamic that can be given information about the current test, this information will be 
+		 * available to both the <code>eventHandler</code> and <code>timeoutHandler</code>.
+		 * @param timeoutHandler The function that will be executed if the <code>target</code> does not 
+		 * receive expected <code>eventName</code> before the <code>timeout</code> time is reached.]]></haxe_doc>
+		</handleEvent>
+		<asyncHandler public="1" set="method" line="109" static="1">
+			<f a="testCase:eventHandler:timeout:?passThroughData:?timeoutHandler">
+				<d/>
+				<d/>
+				<x path="Int"/>
+				<d/>
+				<d/>
+				<d/>
+			</f>
+			<haxe_doc><![CDATA[* This method works similarly to the handleEvent, however, whereas the handleEvent does all of the work to handle a specific event,
+		 * this method simply returns an eventHandler (function) which you use within your own addEventListener() methods. 
+		 * 
+		 * @param testCase The current asynchronous test case.
+		 * @param eventHandler The function that will be executed if the <code>timemout</code> period has not been reached.
+		 * @param timeout The length of time, in milliseconds, before the calling the <code>timeoutHandler</code>
+		 * if the <code>eventName</code> event is not dispatched.
+		 * @param passThroughData An Dynamic that can be given information about the current test, this information will be 
+		 * available to both the <code>eventHandler</code> and <code>timeoutHandler</code>.
+		 * @param timeoutHandler The function that will be executed if the <code>timeout</code> period is reached.]]></haxe_doc>
+		</asyncHandler>
+		<getCallableForTest public="1" set="method" line="115" static="1"><f a="testCase">
+	<d/>
+	<d/>
+</f></getCallableForTest>
+		<addCallableForTest public="1" set="method" line="125" static="1"><f a="name:testCase">
+	<c path="String"/>
+	<d/>
+	<x path="Void"/>
+</f></addCallableForTest>
+		<asyncHandlerMap public="1" line="130" static="1"><x path="Map">
+	<c path="String"/>
+	<d/>
+</x></asyncHandlerMap>
+	</class>
+	<class path="utils.AsyncUtil" params="" file="test/utils/AsyncUtil.hx">
+		<extends path="flash.events.EventDispatcher"/>
+		<ASYNC_EVENT public="1" line="10" static="1"><c path="String"/></ASYNC_EVENT>
+		<asyncHandler public="1" set="method" line="25" static="1"><f a="testCase:?callBack:?passThroughArgs:?timeout:?timeouthandler">
+	<d/>
+	<d/>
+	<c path="Array"><d/></c>
+	<x path="Int"/>
+	<d/>
+	<d/>
+</f></asyncHandler>
+		<asyncCallbackHandler public="1" set="method" line="44"><f a="args">
+	<d/>
+	<x path="Void"/>
+</f></asyncCallbackHandler>
+		<asyncEventHandler public="1" set="method" line="35"><f a="ev:?flexUnitPassThroughArgs">
+	<c path="flash.events.Event"/>
+	<d/>
+	<x path="Void"/>
+</f></asyncEventHandler>
+		<_callbackArgs><c path="Array"><d/></c></_callbackArgs>
+		<_passThroughArgs><c path="Array"><d/></c></_passThroughArgs>
+		<_callback><d/></_callback>
+		<_testCase><d/></_testCase>
+		<new public="1" set="method" line="16"><f a="testCase:callback:?passThroughArgs">
+	<d/>
+	<d/>
+	<c path="Array"><d/></c>
+	<x path="Void"/>
+</f></new>
 	</class>
 </haxe>

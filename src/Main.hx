@@ -2,6 +2,7 @@ package;
 
 import suites.general.GeneralTests;
 import integration.moduleinittests.ModuleInitTests;
+import suites.messenger.MessengerTests;
 import mvcexpress.MvcExpress;
 
 class Main 
@@ -12,6 +13,7 @@ class Main
 		
 		new GeneralTests();
 		new ModuleInitTests();
+		new MessengerTests();
 	}
 	
 	public static function main() 

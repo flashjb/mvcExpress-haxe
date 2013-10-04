@@ -81,6 +81,7 @@ var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
 	new suites.general.GeneralTests();
 	new integration.moduleinittests.ModuleInitTests();
+	new suites.messenger.MessengerTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -7798,6 +7799,9 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -9897,6 +9901,58 @@ suites.general.GeneralTests.prototype = {
 	}
 	,__class__: suites.general.GeneralTests
 }
+suites.messenger = {}
+suites.messenger.MessengerTests = function() {
+	this.testFunction("add_and_handle_callback");
+	this.testFunction("add_callback_and_sendNot_then_message_fails_silently");
+	this.testFunction("add_callback_and_disable_then_message_fails_silently");
+	this.testFunction("add_and_remove_callback_then_message_fails_silently");
+};
+$hxClasses["suites.messenger.MessengerTests"] = suites.messenger.MessengerTests;
+suites.messenger.MessengerTests.__name__ = ["suites","messenger","MessengerTests"];
+suites.messenger.MessengerTests.prototype = {
+	callbacknormal: function(obj) {
+	}
+	,callBackSuccess: function(obj) {
+	}
+	,callBackFail: function(obj) {
+		utils.Assert.fail("CallBack should not be called...");
+	}
+	,add_and_remove_callback_then_message_fails_silently: function() {
+		var callBack = $bind(this,this.callBackFail);
+		this.messenger.addHandler("test",callBack);
+		this.messenger.removeHandler("test",callBack);
+		this.messenger.send("test3");
+	}
+	,add_callback_and_disable_then_message_fails_silently: function() {
+		var callBack = $bind(this,this.callBackFail);
+		var handlerVo = this.messenger.addHandler("test",callBack);
+		handlerVo.handler = null;
+		this.messenger.send("test2");
+	}
+	,add_callback_and_sendNot_then_message_fails_silently: function() {
+		this.messenger.send("test_notListened");
+		this.messenger.addHandler("test",$bind(this,this.callbacknormal));
+	}
+	,add_and_handle_callback: function() {
+		this.messenger.addHandler("test",$bind(this,this.callbacknormal));
+		this.messenger.send("test");
+	}
+	,runAfterEveryTest: function() {
+		this.messenger = null;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+	}
+	,testFunction: function(funcName) {
+		this.runBeforeEveryTest();
+		Reflect.field(this,funcName).apply(this,[]);
+		this.runAfterEveryTest();
+	}
+	,__class__: suites.messenger.MessengerTests
+}
 var utils = {}
 utils.Assert = function() {
 };
@@ -9955,6 +10011,77 @@ utils.Assert.failWithUserMessage = function(userMessage,failMessage) {
 utils.Assert.prototype = {
 	__class__: utils.Assert
 }
+utils.Async = function() { }
+$hxClasses["utils.Async"] = utils.Async;
+utils.Async.__name__ = ["utils","Async"];
+utils.Async.proceedOnEvent = function(testCase,target,eventName,timeout,timeoutHandler) {
+	if(timeout == null) timeout = 500;
+	var asyncHandlingStatement = utils.Async.getCallableForTest(testCase);
+	var handler;
+	handler = asyncHandlingStatement.asyncHandler(asyncHandlingStatement.pendUntilComplete,timeout,null,timeoutHandler);
+	target.addEventListener(eventName,handler,false,0,true);
+}
+utils.Async.failOnEvent = function(testCase,target,eventName,timeout,timeoutHandler) {
+	if(timeout == null) timeout = 500;
+	var asyncHandlingStatement = utils.Async.getCallableForTest(testCase);
+	var handler;
+	handler = asyncHandlingStatement.asyncHandler(asyncHandlingStatement.failOnComplete,timeout,null,asyncHandlingStatement.pendUntilComplete);
+	target.addEventListener(eventName,handler,false,0,true);
+}
+utils.Async.registerFailureEvent = function(testCase,target,eventName) {
+	var asyncHandlingStatement = utils.Async.getCallableForTest(testCase);
+	var handler;
+	handler = asyncHandlingStatement.asyncErrorConditionHandler(asyncHandlingStatement.failOnComplete);
+	target.addEventListener(eventName,handler);
+}
+utils.Async.handleEvent = function(testCase,target,eventName,eventHandler,timeout,passThroughData,timeoutHandler) {
+	if(timeout == null) timeout = 500;
+	var asyncHandlingStatement = utils.Async.getCallableForTest(testCase);
+	var handler;
+	handler = asyncHandlingStatement.asyncHandler(eventHandler,timeout,passThroughData,timeoutHandler);
+	target.addEventListener(eventName,handler,false,0,true);
+}
+utils.Async.asyncHandler = function(testCase,eventHandler,timeout,passThroughData,timeoutHandler) {
+	var asyncHandlingStatement = utils.Async.getCallableForTest(testCase);
+	return testCase.asyncHandler(eventHandler,timeout,passThroughData,timeoutHandler);
+}
+utils.Async.getCallableForTest = function(testCase) {
+	var handler = utils.Async.asyncHandlerMap.get(Std.string(testCase));
+	return handler;
+}
+utils.Async.addCallableForTest = function(name,testCase) {
+	var value = testCase;
+	utils.Async.asyncHandlerMap.set(name,value);
+}
+utils.AsyncUtil = function(testCase,callback,passThroughArgs) {
+	flash.events.EventDispatcher.call(this);
+	this._testCase = testCase;
+	this._callback = callback;
+	this._passThroughArgs = passThroughArgs;
+};
+$hxClasses["utils.AsyncUtil"] = utils.AsyncUtil;
+utils.AsyncUtil.__name__ = ["utils","AsyncUtil"];
+utils.AsyncUtil.asyncHandler = function(testCase,callBack,passThroughArgs,timeout,timeouthandler) {
+	if(timeout == null) timeout = 1500;
+	var asyncUtil = new utils.AsyncUtil(testCase,callBack,passThroughArgs);
+	asyncUtil.addEventListener(utils.AsyncUtil.ASYNC_EVENT,utils.Async.asyncHandler(testCase,$bind(asyncUtil,asyncUtil.asyncEventHandler),timeout,passThroughArgs,timeouthandler));
+	haxe.Timer.delay(function() {
+		asyncUtil.asyncCallbackHandler(passThroughArgs);
+	},timeout);
+	return $bind(asyncUtil,asyncUtil.asyncCallbackHandler);
+}
+utils.AsyncUtil.__super__ = flash.events.EventDispatcher;
+utils.AsyncUtil.prototype = $extend(flash.events.EventDispatcher.prototype,{
+	asyncCallbackHandler: function(args) {
+		this._callbackArgs = args;
+		this.dispatchEvent(new flash.events.Event(utils.AsyncUtil.ASYNC_EVENT));
+	}
+	,asyncEventHandler: function(ev,flexUnitPassThroughArgs) {
+		if(this._passThroughArgs != null) this._callbackArgs = this._callbackArgs.concat(this._passThroughArgs);
+		if(this._callback != null) this._callback.apply(null,this._callbackArgs);
+	}
+	,__class__: utils.AsyncUtil
+});
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
@@ -10393,7 +10520,7 @@ mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 2;
+mvcexpress.MvcExpress.REVISION = 3;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.core.CommandMap.commandClassParamTypes = new haxe.ds.ObjectMap();
 mvcexpress.core.CommandMap.validatedCommands = new haxe.ds.ObjectMap();
@@ -10458,6 +10585,8 @@ openfl.display.Tilesheet.TILE_BLEND_NORMAL = 0;
 openfl.display.Tilesheet.TILE_BLEND_ADD = 65536;
 openfl.display.Tilesheet.TILE_BLEND_MULTIPLY = 131072;
 openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
+utils.Async.asyncHandlerMap = new haxe.ds.StringMap();
+utils.AsyncUtil.ASYNC_EVENT = "asyncEvent";
 ApplicationMain.main();
 })();
 

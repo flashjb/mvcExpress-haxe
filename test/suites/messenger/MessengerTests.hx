@@ -11,11 +11,30 @@ import mvcexpress.core.messenger.Messenger;
 //import mvcexpress.core.namespace.PureLegsCore;
 
 import utils.Assert;
+import utils.Async;
 import utils.AsyncUtil;
 
 class MessengerTests {
 
 	var messenger : Messenger;
+	
+	public function new() 
+	{
+		
+		testFunction( "add_and_handle_callback" );
+		testFunction( "add_callback_and_sendNot_then_message_fails_silently" );
+		testFunction( "add_callback_and_disable_then_message_fails_silently" );
+		testFunction( "add_and_remove_callback_then_message_fails_silently");
+	}
+	
+	public function testFunction( funcName : String ) : Void
+	{
+		//Async.addCallableForTest( funcName, Reflect.field(this, funcName) );
+
+		runBeforeEveryTest();
+		Reflect.callMethod(this, Reflect.field(this, funcName), []);
+		runAfterEveryTest();
+	}
 	
 	public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
@@ -35,7 +54,8 @@ class MessengerTests {
 	//----------------------------------
 	//	[Test(async,description="Async Callback ")]
 	public function add_and_handle_callback() : Void {
-		messenger.addHandler("test", AsyncUtil.asyncHandler(this));
+		messenger.addHandler("test", callbacknormal);
+		//messenger.addHandler("test", AsyncUtil.asyncHandler(this));
 		messenger.send("test");
 	}
 
@@ -44,8 +64,9 @@ class MessengerTests {
 	//----------------------------------
 	//	[Test(async,description="Async fail Callback")]
 	public function add_callback_and_sendNot_then_message_fails_silently() : Void {
-		messenger.addHandler("test", AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess));
 		messenger.send("test_notListened");
+		messenger.addHandler("test", callbacknormal);
+		//messenger.addHandler("test", AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess));
 	}
 
 	//----------------------------------
@@ -53,10 +74,11 @@ class MessengerTests {
 	//----------------------------------
 	//	[Test(async,description="Async Callback disable")]
 	public function add_callback_and_disable_then_message_fails_silently() : Void {
-		var callBack : Dynamic = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
+		var callBack : Dynamic = callBackFail;
+		//var callBack : Dynamic = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
 		var handlerVo : HandlerVO = messenger.addHandler("test", callBack);
 		handlerVo.handler = null;
-		messenger.send("test");
+		messenger.send("test2");
 	}
 
 	//----------------------------------
@@ -64,10 +86,11 @@ class MessengerTests {
 	//----------------------------------
 	//	[Test(async,description="Async Callback remove")]
 	public function add_and_remove_callback_then_message_fails_silently() : Void {
-		var callBack : Dynamic = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
+		var callBack : Dynamic = callBackFail;
+	//	var callBack : Dynamic = AsyncUtil.asyncHandler(this, callBackFail, null, 300, callBackSuccess);
 		messenger.addHandler("test", callBack);
 		messenger.removeHandler("test", callBack);
-		messenger.send("test");
+		messenger.send("test3");
 	}
 
 	//----------------------------------
@@ -80,5 +103,9 @@ class MessengerTests {
 	public function callBackSuccess(obj : Dynamic) : Void {
 	}
 
+	public function callbacknormal(obj : Dynamic) : Void 
+	{
+		
+	}
 }
 
