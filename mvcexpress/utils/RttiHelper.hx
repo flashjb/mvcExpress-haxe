@@ -11,26 +11,36 @@ class RttiHelper
 		
 		while (type != null)
 		{
-			var typeMeta = Meta.getFields(type);
+			var allFields = Type.getInstanceFields(type);
+			var typeMeta  = Meta.getFields(type);
+			var meta  = {};
+		    for( field in Reflect.fields(typeMeta) )
+			{
+				Reflect.setField(meta, field,  Reflect.field(typeMeta, field));
+			}
 			
-			var rtti = untyped type.__rtti;
-            if ( rtti == null )
-                break;
-						
-			var infos = new haxe.rtti.XmlParser().processElement( Xml.parse(rtti).firstElement() );
-			for( i in Reflect.fields(infos) )
+			
+			//try to find the fucking type of this var which have some meta.
+			for( field in Reflect.fields(allFields) )
 			{
-				trace('infos:>>'+Reflect.field(infos, i));
+				for( k in Reflect.fields(meta) )
+				{
+					if( k == allFields[cast field] ){
+						var obj = Type.createInstance(type, []);
+						trace(Type.typeof(Reflect.field(obj,k)));
+						trace("all fields > "+ k +">"+allFields[cast field] + Type.typeof(allFields[cast field]));
+						//
+						//When we will got it we gonna put in the list as type and break off
+						//Reflect.setField(meta, "type", ??????????????);
+						//
+					}
+				}
 			}
-			for( field in Reflect.fields(typeMeta) )
-			{
-				var meta  = {};
-					Reflect.setField(meta, field, Reflect.field(typeMeta, field));
-					
-		            
-			//	trace("try "+field+" :> meta.type :>"+ infos );//	Reflect.setField(meta, "class", Type.getClassName(Reflect.field(typeMeta, field)));
-				metalist.push(meta);
-			}
+			//for( i in Reflect.fields(meta))
+			//{
+			//	trace("meta list > "+i+">>"+Reflect.field(meta,i));//+"meta//"+Reflect.field(typeMeta, field)+" type >"+ Reflect.field(type, field) );//	Reflect.setField(meta, "class", Type.getClassName(Reflect.field(typeMeta, field)));
+			//}
+			metalist.push(meta);
 			
 
 			type = Type.getSuperClass(type);

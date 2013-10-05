@@ -48,7 +48,6 @@ class MvcExpressTools
 					for ( j in Type.getClassFields(constantClass) ) 
 					{
 						var value = Reflect.field(constantClass, j);
-						trace("eee:",value);
 						if( Std.is( value, String) )  
 						{
 							if(  StringConstantRegistry.stringRegistry.exists(value) )  {

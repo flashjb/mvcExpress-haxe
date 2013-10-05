@@ -416,7 +416,7 @@ class ProxyMap implements IProxyMap
 			var scopename : String = rule.scopeName;
 			var injectClassAndName : String = rule.injectClassAndName;
 			
-			if( scopename != null && scopename != "" ) 
+			if( scopename != null ) 
 			 {
 				if(!ModuleManager.injectScopedProxy(object, rule))  
 				{
@@ -572,17 +572,27 @@ class ProxyMap implements IProxyMap
 	 */
 	function getInjectRules(signatureClass : Class<Dynamic>) : Array<InjectRuleVO> 
 	{
-		//trace( "getInjectRules", signatureClass);
+		trace( "*****getInjectRules", signatureClass);
 		var retVal  : Array<InjectRuleVO> = new Array<InjectRuleVO>();
 		var fieldsMeta : Array<Dynamic>   = RttiHelper.getMetaFields(signatureClass);
 		for( listedMeta in fieldsMeta ) 
 		{
+			var type = signatureClass ;//Reflect.field(m, "type");
 			for( m in Reflect.fields(listedMeta) ) 
 			{
 				var name : String  = m;
-				//trace("meta : var name :", name);
-				var type = Reflect.field( Type.createEmptyInstance(signatureClass), m ) ;
-				//trace("meta : var type :", type);
+				
+				type = Type.getClass(name);
+				trace("meta : var name :", name);
+				
+				var fields = Type.getClassFields(signatureClass);
+				for( i in fields )
+				{
+					trace( "field>>"+i +">>"+Reflect.field(signatureClass,i));
+					if( i == name )
+						type = Type.getClass( i );
+				}
+				trace("meta : var type :",type);
 				
 				var meta : Dynamic = Reflect.field(listedMeta, m);
 				var inject = Reflect.hasField(meta, "inject");
@@ -594,19 +604,19 @@ class ProxyMap implements IProxyMap
 					var scopeName  : String = "";
 					
 					if( args != null ) {
-						injectName = Reflect.hasField(args, "name")   ? Reflect.field(args, "name")  : Reflect.hasField(args, "constName")  ? getInjectByConstName(Reflect.field(args, "constName"))  : null;
-						scopeName  = Reflect.hasField(args, "scope")  ? Reflect.field(args, "scope") : Reflect.hasField(args, "constScope") ? getInjectByConstName(Reflect.field(args, "constScope")) : null;
+						injectName = Reflect.hasField(args, "name")   ? Reflect.field(args, "name")  : Reflect.hasField(args, "constName")  ? getInjectByConstName(Reflect.field(args, "constName"))  : "";
+						scopeName  = Reflect.hasField(args, "scope")  ? Reflect.field(args, "scope") : Reflect.hasField(args, "constScope") ? getInjectByConstName(Reflect.field(args, "constScope")) : "";
 					}
 					
-				//	trace("type check:",Type.getClassName( type ), signatureClass);
+					trace("type check:",Type.getClass( type ), signatureClass);
 					
 					var mapRule : InjectRuleVO = new InjectRuleVO();
 						mapRule.varName   = name;
 						mapRule.injectClassAndName = type + injectName;
-						mapRule.scopeName = scopeName;
+						mapRule.scopeName = scopeName != "" ? scopeName : null;
 					retVal[retVal.length] = mapRule;
 					
-				//	trace(">> NEW injectRule : "+ mapRule);
+					trace(">> NEW injectRule : "+ mapRule);
 				}
 			}
 		}

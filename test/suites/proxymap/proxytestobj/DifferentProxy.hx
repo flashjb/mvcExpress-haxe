@@ -6,11 +6,8 @@ package suites.proxymap.proxytestobj;
 
 import mvcexpress.mvc.Proxy;
 
-class TestProxy extends Proxy implements ITestProxy {
+class DifferentProxy extends Proxy implements ITestProxy {
 
-	@inject 
-	public var different : DifferentProxy;
-	
 	public function new() {
 		super();
 	}

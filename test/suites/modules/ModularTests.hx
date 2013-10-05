@@ -11,11 +11,11 @@ import suites.modules.objects.SpriteModuleTester;
 class ModularTests {
 
 	
-	public function runBeforeEveryTest() : Void {
-	}
-
-	
-	public function runAfterEveryTest() : Void {
+	public function new()  
+	{
+		modules_construct_core_module();
+		modules_construct_sprite_module();
+		modules_construct_movieclip_module();
 	}
 
 	

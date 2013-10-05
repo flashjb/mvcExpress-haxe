@@ -21,12 +21,12 @@ class OldProxyMapTests {
 	
 	public function new()
 	{
-		testFunction( "using_class_proxy" );//>> Injection failed!!
-	//testFunction( "using_class_proxy_twice_both_should_be_equal" );
+		//testFunction( "using_class_proxy" );//>> Injection failed!!
+		//testFunction( "using_class_proxy_twice_both_should_be_equal" );
 		//testFunction( "mapping_class_proxy_twice_throws_error" );
 		testFunction( "using_object_test" );
-	//	testFunction( "using_object_proxy_twice_both_should_be_equal" );
-	//	testFunction( "mapping_object_proxy_twice_throws_error" );
+		testFunction( "using_object_proxy_twice_both_should_be_equal" );
+		testFunction( "mapping_object_proxy_twice_throws_error" );
 		testFunction( "mappings_does_not_exists_throws_error" );
 		testFunction( "removing_class_proxy" );
 		testFunction( "removing_object_proxy" );
@@ -74,7 +74,7 @@ class OldProxyMapTests {
 		//trace(obj1.testProxy);
 		
 		//TODO : make injection work
-		//Assert.assertNotNull("Injected object must be not null", obj1.testProxy);
+	//	Assert.assertNotNull("Injected object must be not null", obj1.testProxy);
 	}
 
 	//----------------------------------

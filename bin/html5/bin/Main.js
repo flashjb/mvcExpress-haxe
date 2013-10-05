@@ -85,7 +85,7 @@ ApplicationMain.preloader_onComplete = function(event) {
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
 	new suites.general.GeneralTests();
-	new suites.utils.UtilsTests();
+	new suites.proxymap.NamedInterfacedProxyMapTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -136,6 +136,7 @@ EReg.prototype = {
 		this.r.s = s;
 		return this.r.m != null;
 	}
+	,r: null
 	,__class__: EReg
 }
 var HxOverrides = function() { }
@@ -190,21 +191,6 @@ List.prototype = {
 			return x;
 		}};
 	}
-	,remove: function(v) {
-		var prev = null;
-		var l = this.h;
-		while(l != null) {
-			if(l[0] == v) {
-				if(prev == null) this.h = l[1]; else prev[1] = l[1];
-				if(this.q == l) this.q = prev;
-				this.length--;
-				return true;
-			}
-			prev = l;
-			l = l[1];
-		}
-		return false;
-	}
 	,isEmpty: function() {
 		return this.h == null;
 	}
@@ -215,9 +201,6 @@ List.prototype = {
 		if(this.h == null) this.q = null;
 		this.length--;
 		return x;
-	}
-	,last: function() {
-		return this.q == null?null:this.q[0];
 	}
 	,first: function() {
 		return this.h == null?null:this.h[0];
@@ -234,13 +217,21 @@ List.prototype = {
 		this.q = x;
 		this.length++;
 	}
+	,length: null
+	,q: null
+	,h: null
 	,__class__: List
 }
 var IMap = function() { }
 $hxClasses["IMap"] = IMap;
 IMap.__name__ = ["IMap"];
 IMap.prototype = {
-	__class__: IMap
+	iterator: null
+	,remove: null
+	,exists: null
+	,set: null
+	,get: null
+	,__class__: IMap
 }
 var flash = {}
 flash.events = {}
@@ -248,7 +239,12 @@ flash.events.IEventDispatcher = function() { }
 $hxClasses["flash.events.IEventDispatcher"] = flash.events.IEventDispatcher;
 flash.events.IEventDispatcher.__name__ = ["flash","events","IEventDispatcher"];
 flash.events.IEventDispatcher.prototype = {
-	__class__: flash.events.IEventDispatcher
+	willTrigger: null
+	,removeEventListener: null
+	,hasEventListener: null
+	,dispatchEvent: null
+	,addEventListener: null
+	,__class__: flash.events.IEventDispatcher
 }
 flash.events.EventDispatcher = function(target) {
 	if(target != null) this.nmeTarget = target; else this.nmeTarget = this;
@@ -326,6 +322,8 @@ flash.events.EventDispatcher.prototype = {
 		list.push(new flash.events.Listener(inListener,capture,priority));
 		list.sort(flash.events.EventDispatcher.compareListeners);
 	}
+	,nmeEventMap: null
+	,nmeTarget: null
 	,__class__: flash.events.EventDispatcher
 }
 flash.display = {}
@@ -333,7 +331,8 @@ flash.display.IBitmapDrawable = function() { }
 $hxClasses["flash.display.IBitmapDrawable"] = flash.display.IBitmapDrawable;
 flash.display.IBitmapDrawable.__name__ = ["flash","display","IBitmapDrawable"];
 flash.display.IBitmapDrawable.prototype = {
-	__class__: flash.display.IBitmapDrawable
+	drawToSurface: null
+	,__class__: flash.display.IBitmapDrawable
 }
 flash.display.DisplayObject = function() {
 	flash.events.EventDispatcher.call(this,null);
@@ -968,6 +967,37 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		if(event.bubbles && this.parent != null) this.parent.dispatchEvent(event);
 		return result;
 	}
+	,_srAxes: null
+	,_srWindow: null
+	,_topmostSurface: null
+	,_nmeRenderFlags: null
+	,_nmeId: null
+	,_fullScaleY: null
+	,_fullScaleX: null
+	,_bottommostSurface: null
+	,nmeY: null
+	,nmeX: null
+	,nmeWidth: null
+	,nmeVisible: null
+	,nmeScrollRect: null
+	,nmeScaleY: null
+	,nmeScaleX: null
+	,nmeRotation: null
+	,nmeMaskingObj: null
+	,nmeMask: null
+	,nmeHeight: null
+	,nmeFilters: null
+	,nmeBoundsRect: null
+	,transform: null
+	,scale9Grid: null
+	,parent: null
+	,nmeCombinedVisible: null
+	,name: null
+	,loaderInfo: null
+	,cacheAsBitmap: null
+	,blendMode: null
+	,alpha: null
+	,accessibilityProperties: null
 	,__class__: flash.display.DisplayObject
 	,__properties__: {set_filters:"set_filters",get_filters:"get_filters",set_height:"set_height",get_height:"get_height",set_mask:"set_mask",get_mask:"get_mask",get_mouseX:"get_mouseX",get_mouseY:"get_mouseY",set_nmeCombinedVisible:"set_nmeCombinedVisible",set_parent:"set_parent",set_rotation:"set_rotation",get_rotation:"get_rotation",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scrollRect:"set_scrollRect",get_scrollRect:"get_scrollRect",get_stage:"get_stage",set_transform:"set_transform",set_visible:"set_visible",get_visible:"get_visible",set_width:"set_width",get_width:"get_width",set_x:"set_x",get_x:"get_x",set_y:"set_y",get_y:"get_y",get__bottommostSurface:"get__bottommostSurface",get__boundsInvalid:"get__boundsInvalid",get__matrixChainInvalid:"get__matrixChainInvalid",get__matrixInvalid:"get__matrixInvalid",get__topmostSurface:"get__topmostSurface"}
 });
@@ -994,6 +1024,12 @@ flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.
 	,nmeGetObjectUnderPoint: function(point) {
 		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
 	}
+	,nmeTabIndex: null
+	,nmeDoubleClickEnabled: null
+	,tabEnabled: null
+	,mouseEnabled: null
+	,focusRect: null
+	,doubleClickEnabled: null
 	,__class__: flash.display.InteractiveObject
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_tabIndex:"set_tabIndex",get_tabIndex:"get_tabIndex"})
 });
@@ -1334,6 +1370,11 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 	,__removeChild: function(child) {
 		HxOverrides.remove(this.nmeChildren,child);
 	}
+	,nmeAddedChildren: null
+	,tabChildren: null
+	,nmeCombinedAlpha: null
+	,nmeChildren: null
+	,mouseChildren: null
 	,__class__: flash.display.DisplayObjectContainer
 	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{get_numChildren:"get_numChildren"})
 });
@@ -1393,6 +1434,12 @@ flash.display.Sprite.prototype = $extend(flash.display.DisplayObjectContainer.pr
 	,nmeGetGraphics: function() {
 		return this.nmeGraphics;
 	}
+	,nmeGraphics: null
+	,nmeDropTarget: null
+	,nmeCursorCallbackOver: null
+	,nmeCursorCallbackOut: null
+	,useHandCursor: null
+	,buttonMode: null
 	,__class__: flash.display.Sprite
 	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{get_dropTarget:"get_dropTarget",get_graphics:"get_graphics",set_useHandCursor:"set_useHandCursor"})
 });
@@ -1449,6 +1496,8 @@ NMEPreloader.prototype = $extend(flash.display.Sprite.prototype,{
 	,getBackgroundColor: function() {
 		return 16777215;
 	}
+	,progress: null
+	,outline: null
 	,__class__: NMEPreloader
 });
 var Reflect = function() { }
@@ -1516,9 +1565,7 @@ var StringBuf = function() {
 $hxClasses["StringBuf"] = StringBuf;
 StringBuf.__name__ = ["StringBuf"];
 StringBuf.prototype = {
-	addSub: function(s,pos,len) {
-		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
-	}
+	b: null
 	,__class__: StringBuf
 }
 var StringTools = function() { }
@@ -1530,31 +1577,8 @@ StringTools.urlEncode = function(s) {
 StringTools.urlDecode = function(s) {
 	return decodeURIComponent(s.split("+").join(" "));
 }
-StringTools.htmlEscape = function(s,quotes) {
-	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
-}
 StringTools.startsWith = function(s,start) {
 	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
-}
-StringTools.isSpace = function(s,pos) {
-	var c = HxOverrides.cca(s,pos);
-	return c > 8 && c < 14 || c == 32;
-}
-StringTools.ltrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,r)) r++;
-	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
-}
-StringTools.rtrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
-	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
-}
-StringTools.trim = function(s) {
-	return StringTools.ltrim(StringTools.rtrim(s));
 }
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
@@ -1646,6 +1670,13 @@ Type.createEmptyInstance = function(cl) {
 	function empty() {}; empty.prototype = cl.prototype;
 	return new empty();
 }
+Type.getInstanceFields = function(c) {
+	var a = [];
+	for(var i in c.prototype) a.push(i);
+	HxOverrides.remove(a,"__class__");
+	HxOverrides.remove(a,"__properties__");
+	return a;
+}
 Type.getClassFields = function(c) {
 	var a = Reflect.fields(c);
 	HxOverrides.remove(a,"__name__");
@@ -1681,209 +1712,6 @@ Type["typeof"] = function(v) {
 		return ValueType.TUnknown;
 	}
 }
-var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
-var Xml = function() {
-};
-$hxClasses["Xml"] = Xml;
-Xml.__name__ = ["Xml"];
-Xml.Element = null;
-Xml.PCData = null;
-Xml.CData = null;
-Xml.Comment = null;
-Xml.DocType = null;
-Xml.ProcessingInstruction = null;
-Xml.Document = null;
-Xml.parse = function(str) {
-	return haxe.xml.Parser.parse(str);
-}
-Xml.createElement = function(name) {
-	var r = new Xml();
-	r.nodeType = Xml.Element;
-	r._children = new Array();
-	r._attributes = new haxe.ds.StringMap();
-	r.set_nodeName(name);
-	return r;
-}
-Xml.createPCData = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.PCData;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createCData = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.CData;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createComment = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.Comment;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createDocType = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.DocType;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createProcessingInstruction = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.ProcessingInstruction;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createDocument = function() {
-	var r = new Xml();
-	r.nodeType = Xml.Document;
-	r._children = new Array();
-	return r;
-}
-Xml.prototype = {
-	toString: function() {
-		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
-		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
-		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
-		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
-		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
-		var s = new StringBuf();
-		if(this.nodeType == Xml.Element) {
-			s.b += "<";
-			s.b += Std.string(this._nodeName);
-			var $it0 = this._attributes.keys();
-			while( $it0.hasNext() ) {
-				var k = $it0.next();
-				s.b += " ";
-				s.b += Std.string(k);
-				s.b += "=\"";
-				s.b += Std.string(this._attributes.get(k));
-				s.b += "\"";
-			}
-			if(this._children.length == 0) {
-				s.b += "/>";
-				return s.b;
-			}
-			s.b += ">";
-		}
-		var $it1 = this.iterator();
-		while( $it1.hasNext() ) {
-			var x = $it1.next();
-			s.b += Std.string(x.toString());
-		}
-		if(this.nodeType == Xml.Element) {
-			s.b += "</";
-			s.b += Std.string(this._nodeName);
-			s.b += ">";
-		}
-		return s.b;
-	}
-	,addChild: function(x) {
-		if(this._children == null) throw "bad nodetype";
-		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
-		x._parent = this;
-		this._children.push(x);
-	}
-	,firstElement: function() {
-		if(this._children == null) throw "bad nodetype";
-		var cur = 0;
-		var l = this._children.length;
-		while(cur < l) {
-			var n = this._children[cur];
-			if(n.nodeType == Xml.Element) return n;
-			cur++;
-		}
-		return null;
-	}
-	,elementsNamed: function(name) {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				if(n.nodeType == Xml.Element && n._nodeName == name) break;
-				k++;
-			}
-			this.cur = k;
-			return k < l;
-		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k++;
-				if(n.nodeType == Xml.Element && n._nodeName == name) {
-					this.cur = k;
-					return n;
-				}
-			}
-			return null;
-		}};
-	}
-	,elements: function() {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				if(this.x[k].nodeType == Xml.Element) break;
-				k += 1;
-			}
-			this.cur = k;
-			return k < l;
-		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k += 1;
-				if(n.nodeType == Xml.Element) {
-					this.cur = k;
-					return n;
-				}
-			}
-			return null;
-		}};
-	}
-	,iterator: function() {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			return this.cur < this.x.length;
-		}, next : function() {
-			return this.x[this.cur++];
-		}};
-	}
-	,exists: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.exists(att);
-	}
-	,set: function(att,value) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		this._attributes.set(att,value);
-	}
-	,get: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.get(att);
-	}
-	,set_nodeValue: function(v) {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue = v;
-	}
-	,get_nodeValue: function() {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue;
-	}
-	,set_nodeName: function(n) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName = n;
-	}
-	,get_nodeName: function() {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName;
-	}
-	,__class__: Xml
-}
 var haxe = {}
 haxe.Timer = function(time_ms) {
 	var me = this;
@@ -1913,6 +1741,7 @@ haxe.Timer.prototype = {
 		clearInterval(this.id);
 		this.id = null;
 	}
+	,id: null
 	,__class__: haxe.Timer
 }
 flash.Lib = function(rootElement,width,height) {
@@ -2413,7 +2242,10 @@ flash.Lib.get_current = function() {
 	return flash.Lib.mMainClassRoot;
 }
 flash.Lib.prototype = {
-	__class__: flash.Lib
+	__scr: null
+	,mKilled: null
+	,mArgs: null
+	,__class__: flash.Lib
 }
 flash._Lib = {}
 flash._Lib.CursorType = $hxClasses["flash._Lib.CursorType"] = { __ename__ : true, __constructs__ : ["Pointer","Text","Default"] }
@@ -2529,7 +2361,13 @@ flash.accessibility.AccessibilityProperties = function() {
 $hxClasses["flash.accessibility.AccessibilityProperties"] = flash.accessibility.AccessibilityProperties;
 flash.accessibility.AccessibilityProperties.__name__ = ["flash","accessibility","AccessibilityProperties"];
 flash.accessibility.AccessibilityProperties.prototype = {
-	__class__: flash.accessibility.AccessibilityProperties
+	silent: null
+	,shortcut: null
+	,noAutoLabeling: null
+	,name: null
+	,forceSimple: null
+	,description: null
+	,__class__: flash.accessibility.AccessibilityProperties
 }
 flash.display.Bitmap = function(inBitmapData,inPixelSnapping,inSmoothing) {
 	if(inSmoothing == null) inSmoothing = false;
@@ -2635,6 +2473,12 @@ flash.display.Bitmap.prototype = $extend(flash.display.DisplayObject.prototype,{
 		fm.nmeTranslateTransformed(extent.get_topLeft());
 		return fm;
 	}
+	,nmeInit: null
+	,nmeCurrentLease: null
+	,nmeGraphics: null
+	,smoothing: null
+	,pixelSnapping: null
+	,bitmapData: null
 	,__class__: flash.display.Bitmap
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_bitmapData:"set_bitmapData"})
 });
@@ -3352,6 +3196,24 @@ flash.display.BitmapData.prototype = {
 			this.copyPixels(bitmapData,bitmapData.rect,destPoint);
 		}
 	}
+	,_nmeTextureBuffer: null
+	,_nmeId: null
+	,nmeTransparentFiller: null
+	,nmeTransparent: null
+	,nmeLocked: null
+	,nmeLeaseNum: null
+	,nmeLease: null
+	,nmeInitColor: null
+	,nmeImageDataChanged: null
+	,nmeCopyPixelList: null
+	,nmeAssignedBitmaps: null
+	,width: null
+	,transparent: null
+	,rect: null
+	,nmeReferenceCount: null
+	,nmeGLTexture: null
+	,nmeImageData: null
+	,height: null
 	,__class__: flash.display.BitmapData
 	,__properties__: {get_height:"get_height",get_transparent:"get_transparent",get_width:"get_width"}
 }
@@ -3370,6 +3232,8 @@ flash.display.ImageDataLease.prototype = {
 		leaseClone.time = this.time;
 		return leaseClone;
 	}
+	,time: null
+	,seed: null
 	,__class__: flash.display.ImageDataLease
 }
 flash.display._BitmapData = {}
@@ -3394,6 +3258,7 @@ flash.display._BitmapData.MinstdGenerator.prototype = {
 		}
 		return this.value = lo;
 	}
+	,value: null
 	,__class__: flash.display._BitmapData.MinstdGenerator
 }
 flash.display.BitmapDataChannel = function() { }
@@ -4208,6 +4073,27 @@ flash.display.Graphics.prototype = {
 		if(inDrawable == null) return;
 		this.mDrawList.unshift(inDrawable);
 	}
+	,_padding: null
+	,nmeClearNextCycle: null
+	,nmeChanged: null
+	,nextDrawIndex: null
+	,mSolidGradient: null
+	,mPoints: null
+	,mPenY: null
+	,mPenX: null
+	,mLineJobs: null
+	,mLineDraws: null
+	,mLastMoveID: null
+	,mFilling: null
+	,mFillAlpha: null
+	,mFillColour: null
+	,mDrawList: null
+	,mCurrentLine: null
+	,mBitmap: null
+	,nmeSurface: null
+	,nmeExtentWithFilters: null
+	,nmeExtent: null
+	,boundsDirty: null
 	,__class__: flash.display.Graphics
 }
 flash.display.Drawable = function(inPoints,inFillColour,inFillAlpha,inSolidGradient,inBitmap,inLineJobs,inTileJob) {
@@ -4222,7 +4108,14 @@ flash.display.Drawable = function(inPoints,inFillColour,inFillAlpha,inSolidGradi
 $hxClasses["flash.display.Drawable"] = flash.display.Drawable;
 flash.display.Drawable.__name__ = ["flash","display","Drawable"];
 flash.display.Drawable.prototype = {
-	__class__: flash.display.Drawable
+	tileJob: null
+	,solidGradient: null
+	,points: null
+	,lineJobs: null
+	,fillColour: null
+	,fillAlpha: null
+	,bitmap: null
+	,__class__: flash.display.Drawable
 }
 flash.display.GfxPoint = function(inX,inY,inCX,inCY,inType) {
 	this.x = inX;
@@ -4234,7 +4127,12 @@ flash.display.GfxPoint = function(inX,inY,inCX,inCY,inType) {
 $hxClasses["flash.display.GfxPoint"] = flash.display.GfxPoint;
 flash.display.GfxPoint.__name__ = ["flash","display","GfxPoint"];
 flash.display.GfxPoint.prototype = {
-	__class__: flash.display.GfxPoint
+	y: null
+	,x: null
+	,type: null
+	,cy: null
+	,cx: null
+	,__class__: flash.display.GfxPoint
 }
 flash.display.Grad = function(inPoints,inMatrix,inFlags,inFocal) {
 	this.points = inPoints;
@@ -4245,7 +4143,11 @@ flash.display.Grad = function(inPoints,inMatrix,inFlags,inFocal) {
 $hxClasses["flash.display.Grad"] = flash.display.Grad;
 flash.display.Grad.__name__ = ["flash","display","Grad"];
 flash.display.Grad.prototype = {
-	__class__: flash.display.Grad
+	points: null
+	,matrix: null
+	,focal: null
+	,flags: null
+	,__class__: flash.display.Grad
 }
 flash.display.GradPoint = function(inCol,inAlpha,inRatio) {
 	this.col = inCol;
@@ -4255,7 +4157,10 @@ flash.display.GradPoint = function(inCol,inAlpha,inRatio) {
 $hxClasses["flash.display.GradPoint"] = flash.display.GradPoint;
 flash.display.GradPoint.__name__ = ["flash","display","GradPoint"];
 flash.display.GradPoint.prototype = {
-	__class__: flash.display.GradPoint
+	ratio: null
+	,col: null
+	,alpha: null
+	,__class__: flash.display.GradPoint
 }
 flash.display.LineJob = function(inGrad,inPoint_idx0,inPoint_idx1,inThickness,inAlpha,inColour,inPixel_hinting,inJoints,inCaps,inScale_mode,inMiter_limit) {
 	this.grad = inGrad;
@@ -4273,7 +4178,18 @@ flash.display.LineJob = function(inGrad,inPoint_idx0,inPoint_idx1,inThickness,in
 $hxClasses["flash.display.LineJob"] = flash.display.LineJob;
 flash.display.LineJob.__name__ = ["flash","display","LineJob"];
 flash.display.LineJob.prototype = {
-	__class__: flash.display.LineJob
+	thickness: null
+	,scale_mode: null
+	,point_idx1: null
+	,point_idx0: null
+	,pixel_hinting: null
+	,miter_limit: null
+	,joints: null
+	,grad: null
+	,colour: null
+	,caps: null
+	,alpha: null
+	,__class__: flash.display.LineJob
 }
 flash.display.PointInPathMode = $hxClasses["flash.display.PointInPathMode"] = { __ename__ : true, __constructs__ : ["USER_SPACE","DEVICE_SPACE"] }
 flash.display.PointInPathMode.USER_SPACE = ["USER_SPACE",0];
@@ -4290,19 +4206,24 @@ flash.display.TileJob = function(sheet,drawList,flags) {
 $hxClasses["flash.display.TileJob"] = flash.display.TileJob;
 flash.display.TileJob.__name__ = ["flash","display","TileJob"];
 flash.display.TileJob.prototype = {
-	__class__: flash.display.TileJob
+	sheet: null
+	,flags: null
+	,drawList: null
+	,__class__: flash.display.TileJob
 }
 flash.display.IGraphicsFill = function() { }
 $hxClasses["flash.display.IGraphicsFill"] = flash.display.IGraphicsFill;
 flash.display.IGraphicsFill.__name__ = ["flash","display","IGraphicsFill"];
 flash.display.IGraphicsFill.prototype = {
-	__class__: flash.display.IGraphicsFill
+	nmeGraphicsFillType: null
+	,__class__: flash.display.IGraphicsFill
 }
 flash.display.IGraphicsData = function() { }
 $hxClasses["flash.display.IGraphicsData"] = flash.display.IGraphicsData;
 flash.display.IGraphicsData.__name__ = ["flash","display","IGraphicsData"];
 flash.display.IGraphicsData.prototype = {
-	__class__: flash.display.IGraphicsData
+	nmeGraphicsDataType: null
+	,__class__: flash.display.IGraphicsData
 }
 flash.display.GraphicsGradientFill = function(type,colors,alphas,ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio) {
 	if(focalPointRatio == null) focalPointRatio = 0;
@@ -4321,7 +4242,17 @@ $hxClasses["flash.display.GraphicsGradientFill"] = flash.display.GraphicsGradien
 flash.display.GraphicsGradientFill.__name__ = ["flash","display","GraphicsGradientFill"];
 flash.display.GraphicsGradientFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsGradientFill.prototype = {
-	__class__: flash.display.GraphicsGradientFill
+	type: null
+	,spreadMethod: null
+	,ratios: null
+	,nmeGraphicsFillType: null
+	,nmeGraphicsDataType: null
+	,matrix: null
+	,interpolationMethod: null
+	,focalPointRatio: null
+	,colors: null
+	,alphas: null
+	,__class__: flash.display.GraphicsGradientFill
 }
 flash.display.IGraphicsPath = function() { }
 $hxClasses["flash.display.IGraphicsPath"] = flash.display.IGraphicsPath;
@@ -4359,6 +4290,10 @@ flash.display.GraphicsPath.prototype = {
 			flash._Vector.Vector_Impl_.push(this.data,controlY);
 		}
 	}
+	,winding: null
+	,nmeGraphicsDataType: null
+	,data: null
+	,commands: null
 	,__class__: flash.display.GraphicsPath
 }
 flash.display.GraphicsPathCommand = function() { }
@@ -4383,7 +4318,11 @@ $hxClasses["flash.display.GraphicsSolidFill"] = flash.display.GraphicsSolidFill;
 flash.display.GraphicsSolidFill.__name__ = ["flash","display","GraphicsSolidFill"];
 flash.display.GraphicsSolidFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsSolidFill.prototype = {
-	__class__: flash.display.GraphicsSolidFill
+	nmeGraphicsFillType: null
+	,nmeGraphicsDataType: null
+	,color: null
+	,alpha: null
+	,__class__: flash.display.GraphicsSolidFill
 }
 flash.display.IGraphicsStroke = function() { }
 $hxClasses["flash.display.IGraphicsStroke"] = flash.display.IGraphicsStroke;
@@ -4405,7 +4344,15 @@ $hxClasses["flash.display.GraphicsStroke"] = flash.display.GraphicsStroke;
 flash.display.GraphicsStroke.__name__ = ["flash","display","GraphicsStroke"];
 flash.display.GraphicsStroke.__interfaces__ = [flash.display.IGraphicsStroke,flash.display.IGraphicsData];
 flash.display.GraphicsStroke.prototype = {
-	__class__: flash.display.GraphicsStroke
+	thickness: null
+	,scaleMode: null
+	,pixelHinting: null
+	,nmeGraphicsDataType: null
+	,miterLimit: null
+	,joints: null
+	,fill: null
+	,caps: null
+	,__class__: flash.display.GraphicsStroke
 }
 flash.display.GraphicsDataType = $hxClasses["flash.display.GraphicsDataType"] = { __ename__ : true, __constructs__ : ["STROKE","SOLID","GRADIENT","PATH"] }
 flash.display.GraphicsDataType.STROKE = ["STROKE",0];
@@ -4567,6 +4514,10 @@ flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 			this.addChild(this.mShape);
 		}
 	}
+	,mShape: null
+	,mImage: null
+	,contentLoaderInfo: null
+	,content: null
 	,__class__: flash.display.Loader
 });
 flash.display.LoaderInfo = function() {
@@ -4586,7 +4537,24 @@ flash.display.LoaderInfo.create = function(ldr) {
 }
 flash.display.LoaderInfo.__super__ = flash.events.EventDispatcher;
 flash.display.LoaderInfo.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	__class__: flash.display.LoaderInfo
+	width: null
+	,url: null
+	,sharedEvents: null
+	,sameDomain: null
+	,parentAllowsChild: null
+	,parameters: null
+	,loaderURL: null
+	,loader: null
+	,height: null
+	,frameRate: null
+	,contentType: null
+	,content: null
+	,childAllowsParent: null
+	,bytesTotal: null
+	,bytesLoaded: null
+	,bytes: null
+	,applicationDomain: null
+	,__class__: flash.display.LoaderInfo
 });
 flash.display.MovieClip = function() {
 	flash.display.Sprite.call(this);
@@ -4625,6 +4593,12 @@ flash.display.MovieClip.prototype = $extend(flash.display.Sprite.prototype,{
 	,gotoAndPlay: function(frame,scene) {
 		if(scene == null) scene = "";
 	}
+	,__totalFrames: null
+	,__currentFrame: null
+	,totalFrames: null
+	,framesLoaded: null
+	,enabled: null
+	,currentFrame: null
 	,__class__: flash.display.MovieClip
 	,__properties__: $extend(flash.display.Sprite.prototype.__properties__,{get_currentFrame:"get_currentFrame",get_framesLoaded:"get_framesLoaded",get_totalFrames:"get_totalFrames"})
 });
@@ -4659,6 +4633,7 @@ flash.display.Shape.prototype = $extend(flash.display.DisplayObject.prototype,{
 	,nmeGetGraphics: function() {
 		return this.nmeGraphics;
 	}
+	,nmeGraphics: null
 	,__class__: flash.display.Shape
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{get_graphics:"get_graphics"})
 });
@@ -4714,6 +4689,14 @@ flash.events.Event.prototype = {
 	,clone: function() {
 		return new flash.events.Event(this.type,this.bubbles,this.cancelable);
 	}
+	,nmeIsCancelledNow: null
+	,nmeIsCancelled: null
+	,type: null
+	,target: null
+	,eventPhase: null
+	,currentTarget: null
+	,cancelable: null
+	,bubbles: null
 	,__class__: flash.events.Event
 }
 flash.events.MouseEvent = function(type,bubbles,cancelable,localX,localY,relatedObject,ctrlKey,altKey,shiftKey,buttonDown,delta,commandKey,clickCount) {
@@ -4772,6 +4755,18 @@ flash.events.MouseEvent.prototype = $extend(flash.events.Event.prototype,{
 		if(targ != null) result.target = targ;
 		return result;
 	}
+	,stageY: null
+	,stageX: null
+	,shiftKey: null
+	,relatedObject: null
+	,localY: null
+	,localX: null
+	,delta: null
+	,ctrlKey: null
+	,clickCount: null
+	,commandKey: null
+	,buttonDown: null
+	,altKey: null
 	,__class__: flash.events.MouseEvent
 });
 flash.display.Stage = function(width,height) {
@@ -5186,6 +5181,38 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 	,invalidate: function() {
 		this.nmeInvalid = true;
 	}
+	,_mouseY: null
+	,_mouseX: null
+	,nmeWindowHeight: null
+	,nmeWindowWidth: null
+	,nmeUIEventsQueueIndex: null
+	,nmeUIEventsQueue: null
+	,nmeTouchInfo: null
+	,nmeTimer: null
+	,nmeStageMatrix: null
+	,nmeStageActive: null
+	,nmeShowDefaultContextMenu: null
+	,nmeMouseOverObjects: null
+	,nmeInvalid: null
+	,nmeInterval: null
+	,nmeFrameRate: null
+	,nmeFocusObjectActivated: null
+	,nmeFocusObject: null
+	,nmeDragOffsetY: null
+	,nmeDragOffsetX: null
+	,nmeDragObject: null
+	,nmeDragBounds: null
+	,nmeBackgroundColour: null
+	,stageWidth: null
+	,stageHeight: null
+	,stageFocusRect: null
+	,scaleMode: null
+	,quality: null
+	,nmePointInPathMode: null
+	,fullScreenWidth: null
+	,fullScreenHeight: null
+	,displayState: null
+	,align: null
 	,__class__: flash.display.Stage
 	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{set_backgroundColor:"set_backgroundColor",get_backgroundColor:"get_backgroundColor",set_displayState:"set_displayState",get_displayState:"get_displayState",set_focus:"set_focus",get_focus:"get_focus",set_frameRate:"set_frameRate",get_frameRate:"get_frameRate",get_fullScreenHeight:"get_fullScreenHeight",get_fullScreenWidth:"get_fullScreenWidth",set_quality:"set_quality",get_quality:"get_quality",set_showDefaultContextMenu:"set_showDefaultContextMenu",get_showDefaultContextMenu:"get_showDefaultContextMenu",get_stageHeight:"get_stageHeight",get_stageWidth:"get_stageWidth"})
 });
@@ -5196,7 +5223,8 @@ flash.display._Stage.TouchInfo = function() {
 $hxClasses["flash.display._Stage.TouchInfo"] = flash.display._Stage.TouchInfo;
 flash.display._Stage.TouchInfo.__name__ = ["flash","display","_Stage","TouchInfo"];
 flash.display._Stage.TouchInfo.prototype = {
-	__class__: flash.display._Stage.TouchInfo
+	touchOverObjects: null
+	,__class__: flash.display._Stage.TouchInfo
 }
 flash.display.StageAlign = $hxClasses["flash.display.StageAlign"] = { __ename__ : true, __constructs__ : ["TOP_RIGHT","TOP_LEFT","TOP","RIGHT","LEFT","BOTTOM_RIGHT","BOTTOM_LEFT","BOTTOM"] }
 flash.display.StageAlign.TOP_RIGHT = ["TOP_RIGHT",0];
@@ -5265,6 +5293,9 @@ flash.errors.Error.prototype = {
 	,getStackTrace: function() {
 		return haxe.CallStack.toString(haxe.CallStack.exceptionStack());
 	}
+	,name: null
+	,message: null
+	,errorID: null
 	,__class__: flash.errors.Error
 }
 flash.errors.IOError = function(message) {
@@ -5288,7 +5319,8 @@ $hxClasses["flash.events.TextEvent"] = flash.events.TextEvent;
 flash.events.TextEvent.__name__ = ["flash","events","TextEvent"];
 flash.events.TextEvent.__super__ = flash.events.Event;
 flash.events.TextEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.TextEvent
+	text: null
+	,__class__: flash.events.TextEvent
 });
 flash.events.ErrorEvent = function(type,bubbles,cancelable,text) {
 	flash.events.TextEvent.call(this,type,bubbles,cancelable);
@@ -5315,6 +5347,10 @@ flash.events.Listener.prototype = {
 	,dispatchEvent: function(event) {
 		this.mListner(event);
 	}
+	,mUseCapture: null
+	,mPriority: null
+	,mListner: null
+	,mID: null
 	,__class__: flash.events.Listener
 }
 flash.events.EventPhase = function() { }
@@ -5334,7 +5370,10 @@ $hxClasses["flash.events.FocusEvent"] = flash.events.FocusEvent;
 flash.events.FocusEvent.__name__ = ["flash","events","FocusEvent"];
 flash.events.FocusEvent.__super__ = flash.events.Event;
 flash.events.FocusEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.FocusEvent
+	shiftKey: null
+	,relatedObject: null
+	,keyCode: null
+	,__class__: flash.events.FocusEvent
 });
 flash.events.HTTPStatusEvent = function(type,bubbles,cancelable,status) {
 	if(status == null) status = 0;
@@ -5347,7 +5386,10 @@ $hxClasses["flash.events.HTTPStatusEvent"] = flash.events.HTTPStatusEvent;
 flash.events.HTTPStatusEvent.__name__ = ["flash","events","HTTPStatusEvent"];
 flash.events.HTTPStatusEvent.__super__ = flash.events.Event;
 flash.events.HTTPStatusEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.HTTPStatusEvent
+	status: null
+	,responseURL: null
+	,responseHeaders: null
+	,__class__: flash.events.HTTPStatusEvent
 });
 flash.events.IOErrorEvent = function(type,bubbles,cancelable,inText) {
 	if(inText == null) inText = "";
@@ -5360,7 +5402,8 @@ $hxClasses["flash.events.IOErrorEvent"] = flash.events.IOErrorEvent;
 flash.events.IOErrorEvent.__name__ = ["flash","events","IOErrorEvent"];
 flash.events.IOErrorEvent.__super__ = flash.events.Event;
 flash.events.IOErrorEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.IOErrorEvent
+	text: null
+	,__class__: flash.events.IOErrorEvent
 });
 flash.events.KeyboardEvent = function(type,bubbles,cancelable,inCharCode,inKeyCode,inKeyLocation,inCtrlKey,inAltKey,inShiftKey,controlKeyValue,commandKeyValue) {
 	if(commandKeyValue == null) commandKeyValue = false;
@@ -5387,7 +5430,15 @@ $hxClasses["flash.events.KeyboardEvent"] = flash.events.KeyboardEvent;
 flash.events.KeyboardEvent.__name__ = ["flash","events","KeyboardEvent"];
 flash.events.KeyboardEvent.__super__ = flash.events.Event;
 flash.events.KeyboardEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.KeyboardEvent
+	shiftKey: null
+	,keyLocation: null
+	,keyCode: null
+	,controlKey: null
+	,commandKey: null
+	,ctrlKey: null
+	,charCode: null
+	,altKey: null
+	,__class__: flash.events.KeyboardEvent
 });
 flash.events.ProgressEvent = function(type,bubbles,cancelable,bytesLoaded,bytesTotal) {
 	if(bytesTotal == null) bytesTotal = 0;
@@ -5402,7 +5453,9 @@ $hxClasses["flash.events.ProgressEvent"] = flash.events.ProgressEvent;
 flash.events.ProgressEvent.__name__ = ["flash","events","ProgressEvent"];
 flash.events.ProgressEvent.__super__ = flash.events.Event;
 flash.events.ProgressEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.ProgressEvent
+	bytesTotal: null
+	,bytesLoaded: null
+	,__class__: flash.events.ProgressEvent
 });
 flash.events.SecurityErrorEvent = function(type,bubbles,cancelable,text) {
 	if(text == null) text = "";
@@ -5461,6 +5514,19 @@ flash.events.TouchEvent.prototype = $extend(flash.events.Event.prototype,{
 		if(targ != null) result.target = targ;
 		return result;
 	}
+	,touchPointID: null
+	,stageY: null
+	,stageX: null
+	,shiftKey: null
+	,relatedObject: null
+	,localY: null
+	,localX: null
+	,isPrimaryTouchPoint: null
+	,delta: null
+	,ctrlKey: null
+	,commandKey: null
+	,buttonDown: null
+	,altKey: null
 	,__class__: flash.events.TouchEvent
 });
 flash.filters = {}
@@ -5479,6 +5545,8 @@ flash.filters.BitmapFilter.prototype = {
 		throw "Implement in subclass. BitmapFilter::clone";
 		return null;
 	}
+	,_nmeCached: null
+	,_mType: null
 	,__class__: flash.filters.BitmapFilter
 }
 flash.filters.DropShadowFilter = function(in_distance,in_angle,in_color,in_alpha,in_blurX,in_blurY,in_strength,in_quality,in_inner,in_knockout,in_hideObject) {
@@ -5528,6 +5596,17 @@ flash.filters.DropShadowFilter.prototype = $extend(flash.filters.BitmapFilter.pr
 	,clone: function() {
 		return new flash.filters.DropShadowFilter(this.distance,this.angle,this.color,this.alpha,this.blurX,this.blurY,this.strength,this.quality,this.inner,this.knockout,this.hideObject);
 	}
+	,strength: null
+	,quality: null
+	,knockout: null
+	,inner: null
+	,hideObject: null
+	,distance: null
+	,color: null
+	,blurY: null
+	,blurX: null
+	,angle: null
+	,alpha: null
 	,__class__: flash.filters.DropShadowFilter
 });
 flash.geom = {}
@@ -5570,6 +5649,14 @@ flash.geom.ColorTransform.prototype = {
 		this.blueMultiplier += second.blueMultiplier;
 		this.alphaMultiplier += second.alphaMultiplier;
 	}
+	,redOffset: null
+	,redMultiplier: null
+	,greenOffset: null
+	,greenMultiplier: null
+	,blueOffset: null
+	,blueMultiplier: null
+	,alphaOffset: null
+	,alphaMultiplier: null
 	,__class__: flash.geom.ColorTransform
 	,__properties__: {set_color:"set_color",get_color:"get_color"}
 }
@@ -5790,6 +5877,14 @@ flash.geom.Matrix.prototype = {
 		this.set_tx(Math.round(this.tx * 10) / 10);
 		this.set_ty(Math.round(this.ty * 10) / 10);
 	}
+	,_sy: null
+	,_sx: null
+	,ty: null
+	,tx: null
+	,d: null
+	,c: null
+	,b: null
+	,a: null
 	,__class__: flash.geom.Matrix
 	,__properties__: {set_tx:"set_tx",set_ty:"set_ty"}
 }
@@ -5839,6 +5934,9 @@ flash.geom.Point.prototype = {
 	,add: function(v) {
 		return new flash.geom.Point(v.x + this.x,v.y + this.y);
 	}
+	,y: null
+	,x: null
+	,length: null
 	,__class__: flash.geom.Point
 	,__properties__: {get_length:"get_length"}
 }
@@ -6010,6 +6108,10 @@ flash.geom.Rectangle.prototype = {
 	,clone: function() {
 		return new flash.geom.Rectangle(this.x,this.y,this.width,this.height);
 	}
+	,y: null
+	,x: null
+	,width: null
+	,height: null
 	,__class__: flash.geom.Rectangle
 	,__properties__: {set_bottom:"set_bottom",get_bottom:"get_bottom",set_bottomRight:"set_bottomRight",get_bottomRight:"get_bottomRight",set_left:"set_left",get_left:"get_left",set_right:"set_right",get_right:"get_right",set_size:"set_size",get_size:"get_size",set_top:"set_top",get_top:"get_top",set_topLeft:"set_topLeft",get_topLeft:"get_topLeft"}
 }
@@ -6053,6 +6155,11 @@ flash.geom.Transform.prototype = {
 		if(localMatrix != null) m = localMatrix.mult(this._fullMatrix); else m = this._fullMatrix.clone();
 		return m;
 	}
+	,_matrix: null
+	,_fullMatrix: null
+	,_displayObject: null
+	,concatenatedMatrix: null
+	,colorTransform: null
 	,__class__: flash.geom.Transform
 	,__properties__: {set_colorTransform:"set_colorTransform",get_concatenatedMatrix:"get_concatenatedMatrix",set_matrix:"set_matrix",get_matrix:"get_matrix",get_pixelBounds:"get_pixelBounds"}
 }
@@ -6161,6 +6268,16 @@ flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
 	}
 	,close: function() {
 	}
+	,nmeStreamUrl: null
+	,nmeSoundIdx: null
+	,nmeSoundChannels: null
+	,nmeSoundCache: null
+	,url: null
+	,length: null
+	,isBuffering: null
+	,id3: null
+	,bytesTotal: null
+	,bytesLoaded: null
 	,__class__: flash.media.Sound
 });
 flash.media.SoundChannel = function() {
@@ -6243,6 +6360,16 @@ flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.protot
 			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
 		}
 	}
+	,nmeStartTime: null
+	,nmeRemoveRef: null
+	,nmeAudioTotalLoops: null
+	,nmeAudioCurrentLoop: null
+	,soundTransform: null
+	,rightPeak: null
+	,position: null
+	,nmeAudio: null
+	,leftPeak: null
+	,ChannelId: null
 	,__class__: flash.media.SoundChannel
 	,__properties__: {set_soundTransform:"set_soundTransform"}
 });
@@ -6255,7 +6382,9 @@ flash.media.SoundLoaderContext = function(bufferTime,checkPolicyFile) {
 $hxClasses["flash.media.SoundLoaderContext"] = flash.media.SoundLoaderContext;
 flash.media.SoundLoaderContext.__name__ = ["flash","media","SoundLoaderContext"];
 flash.media.SoundLoaderContext.prototype = {
-	__class__: flash.media.SoundLoaderContext
+	checkPolicyFile: null
+	,bufferTime: null
+	,__class__: flash.media.SoundLoaderContext
 }
 flash.media.SoundTransform = function(vol,panning) {
 	if(panning == null) panning = 0;
@@ -6270,7 +6399,13 @@ flash.media.SoundTransform = function(vol,panning) {
 $hxClasses["flash.media.SoundTransform"] = flash.media.SoundTransform;
 flash.media.SoundTransform.__name__ = ["flash","media","SoundTransform"];
 flash.media.SoundTransform.prototype = {
-	__class__: flash.media.SoundTransform
+	volume: null
+	,rightToRight: null
+	,rightToLeft: null
+	,pan: null
+	,leftToRight: null
+	,leftToLeft: null
+	,__class__: flash.media.SoundTransform
 }
 flash.net = {}
 flash.net.URLLoader = function(request) {
@@ -6414,6 +6549,10 @@ flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
 		if(inputVal == flash.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(js.Browser.window,"ArrayBuffer")) this.dataFormat = flash.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
 		return this.dataFormat;
 	}
+	,dataFormat: null
+	,data: null
+	,bytesTotal: null
+	,bytesLoaded: null
 	,__class__: flash.net.URLLoader
 	,__properties__: {set_dataFormat:"set_dataFormat"}
 });
@@ -6446,6 +6585,11 @@ flash.net.URLRequest.prototype = {
 		}
 		return res;
 	}
+	,url: null
+	,requestHeaders: null
+	,method: null
+	,data: null
+	,contentType: null
 	,__class__: flash.net.URLRequest
 }
 flash.net.URLRequestHeader = function(name,value) {
@@ -6457,7 +6601,9 @@ flash.net.URLRequestHeader = function(name,value) {
 $hxClasses["flash.net.URLRequestHeader"] = flash.net.URLRequestHeader;
 flash.net.URLRequestHeader.__name__ = ["flash","net","URLRequestHeader"];
 flash.net.URLRequestHeader.prototype = {
-	__class__: flash.net.URLRequestHeader
+	value: null
+	,name: null
+	,__class__: flash.net.URLRequestHeader
 }
 flash.net.URLRequestMethod = function() { }
 $hxClasses["flash.net.URLRequestMethod"] = flash.net.URLRequestMethod;
@@ -6511,6 +6657,7 @@ flash.system.ApplicationDomain.prototype = {
 	,getDefinition: function(name) {
 		return Type.resolveClass(name);
 	}
+	,parentDomain: null
 	,__class__: flash.system.ApplicationDomain
 }
 flash.system.LoaderContext = function(checkPolicyFile,applicationDomain,securityDomain) {
@@ -6522,7 +6669,12 @@ flash.system.LoaderContext = function(checkPolicyFile,applicationDomain,security
 $hxClasses["flash.system.LoaderContext"] = flash.system.LoaderContext;
 flash.system.LoaderContext.__name__ = ["flash","system","LoaderContext"];
 flash.system.LoaderContext.prototype = {
-	__class__: flash.system.LoaderContext
+	securityDomain: null
+	,checkPolicyFile: null
+	,applicationDomain: null
+	,allowLoadBytesCodeExecution: null
+	,allowCodeImport: null
+	,__class__: flash.system.LoaderContext
 }
 flash.system.SecurityDomain = function() {
 };
@@ -6929,6 +7081,14 @@ flash.utils.ByteArray.prototype = {
 	,__get: function(pos) {
 		return this.data.getUint8(pos);
 	}
+	,littleEndian: null
+	,data: null
+	,byteView: null
+	,allocated: null
+	,position: null
+	,objectEncoding: null
+	,length: null
+	,bytesAvailable: null
 	,__class__: flash.utils.ByteArray
 	,__properties__: {get_bytesAvailable:"get_bytesAvailable",set_endian:"set_endian",get_endian:"get_endian",set_length:"set_length"}
 }
@@ -7411,6 +7571,11 @@ haxe.Template.prototype = {
 		this.run(this.expr);
 		return this.buf.b;
 	}
+	,buf: null
+	,stack: null
+	,macros: null
+	,context: null
+	,expr: null
 	,__class__: haxe.Template
 }
 haxe.ds = {}
@@ -7450,6 +7615,7 @@ haxe.ds.IntMap.prototype = {
 	,set: function(key,value) {
 		this.h[key] = value;
 	}
+	,h: null
 	,__class__: haxe.ds.IntMap
 }
 haxe.ds.ObjectMap = function() {
@@ -7493,6 +7659,7 @@ haxe.ds.ObjectMap.prototype = {
 		this.h[id] = value;
 		this.h.__keys__[id] = key;
 	}
+	,h: null
 	,__class__: haxe.ds.ObjectMap
 }
 haxe.ds.StringMap = function() {
@@ -7532,6 +7699,7 @@ haxe.ds.StringMap.prototype = {
 	,set: function(key,value) {
 		this.h["$" + key] = value;
 	}
+	,h: null
 	,__class__: haxe.ds.StringMap
 }
 haxe.io = {}
@@ -7539,7 +7707,8 @@ haxe.io.Bytes = function() { }
 $hxClasses["haxe.io.Bytes"] = haxe.io.Bytes;
 haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
 haxe.io.Bytes.prototype = {
-	__class__: haxe.io.Bytes
+	b: null
+	,__class__: haxe.io.Bytes
 }
 haxe.io.Eof = function() { }
 $hxClasses["haxe.io.Eof"] = haxe.io.Eof;
@@ -7551,739 +7720,12 @@ haxe.io.Eof.prototype = {
 	,__class__: haxe.io.Eof
 }
 haxe.rtti = {}
-haxe.rtti.CType = $hxClasses["haxe.rtti.CType"] = { __ename__ : true, __constructs__ : ["CUnknown","CEnum","CClass","CTypedef","CFunction","CAnonymous","CDynamic","CAbstract"] }
-haxe.rtti.CType.CUnknown = ["CUnknown",0];
-haxe.rtti.CType.CUnknown.toString = $estr;
-haxe.rtti.CType.CUnknown.__enum__ = haxe.rtti.CType;
-haxe.rtti.CType.CEnum = function(name,params) { var $x = ["CEnum",1,name,params]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CClass = function(name,params) { var $x = ["CClass",2,name,params]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CTypedef = function(name,params) { var $x = ["CTypedef",3,name,params]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CFunction = function(args,ret) { var $x = ["CFunction",4,args,ret]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CAnonymous = function(fields) { var $x = ["CAnonymous",5,fields]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CDynamic = function(t) { var $x = ["CDynamic",6,t]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.CType.CAbstract = function(name,params) { var $x = ["CAbstract",7,name,params]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.Rights = $hxClasses["haxe.rtti.Rights"] = { __ename__ : true, __constructs__ : ["RNormal","RNo","RCall","RMethod","RDynamic","RInline"] }
-haxe.rtti.Rights.RNormal = ["RNormal",0];
-haxe.rtti.Rights.RNormal.toString = $estr;
-haxe.rtti.Rights.RNormal.__enum__ = haxe.rtti.Rights;
-haxe.rtti.Rights.RNo = ["RNo",1];
-haxe.rtti.Rights.RNo.toString = $estr;
-haxe.rtti.Rights.RNo.__enum__ = haxe.rtti.Rights;
-haxe.rtti.Rights.RCall = function(m) { var $x = ["RCall",2,m]; $x.__enum__ = haxe.rtti.Rights; $x.toString = $estr; return $x; }
-haxe.rtti.Rights.RMethod = ["RMethod",3];
-haxe.rtti.Rights.RMethod.toString = $estr;
-haxe.rtti.Rights.RMethod.__enum__ = haxe.rtti.Rights;
-haxe.rtti.Rights.RDynamic = ["RDynamic",4];
-haxe.rtti.Rights.RDynamic.toString = $estr;
-haxe.rtti.Rights.RDynamic.__enum__ = haxe.rtti.Rights;
-haxe.rtti.Rights.RInline = ["RInline",5];
-haxe.rtti.Rights.RInline.toString = $estr;
-haxe.rtti.Rights.RInline.__enum__ = haxe.rtti.Rights;
-haxe.rtti.TypeTree = $hxClasses["haxe.rtti.TypeTree"] = { __ename__ : true, __constructs__ : ["TPackage","TClassdecl","TEnumdecl","TTypedecl","TAbstractdecl"] }
-haxe.rtti.TypeTree.TPackage = function(name,full,subs) { var $x = ["TPackage",0,name,full,subs]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
-haxe.rtti.TypeTree.TClassdecl = function(c) { var $x = ["TClassdecl",1,c]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
-haxe.rtti.TypeTree.TEnumdecl = function(e) { var $x = ["TEnumdecl",2,e]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
-haxe.rtti.TypeTree.TTypedecl = function(t) { var $x = ["TTypedecl",3,t]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
-haxe.rtti.TypeTree.TAbstractdecl = function(a) { var $x = ["TAbstractdecl",4,a]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
 haxe.rtti.Meta = function() { }
 $hxClasses["haxe.rtti.Meta"] = haxe.rtti.Meta;
 haxe.rtti.Meta.__name__ = ["haxe","rtti","Meta"];
 haxe.rtti.Meta.getFields = function(t) {
 	var meta = t.__meta__;
 	return meta == null || meta.fields == null?{ }:meta.fields;
-}
-haxe.rtti.XmlParser = function() {
-	this.root = new Array();
-};
-$hxClasses["haxe.rtti.XmlParser"] = haxe.rtti.XmlParser;
-haxe.rtti.XmlParser.__name__ = ["haxe","rtti","XmlParser"];
-haxe.rtti.XmlParser.prototype = {
-	defplat: function() {
-		var l = new List();
-		if(this.curplatform != null) l.add(this.curplatform);
-		return l;
-	}
-	,xtypeparams: function(x) {
-		var p = new List();
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			p.add(this.xtype(c));
-		}
-		return p;
-	}
-	,xtype: function(x) {
-		return (function($this) {
-			var $r;
-			var _g = x.get_name();
-			$r = (function($this) {
-				var $r;
-				switch(_g) {
-				case "unknown":
-					$r = haxe.rtti.CType.CUnknown;
-					break;
-				case "e":
-					$r = haxe.rtti.CType.CEnum($this.mkPath(x.att.resolve("path")),$this.xtypeparams(x));
-					break;
-				case "c":
-					$r = haxe.rtti.CType.CClass($this.mkPath(x.att.resolve("path")),$this.xtypeparams(x));
-					break;
-				case "t":
-					$r = haxe.rtti.CType.CTypedef($this.mkPath(x.att.resolve("path")),$this.xtypeparams(x));
-					break;
-				case "x":
-					$r = haxe.rtti.CType.CAbstract($this.mkPath(x.att.resolve("path")),$this.xtypeparams(x));
-					break;
-				case "f":
-					$r = (function($this) {
-						var $r;
-						var args = new List();
-						var aname = x.att.resolve("a").split(":");
-						var eargs = HxOverrides.iter(aname);
-						var $it0 = x.get_elements();
-						while( $it0.hasNext() ) {
-							var e = $it0.next();
-							var opt = false;
-							var a = eargs.next();
-							if(a == null) a = "";
-							if(a.charAt(0) == "?") {
-								opt = true;
-								a = HxOverrides.substr(a,1,null);
-							}
-							args.add({ name : a, opt : opt, t : $this.xtype(e)});
-						}
-						var ret = args.last();
-						args.remove(ret);
-						$r = haxe.rtti.CType.CFunction(args,ret.t);
-						return $r;
-					}($this));
-					break;
-				case "a":
-					$r = (function($this) {
-						var $r;
-						var fields = new List();
-						var $it1 = x.get_elements();
-						while( $it1.hasNext() ) {
-							var f = $it1.next();
-							var f1 = $this.xclassfield(f,true);
-							f1.platforms = new List();
-							fields.add(f1);
-						}
-						$r = haxe.rtti.CType.CAnonymous(fields);
-						return $r;
-					}($this));
-					break;
-				case "d":
-					$r = (function($this) {
-						var $r;
-						var t = null;
-						var tx = x.x.firstElement();
-						if(tx != null) t = $this.xtype(new haxe.xml.Fast(tx));
-						$r = haxe.rtti.CType.CDynamic(t);
-						return $r;
-					}($this));
-					break;
-				default:
-					$r = $this.xerror(x);
-				}
-				return $r;
-			}($this));
-			return $r;
-		}(this));
-	}
-	,xtypedef: function(x) {
-		var doc = null;
-		var t = null;
-		var meta = [];
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			if(c.get_name() == "haxe_doc") doc = c.get_innerData(); else if(c.get_name() == "meta") meta = this.xmeta(c); else t = this.xtype(c);
-		}
-		var types = new haxe.ds.StringMap();
-		if(this.curplatform != null) types.set(this.curplatform,t);
-		return { file : x.has.resolve("file")?x.att.resolve("file"):null, path : this.mkPath(x.att.resolve("path")), module : x.has.resolve("module")?this.mkPath(x.att.resolve("module")):null, doc : doc, isPrivate : x.x.exists("private"), params : this.mkTypeParams(x.att.resolve("params")), type : t, types : types, platforms : this.defplat(), meta : meta};
-	}
-	,xabstract: function(x) {
-		var doc = null;
-		var meta = [], subs = [], supers = [];
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			var _g = c.get_name();
-			switch(_g) {
-			case "haxe_doc":
-				doc = c.get_innerData();
-				break;
-			case "meta":
-				meta = this.xmeta(c);
-				break;
-			case "to":
-				var $it1 = c.get_elements();
-				while( $it1.hasNext() ) {
-					var t = $it1.next();
-					subs.push(this.xtype(t));
-				}
-				break;
-			case "from":
-				var $it2 = c.get_elements();
-				while( $it2.hasNext() ) {
-					var t = $it2.next();
-					supers.push(this.xtype(t));
-				}
-				break;
-			default:
-				this.xerror(c);
-			}
-		}
-		return { file : x.has.resolve("file")?x.att.resolve("file"):null, path : this.mkPath(x.att.resolve("path")), module : x.has.resolve("module")?this.mkPath(x.att.resolve("module")):null, doc : doc, isPrivate : x.x.exists("private"), params : this.mkTypeParams(x.att.resolve("params")), platforms : this.defplat(), meta : meta, subs : subs, supers : supers};
-	}
-	,xenumfield: function(x) {
-		var args = null;
-		var xdoc = x.x.elementsNamed("haxe_doc").next();
-		var meta = x.hasNode.resolve("meta")?this.xmeta(x.node.resolve("meta")):[];
-		if(x.has.resolve("a")) {
-			var names = x.att.resolve("a").split(":");
-			var elts = x.get_elements();
-			args = new List();
-			var _g = 0;
-			while(_g < names.length) {
-				var c = names[_g];
-				++_g;
-				var opt = false;
-				if(c.charAt(0) == "?") {
-					opt = true;
-					c = HxOverrides.substr(c,1,null);
-				}
-				args.add({ name : c, opt : opt, t : this.xtype(elts.next())});
-			}
-		}
-		return { name : x.get_name(), args : args, doc : xdoc == null?null:new haxe.xml.Fast(xdoc).get_innerData(), meta : meta, platforms : this.defplat()};
-	}
-	,xenum: function(x) {
-		var cl = new List();
-		var doc = null;
-		var meta = [];
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			if(c.get_name() == "haxe_doc") doc = c.get_innerData(); else if(c.get_name() == "meta") meta = this.xmeta(c); else cl.add(this.xenumfield(c));
-		}
-		return { file : x.has.resolve("file")?x.att.resolve("file"):null, path : this.mkPath(x.att.resolve("path")), module : x.has.resolve("module")?this.mkPath(x.att.resolve("module")):null, doc : doc, isPrivate : x.x.exists("private"), isExtern : x.x.exists("extern"), params : this.mkTypeParams(x.att.resolve("params")), constructors : cl, platforms : this.defplat(), meta : meta};
-	}
-	,xclassfield: function(x,defPublic) {
-		var e = x.get_elements();
-		var t = this.xtype(e.next());
-		var doc = null;
-		var meta = [];
-		while( e.hasNext() ) {
-			var c = e.next();
-			var _g = c.get_name();
-			switch(_g) {
-			case "haxe_doc":
-				doc = c.get_innerData();
-				break;
-			case "meta":
-				meta = this.xmeta(c);
-				break;
-			default:
-				this.xerror(c);
-			}
-		}
-		return { name : x.get_name(), type : t, isPublic : x.x.exists("public") || defPublic, isOverride : x.x.exists("override"), line : x.has.resolve("line")?Std.parseInt(x.att.resolve("line")):null, doc : doc, get : x.has.resolve("get")?this.mkRights(x.att.resolve("get")):haxe.rtti.Rights.RNormal, set : x.has.resolve("set")?this.mkRights(x.att.resolve("set")):haxe.rtti.Rights.RNormal, params : x.has.resolve("params")?this.mkTypeParams(x.att.resolve("params")):null, platforms : this.defplat(), meta : meta};
-	}
-	,xclass: function(x) {
-		var csuper = null;
-		var doc = null;
-		var tdynamic = null;
-		var interfaces = new List();
-		var fields = new List();
-		var statics = new List();
-		var meta = [];
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			var _g = c.get_name();
-			switch(_g) {
-			case "haxe_doc":
-				doc = c.get_innerData();
-				break;
-			case "extends":
-				csuper = this.xpath(c);
-				break;
-			case "implements":
-				interfaces.add(this.xpath(c));
-				break;
-			case "haxe_dynamic":
-				tdynamic = this.xtype(new haxe.xml.Fast(c.x.firstElement()));
-				break;
-			case "meta":
-				meta = this.xmeta(c);
-				break;
-			default:
-				if(c.x.exists("static")) statics.add(this.xclassfield(c)); else fields.add(this.xclassfield(c));
-			}
-		}
-		return { file : x.has.resolve("file")?x.att.resolve("file"):null, path : this.mkPath(x.att.resolve("path")), module : x.has.resolve("module")?this.mkPath(x.att.resolve("module")):null, doc : doc, isPrivate : x.x.exists("private"), isExtern : x.x.exists("extern"), isInterface : x.x.exists("interface"), params : this.mkTypeParams(x.att.resolve("params")), superClass : csuper, interfaces : interfaces, fields : fields, statics : statics, tdynamic : tdynamic, platforms : this.defplat(), meta : meta};
-	}
-	,xpath: function(x) {
-		var path = this.mkPath(x.att.resolve("path"));
-		var params = new List();
-		var $it0 = x.get_elements();
-		while( $it0.hasNext() ) {
-			var c = $it0.next();
-			params.add(this.xtype(c));
-		}
-		return { path : path, params : params};
-	}
-	,xmeta: function(x) {
-		var ml = [];
-		var $it0 = x.nodes.resolve("m").iterator();
-		while( $it0.hasNext() ) {
-			var m = $it0.next();
-			var pl = [];
-			var $it1 = m.nodes.resolve("e").iterator();
-			while( $it1.hasNext() ) {
-				var p = $it1.next();
-				pl.push(p.get_innerHTML());
-			}
-			ml.push({ name : m.att.resolve("n"), params : pl});
-		}
-		return ml;
-	}
-	,processElement: function(x) {
-		var c = new haxe.xml.Fast(x);
-		return (function($this) {
-			var $r;
-			var _g = c.get_name();
-			$r = (function($this) {
-				var $r;
-				switch(_g) {
-				case "class":
-					$r = haxe.rtti.TypeTree.TClassdecl($this.xclass(c));
-					break;
-				case "enum":
-					$r = haxe.rtti.TypeTree.TEnumdecl($this.xenum(c));
-					break;
-				case "typedef":
-					$r = haxe.rtti.TypeTree.TTypedecl($this.xtypedef(c));
-					break;
-				case "abstract":
-					$r = haxe.rtti.TypeTree.TAbstractdecl($this.xabstract(c));
-					break;
-				default:
-					$r = $this.xerror(c);
-				}
-				return $r;
-			}($this));
-			return $r;
-		}(this));
-	}
-	,xerror: function(c) {
-		return (function($this) {
-			var $r;
-			throw "Invalid " + c.get_name();
-			return $r;
-		}(this));
-	}
-	,mkRights: function(r) {
-		return (function($this) {
-			var $r;
-			switch(r) {
-			case "null":
-				$r = haxe.rtti.Rights.RNo;
-				break;
-			case "method":
-				$r = haxe.rtti.Rights.RMethod;
-				break;
-			case "dynamic":
-				$r = haxe.rtti.Rights.RDynamic;
-				break;
-			case "inline":
-				$r = haxe.rtti.Rights.RInline;
-				break;
-			default:
-				$r = haxe.rtti.Rights.RCall(r);
-			}
-			return $r;
-		}(this));
-	}
-	,mkTypeParams: function(p) {
-		var pl = p.split(":");
-		if(pl[0] == "") return new Array();
-		return pl;
-	}
-	,mkPath: function(p) {
-		return p;
-	}
-	,__class__: haxe.rtti.XmlParser
-}
-haxe.xml = {}
-haxe.xml._Fast = {}
-haxe.xml._Fast.NodeAccess = function(x) {
-	this.__x = x;
-};
-$hxClasses["haxe.xml._Fast.NodeAccess"] = haxe.xml._Fast.NodeAccess;
-haxe.xml._Fast.NodeAccess.__name__ = ["haxe","xml","_Fast","NodeAccess"];
-haxe.xml._Fast.NodeAccess.prototype = {
-	resolve: function(name) {
-		var x = this.__x.elementsNamed(name).next();
-		if(x == null) {
-			var xname = this.__x.nodeType == Xml.Document?"Document":this.__x.get_nodeName();
-			throw xname + " is missing element " + name;
-		}
-		return new haxe.xml.Fast(x);
-	}
-	,__class__: haxe.xml._Fast.NodeAccess
-}
-haxe.xml._Fast.AttribAccess = function(x) {
-	this.__x = x;
-};
-$hxClasses["haxe.xml._Fast.AttribAccess"] = haxe.xml._Fast.AttribAccess;
-haxe.xml._Fast.AttribAccess.__name__ = ["haxe","xml","_Fast","AttribAccess"];
-haxe.xml._Fast.AttribAccess.prototype = {
-	resolve: function(name) {
-		if(this.__x.nodeType == Xml.Document) throw "Cannot access document attribute " + name;
-		var v = this.__x.get(name);
-		if(v == null) throw this.__x.get_nodeName() + " is missing attribute " + name;
-		return v;
-	}
-	,__class__: haxe.xml._Fast.AttribAccess
-}
-haxe.xml._Fast.HasAttribAccess = function(x) {
-	this.__x = x;
-};
-$hxClasses["haxe.xml._Fast.HasAttribAccess"] = haxe.xml._Fast.HasAttribAccess;
-haxe.xml._Fast.HasAttribAccess.__name__ = ["haxe","xml","_Fast","HasAttribAccess"];
-haxe.xml._Fast.HasAttribAccess.prototype = {
-	resolve: function(name) {
-		if(this.__x.nodeType == Xml.Document) throw "Cannot access document attribute " + name;
-		return this.__x.exists(name);
-	}
-	,__class__: haxe.xml._Fast.HasAttribAccess
-}
-haxe.xml._Fast.HasNodeAccess = function(x) {
-	this.__x = x;
-};
-$hxClasses["haxe.xml._Fast.HasNodeAccess"] = haxe.xml._Fast.HasNodeAccess;
-haxe.xml._Fast.HasNodeAccess.__name__ = ["haxe","xml","_Fast","HasNodeAccess"];
-haxe.xml._Fast.HasNodeAccess.prototype = {
-	resolve: function(name) {
-		return this.__x.elementsNamed(name).hasNext();
-	}
-	,__class__: haxe.xml._Fast.HasNodeAccess
-}
-haxe.xml._Fast.NodeListAccess = function(x) {
-	this.__x = x;
-};
-$hxClasses["haxe.xml._Fast.NodeListAccess"] = haxe.xml._Fast.NodeListAccess;
-haxe.xml._Fast.NodeListAccess.__name__ = ["haxe","xml","_Fast","NodeListAccess"];
-haxe.xml._Fast.NodeListAccess.prototype = {
-	resolve: function(name) {
-		var l = new List();
-		var $it0 = this.__x.elementsNamed(name);
-		while( $it0.hasNext() ) {
-			var x = $it0.next();
-			l.add(new haxe.xml.Fast(x));
-		}
-		return l;
-	}
-	,__class__: haxe.xml._Fast.NodeListAccess
-}
-haxe.xml.Fast = function(x) {
-	if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) throw "Invalid nodeType " + Std.string(x.nodeType);
-	this.x = x;
-	this.node = new haxe.xml._Fast.NodeAccess(x);
-	this.nodes = new haxe.xml._Fast.NodeListAccess(x);
-	this.att = new haxe.xml._Fast.AttribAccess(x);
-	this.has = new haxe.xml._Fast.HasAttribAccess(x);
-	this.hasNode = new haxe.xml._Fast.HasNodeAccess(x);
-};
-$hxClasses["haxe.xml.Fast"] = haxe.xml.Fast;
-haxe.xml.Fast.__name__ = ["haxe","xml","Fast"];
-haxe.xml.Fast.prototype = {
-	get_elements: function() {
-		var it = this.x.elements();
-		return { hasNext : $bind(it,it.hasNext), next : function() {
-			var x = it.next();
-			if(x == null) return null;
-			return new haxe.xml.Fast(x);
-		}};
-	}
-	,get_innerHTML: function() {
-		var s = new StringBuf();
-		var $it0 = this.x.iterator();
-		while( $it0.hasNext() ) {
-			var x = $it0.next();
-			s.b += Std.string(x.toString());
-		}
-		return s.b;
-	}
-	,get_innerData: function() {
-		var it = this.x.iterator();
-		if(!it.hasNext()) throw this.get_name() + " does not have data";
-		var v = it.next();
-		var n = it.next();
-		if(n != null) {
-			if(v.nodeType == Xml.PCData && n.nodeType == Xml.CData && StringTools.trim(v.get_nodeValue()) == "") {
-				var n2 = it.next();
-				if(n2 == null || n2.nodeType == Xml.PCData && StringTools.trim(n2.get_nodeValue()) == "" && it.next() == null) return n.get_nodeValue();
-			}
-			throw this.get_name() + " does not only have data";
-		}
-		if(v.nodeType != Xml.PCData && v.nodeType != Xml.CData) throw this.get_name() + " does not have data";
-		return v.get_nodeValue();
-	}
-	,get_name: function() {
-		return this.x.nodeType == Xml.Document?"Document":this.x.get_nodeName();
-	}
-	,__class__: haxe.xml.Fast
-}
-haxe.xml.Parser = function() { }
-$hxClasses["haxe.xml.Parser"] = haxe.xml.Parser;
-haxe.xml.Parser.__name__ = ["haxe","xml","Parser"];
-haxe.xml.Parser.parse = function(str) {
-	var doc = Xml.createDocument();
-	haxe.xml.Parser.doParse(str,0,doc);
-	return doc;
-}
-haxe.xml.Parser.doParse = function(str,p,parent) {
-	if(p == null) p = 0;
-	var xml = null;
-	var state = 1;
-	var next = 1;
-	var aname = null;
-	var start = 0;
-	var nsubs = 0;
-	var nbrackets = 0;
-	var c = str.charCodeAt(p);
-	var buf = new StringBuf();
-	while(!(c != c)) {
-		switch(state) {
-		case 0:
-			switch(c) {
-			case 10:case 13:case 9:case 32:
-				break;
-			default:
-				state = next;
-				continue;
-			}
-			break;
-		case 1:
-			switch(c) {
-			case 60:
-				state = 0;
-				next = 2;
-				break;
-			default:
-				start = p;
-				state = 13;
-				continue;
-			}
-			break;
-		case 13:
-			if(c == 60) {
-				var child = Xml.createPCData(buf.b + HxOverrides.substr(str,start,p - start));
-				buf = new StringBuf();
-				parent.addChild(child);
-				nsubs++;
-				state = 0;
-				next = 2;
-			} else if(c == 38) {
-				buf.addSub(str,start,p - start);
-				state = 18;
-				next = 13;
-				start = p + 1;
-			}
-			break;
-		case 17:
-			if(c == 93 && str.charCodeAt(p + 1) == 93 && str.charCodeAt(p + 2) == 62) {
-				var child = Xml.createCData(HxOverrides.substr(str,start,p - start));
-				parent.addChild(child);
-				nsubs++;
-				p += 2;
-				state = 1;
-			}
-			break;
-		case 2:
-			switch(c) {
-			case 33:
-				if(str.charCodeAt(p + 1) == 91) {
-					p += 2;
-					if(HxOverrides.substr(str,p,6).toUpperCase() != "CDATA[") throw "Expected <![CDATA[";
-					p += 5;
-					state = 17;
-					start = p + 1;
-				} else if(str.charCodeAt(p + 1) == 68 || str.charCodeAt(p + 1) == 100) {
-					if(HxOverrides.substr(str,p + 2,6).toUpperCase() != "OCTYPE") throw "Expected <!DOCTYPE";
-					p += 8;
-					state = 16;
-					start = p + 1;
-				} else if(str.charCodeAt(p + 1) != 45 || str.charCodeAt(p + 2) != 45) throw "Expected <!--"; else {
-					p += 2;
-					state = 15;
-					start = p + 1;
-				}
-				break;
-			case 63:
-				state = 14;
-				start = p;
-				break;
-			case 47:
-				if(parent == null) throw "Expected node name";
-				start = p + 1;
-				state = 0;
-				next = 10;
-				break;
-			default:
-				state = 3;
-				start = p;
-				continue;
-			}
-			break;
-		case 3:
-			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
-				if(p == start) throw "Expected node name";
-				xml = Xml.createElement(HxOverrides.substr(str,start,p - start));
-				parent.addChild(xml);
-				state = 0;
-				next = 4;
-				continue;
-			}
-			break;
-		case 4:
-			switch(c) {
-			case 47:
-				state = 11;
-				nsubs++;
-				break;
-			case 62:
-				state = 9;
-				nsubs++;
-				break;
-			default:
-				state = 5;
-				start = p;
-				continue;
-			}
-			break;
-		case 5:
-			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
-				var tmp;
-				if(start == p) throw "Expected attribute name";
-				tmp = HxOverrides.substr(str,start,p - start);
-				aname = tmp;
-				if(xml.exists(aname)) throw "Duplicate attribute";
-				state = 0;
-				next = 6;
-				continue;
-			}
-			break;
-		case 6:
-			switch(c) {
-			case 61:
-				state = 0;
-				next = 7;
-				break;
-			default:
-				throw "Expected =";
-			}
-			break;
-		case 7:
-			switch(c) {
-			case 34:case 39:
-				state = 8;
-				start = p;
-				break;
-			default:
-				throw "Expected \"";
-			}
-			break;
-		case 8:
-			if(c == str.charCodeAt(start)) {
-				var val = HxOverrides.substr(str,start + 1,p - start - 1);
-				xml.set(aname,val);
-				state = 0;
-				next = 4;
-			}
-			break;
-		case 9:
-			p = haxe.xml.Parser.doParse(str,p,xml);
-			start = p;
-			state = 1;
-			break;
-		case 11:
-			switch(c) {
-			case 62:
-				state = 1;
-				break;
-			default:
-				throw "Expected >";
-			}
-			break;
-		case 12:
-			switch(c) {
-			case 62:
-				if(nsubs == 0) parent.addChild(Xml.createPCData(""));
-				return p;
-			default:
-				throw "Expected >";
-			}
-			break;
-		case 10:
-			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
-				if(start == p) throw "Expected node name";
-				var v = HxOverrides.substr(str,start,p - start);
-				if(v != parent.get_nodeName()) throw "Expected </" + parent.get_nodeName() + ">";
-				state = 0;
-				next = 12;
-				continue;
-			}
-			break;
-		case 15:
-			if(c == 45 && str.charCodeAt(p + 1) == 45 && str.charCodeAt(p + 2) == 62) {
-				parent.addChild(Xml.createComment(HxOverrides.substr(str,start,p - start)));
-				p += 2;
-				state = 1;
-			}
-			break;
-		case 16:
-			if(c == 91) nbrackets++; else if(c == 93) nbrackets--; else if(c == 62 && nbrackets == 0) {
-				parent.addChild(Xml.createDocType(HxOverrides.substr(str,start,p - start)));
-				state = 1;
-			}
-			break;
-		case 14:
-			if(c == 63 && str.charCodeAt(p + 1) == 62) {
-				p++;
-				var str1 = HxOverrides.substr(str,start + 1,p - start - 2);
-				parent.addChild(Xml.createProcessingInstruction(str1));
-				state = 1;
-			}
-			break;
-		case 18:
-			if(c == 59) {
-				var s = HxOverrides.substr(str,start,p - start);
-				if(s.charCodeAt(0) == 35) {
-					var i = s.charCodeAt(1) == 120?Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)):Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
-					buf.b += Std.string(String.fromCharCode(i));
-				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += Std.string("&" + s + ";"); else buf.b += Std.string(haxe.xml.Parser.escapes.get(s));
-				start = p + 1;
-				state = next;
-			}
-			break;
-		}
-		c = str.charCodeAt(++p);
-	}
-	if(state == 1) {
-		start = p;
-		state = 13;
-	}
-	if(state == 13) {
-		if(p != start || nsubs == 0) parent.addChild(Xml.createPCData(buf.b + HxOverrides.substr(str,start,p - start)));
-		return p;
-	}
-	throw "Unexpected end";
 }
 var integration = {}
 integration.moduleinittests = {}
@@ -8379,6 +7821,7 @@ integration.moduleinittests.ModuleInitTests.prototype = {
 	,runAfterEveryTest: function() {
 		if(this.module) this.module.disposeModule();
 	}
+	,module: null
 	,__class__: integration.moduleinittests.ModuleInitTests
 }
 var mvcexpress = {}
@@ -8441,6 +7884,10 @@ mvcexpress.modules.ModuleCore.prototype = {
 	,get_moduleName: function() {
 		return this.moduleBase.get_moduleName();
 	}
+	,commandMap: null
+	,mediatorMap: null
+	,proxyMap: null
+	,moduleBase: null
 	,__class__: mvcexpress.modules.ModuleCore
 	,__properties__: {get_moduleName:"get_moduleName"}
 }
@@ -8537,6 +7984,10 @@ mvcexpress.modules.ModuleMovieClip.prototype = $extend(flash.display.MovieClip.p
 		this.removeEventListener(flash.events.Event.ADDED_TO_STAGE,$bind(this,this.handleModuleAddedToStage));
 		this.onInit();
 	}
+	,commandMap: null
+	,mediatorMap: null
+	,proxyMap: null
+	,moduleBase: null
 	,__class__: mvcexpress.modules.ModuleMovieClip
 	,__properties__: $extend(flash.display.MovieClip.prototype.__properties__,{get_moduleName:"get_moduleName"})
 });
@@ -8632,6 +8083,10 @@ mvcexpress.modules.ModuleSprite.prototype = $extend(flash.display.Sprite.prototy
 		this.removeEventListener(flash.events.Event.ADDED_TO_STAGE,$bind(this,this.handleModuleAddedToStage));
 		this.onInit();
 	}
+	,commandMap: null
+	,mediatorMap: null
+	,proxyMap: null
+	,moduleBase: null
 	,__class__: mvcexpress.modules.ModuleSprite
 	,__properties__: $extend(flash.display.Sprite.prototype.__properties__,{get_moduleName:"get_moduleName"})
 });
@@ -9037,6 +8492,13 @@ mvcexpress.core.CommandMap.prototype = {
 		}
 		messageClasses[messageClasses.length] = commandClass;
 	}
+	,scopeHandlers: null
+	,commandPools: null
+	,classRegistry: null
+	,mediatorMap: null
+	,proxyMap: null
+	,messenger: null
+	,moduleName: null
 	,__class__: mvcexpress.core.CommandMap
 }
 mvcexpress.core.interfaces = {}
@@ -9044,7 +8506,11 @@ mvcexpress.core.interfaces.IMediatorMap = function() { }
 $hxClasses["mvcexpress.core.interfaces.IMediatorMap"] = mvcexpress.core.interfaces.IMediatorMap;
 mvcexpress.core.interfaces.IMediatorMap.__name__ = ["mvcexpress","core","interfaces","IMediatorMap"];
 mvcexpress.core.interfaces.IMediatorMap.prototype = {
-	__class__: mvcexpress.core.interfaces.IMediatorMap
+	isViewMapped: null
+	,unmediate: null
+	,mediateWith: null
+	,mediate: null
+	,__class__: mvcexpress.core.interfaces.IMediatorMap
 }
 mvcexpress.core.MediatorMap = function(moduleName,messenger,proxyMap) {
 	this.mediatorClassRegistry = new haxe.ds.ObjectMap();
@@ -9189,6 +8655,12 @@ mvcexpress.core.MediatorMap.prototype = {
 		if(injectClass == null) injectClass = viewClass;
 		this.mediatorInjectRegistry.set(viewClass,injectClass);
 	}
+	,mediatorRegistry: null
+	,mediatorInjectRegistry: null
+	,mediatorClassRegistry: null
+	,messenger: null
+	,proxyMap: null
+	,moduleName: null
 	,__class__: mvcexpress.core.MediatorMap
 }
 mvcexpress.core.FlexMediatorMap = function(moduleName,messenger,proxyMap,uiComponentClass) {
@@ -9215,6 +8687,7 @@ mvcexpress.core.FlexMediatorMap.prototype = $extend(mvcexpress.core.MediatorMap.
 	,mediate: function(viewObject) {
 		if(js.Boot.__instanceof(viewObject,this.uiComponentClass) && !Reflect.hasField(viewObject,"initialized")) (js.Boot.__cast(viewObject , flash.events.IEventDispatcher)).addEventListener("creationComplete",$bind(this,this.handleOnCreationComplete),false,0,true); else mvcexpress.core.MediatorMap.prototype.mediate.call(this,viewObject);
 	}
+	,uiComponentClass: null
 	,__class__: mvcexpress.core.FlexMediatorMap
 });
 mvcexpress.core.ModuleBase = function(moduleName,autoInit) {
@@ -9300,6 +8773,11 @@ mvcexpress.core.ModuleBase.prototype = {
 	,get_moduleName: function() {
 		return this._moduleName;
 	}
+	,_messenger: null
+	,mediatorMap: null
+	,proxyMap: null
+	,commandMap: null
+	,_moduleName: null
 	,__class__: mvcexpress.core.ModuleBase
 	,__properties__: {get_moduleName:"get_moduleName",get_messenger:"get_messenger"}
 }
@@ -9534,20 +9012,29 @@ mvcexpress.core.ScopedProxyData = function() {
 $hxClasses["mvcexpress.core.ScopedProxyData"] = mvcexpress.core.ScopedProxyData;
 mvcexpress.core.ScopedProxyData.__name__ = ["mvcexpress","core","ScopedProxyData"];
 mvcexpress.core.ScopedProxyData.prototype = {
-	__class__: mvcexpress.core.ScopedProxyData
+	injectId: null
+	,name: null
+	,injectClass: null
+	,scopeName: null
+	,scopedProxy: null
+	,__class__: mvcexpress.core.ScopedProxyData
 }
 mvcexpress.core.ScopePermissionData = function() {
 };
 $hxClasses["mvcexpress.core.ScopePermissionData"] = mvcexpress.core.ScopePermissionData;
 mvcexpress.core.ScopePermissionData.__name__ = ["mvcexpress","core","ScopePermissionData"];
 mvcexpress.core.ScopePermissionData.prototype = {
-	__class__: mvcexpress.core.ScopePermissionData
+	proxieMapping: null
+	,messageReceiving: null
+	,messageSending: null
+	,__class__: mvcexpress.core.ScopePermissionData
 }
 mvcexpress.core.interfaces.IProxyMap = function() { }
 $hxClasses["mvcexpress.core.interfaces.IProxyMap"] = mvcexpress.core.interfaces.IProxyMap;
 mvcexpress.core.interfaces.IProxyMap.__name__ = ["mvcexpress","core","interfaces","IProxyMap"];
 mvcexpress.core.interfaces.IProxyMap.prototype = {
-	__class__: mvcexpress.core.interfaces.IProxyMap
+	getProxy: null
+	,__class__: mvcexpress.core.interfaces.IProxyMap
 }
 mvcexpress.core.ProxyMap = function(moduleName,messenger) {
 	this.injectObjectRegistry = new haxe.ds.ObjectMap();
@@ -9589,18 +9076,30 @@ mvcexpress.core.ProxyMap.prototype = {
 		return js.Boot.__cast(this.classConstRegistry.get(constName) , String);
 	}
 	,getInjectRules: function(signatureClass) {
+		haxe.Log.trace("*****getInjectRules",{ fileName : "ProxyMap.hx", lineNumber : 575, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules", customParams : [signatureClass]});
 		var retVal = new Array();
 		var fieldsMeta = mvcexpress.utils.RttiHelper.getMetaFields(signatureClass);
 		var _g = 0;
 		while(_g < fieldsMeta.length) {
 			var listedMeta = fieldsMeta[_g];
 			++_g;
+			var type = signatureClass;
 			var _g1 = 0, _g2 = Reflect.fields(listedMeta);
 			while(_g1 < _g2.length) {
 				var m = _g2[_g1];
 				++_g1;
 				var name = m;
-				var type = Reflect.field(Type.createEmptyInstance(signatureClass),m);
+				type = Type.getClass(name);
+				haxe.Log.trace("meta : var name :",{ fileName : "ProxyMap.hx", lineNumber : 586, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules", customParams : [name]});
+				var fields = Type.getClassFields(signatureClass);
+				var _g3 = 0;
+				while(_g3 < fields.length) {
+					var i = fields[_g3];
+					++_g3;
+					haxe.Log.trace("field>>" + i + ">>" + Std.string(Reflect.field(signatureClass,i)),{ fileName : "ProxyMap.hx", lineNumber : 591, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules"});
+					if(i == name) type = Type.getClass(i);
+				}
+				haxe.Log.trace("meta : var type :",{ fileName : "ProxyMap.hx", lineNumber : 595, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules", customParams : [type]});
 				var meta = Reflect.field(listedMeta,m);
 				var inject = Reflect.hasField(meta,"inject");
 				if(inject) {
@@ -9608,14 +9107,16 @@ mvcexpress.core.ProxyMap.prototype = {
 					var injectName = "";
 					var scopeName = "";
 					if(args != null) {
-						injectName = Reflect.hasField(args,"name")?Reflect.field(args,"name"):Reflect.hasField(args,"constName")?this.getInjectByConstName(Reflect.field(args,"constName")):null;
-						scopeName = Reflect.hasField(args,"scope")?Reflect.field(args,"scope"):Reflect.hasField(args,"constScope")?this.getInjectByConstName(Reflect.field(args,"constScope")):null;
+						injectName = Reflect.hasField(args,"name")?Reflect.field(args,"name"):Reflect.hasField(args,"constName")?this.getInjectByConstName(Reflect.field(args,"constName")):"";
+						scopeName = Reflect.hasField(args,"scope")?Reflect.field(args,"scope"):Reflect.hasField(args,"constScope")?this.getInjectByConstName(Reflect.field(args,"constScope")):"";
 					}
+					haxe.Log.trace("type check:",{ fileName : "ProxyMap.hx", lineNumber : 611, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules", customParams : [Type.getClass(type),signatureClass]});
 					var mapRule = new mvcexpress.core.inject.InjectRuleVO();
 					mapRule.varName = name;
-					mapRule.injectClassAndName = type + injectName;
-					mapRule.scopeName = scopeName;
+					mapRule.injectClassAndName = Std.string(type) + injectName;
+					mapRule.scopeName = scopeName != ""?scopeName:null;
 					retVal[retVal.length] = mapRule;
+					haxe.Log.trace(">> NEW injectRule : " + Std.string(mapRule),{ fileName : "ProxyMap.hx", lineNumber : 619, className : "mvcexpress.core.ProxyMap", methodName : "getInjectRules"});
 				}
 			}
 		}
@@ -9683,7 +9184,7 @@ mvcexpress.core.ProxyMap.prototype = {
 			++_g;
 			var scopename = rule.scopeName;
 			var injectClassAndName = rule.injectClassAndName;
-			if(scopename != null && scopename != "") {
+			if(scopename != null) {
 				if(!mvcexpress.core.ModuleManager.injectScopedProxy(object,rule)) {
 					if(mvcexpress.MvcExpress.pendingInjectsTimeOut > 0 && !js.Boot.__instanceof(object,mvcexpress.mvc.Command)) {
 						isAllInjected = false;
@@ -9873,6 +9374,13 @@ mvcexpress.core.ProxyMap.prototype = {
 		if(!this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) this.injectObjectRegistry.set(injectId,proxyObject); else throw "Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]";
 		return injectId;
 	}
+	,classConstRegistry: null
+	,lazyProxyRegistry: null
+	,pendingInjectionsRegistry: null
+	,injectObjectRegistry: null
+	,commandMap: null
+	,messenger: null
+	,moduleName: null
 	,__class__: mvcexpress.core.ProxyMap
 }
 mvcexpress.core.LazyProxyData = function() {
@@ -9880,7 +9388,11 @@ mvcexpress.core.LazyProxyData = function() {
 $hxClasses["mvcexpress.core.LazyProxyData"] = mvcexpress.core.LazyProxyData;
 mvcexpress.core.LazyProxyData.__name__ = ["mvcexpress","core","LazyProxyData"];
 mvcexpress.core.LazyProxyData.prototype = {
-	__class__: mvcexpress.core.LazyProxyData
+	proxyParams: null
+	,name: null
+	,injectClass: null
+	,proxyClass: null
+	,__class__: mvcexpress.core.LazyProxyData
 }
 mvcexpress.core.inject = {}
 mvcexpress.core.inject.InjectRuleVO = function() {
@@ -9891,6 +9403,9 @@ mvcexpress.core.inject.InjectRuleVO.prototype = {
 	toString: function() {
 		return "[InjectRuleVO varName=" + this.varName + " injectClassAndName=" + this.injectClassAndName + " scopeName=" + this.scopeName + "]";
 	}
+	,scopeName: null
+	,injectClassAndName: null
+	,varName: null
 	,__class__: mvcexpress.core.inject.InjectRuleVO
 }
 mvcexpress.core.inject.PendingInject = function(injectClassAndName,pendingObject,signatureClass,pendingInjectTime) {
@@ -9910,6 +9425,11 @@ mvcexpress.core.inject.PendingInject.prototype = {
 		this.timerId.stop();
 		this.timerId = null;
 	}
+	,timerId: null
+	,pendingInjectTime: null
+	,signatureClass: null
+	,pendingObject: null
+	,injectClassAndName: null
 	,__class__: mvcexpress.core.inject.PendingInject
 }
 mvcexpress.core.inject.TestInject = function() {
@@ -9921,6 +9441,7 @@ mvcexpress.core.inject.TestInject.prototype = {
 		var retVal = true;
 		return retVal;
 	}
+	,metadataTest: null
 	,__class__: mvcexpress.core.inject.TestInject
 }
 mvcexpress.core.messenger = {}
@@ -9929,7 +9450,10 @@ mvcexpress.core.messenger.HandlerVO = function() {
 $hxClasses["mvcexpress.core.messenger.HandlerVO"] = mvcexpress.core.messenger.HandlerVO;
 mvcexpress.core.messenger.HandlerVO.__name__ = ["mvcexpress","core","messenger","HandlerVO"];
 mvcexpress.core.messenger.HandlerVO.prototype = {
-	__class__: mvcexpress.core.messenger.HandlerVO
+	handlerClassName: null
+	,isExecutable: null
+	,handler: null
+	,__class__: mvcexpress.core.messenger.HandlerVO
 }
 mvcexpress.core.messenger.Messenger = function(moduleName) {
 	this.messageRegistry = new haxe.ds.StringMap();
@@ -10033,6 +9557,9 @@ mvcexpress.core.messenger.Messenger.prototype = {
 		}
 		return msgData;
 	}
+	,handlerRegistry: null
+	,messageRegistry: null
+	,moduleName: null
 	,__class__: mvcexpress.core.messenger.Messenger
 }
 mvcexpress.core.traceobjects = {}
@@ -10050,6 +9577,9 @@ mvcexpress.core.traceobjects.TraceObj.prototype = {
 	toString: function() {
 		return "[TraceObj moduleName=" + this.moduleName + " action=" + this.action + "]";
 	}
+	,canPrint: null
+	,action: null
+	,moduleName: null
 	,__class__: mvcexpress.core.traceobjects.TraceObj
 }
 mvcexpress.core.traceobjects.TraceObj_SendMessage = function(action,moduleName) {
@@ -10060,7 +9590,11 @@ $hxClasses["mvcexpress.core.traceobjects.TraceObj_SendMessage"] = mvcexpress.cor
 mvcexpress.core.traceobjects.TraceObj_SendMessage.__name__ = ["mvcexpress","core","traceobjects","TraceObj_SendMessage"];
 mvcexpress.core.traceobjects.TraceObj_SendMessage.__super__ = mvcexpress.core.traceobjects.TraceObj;
 mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj.prototype,{
-	__class__: mvcexpress.core.traceobjects.TraceObj_SendMessage
+	mediatorObject: null
+	,proxyObject: null
+	,commandObject: null
+	,moduleObject: null
+	,__class__: mvcexpress.core.traceobjects.TraceObj_SendMessage
 });
 mvcexpress.core.traceobjects.command = {}
 mvcexpress.core.traceobjects.command.TraceCommand_sendMessage = function(moduleName,commandObject,type,params,preSend) {
@@ -10074,7 +9608,9 @@ $hxClasses["mvcexpress.core.traceobjects.command.TraceCommand_sendMessage"] = mv
 mvcexpress.core.traceobjects.command.TraceCommand_sendMessage.__name__ = ["mvcexpress","core","traceobjects","command","TraceCommand_sendMessage"];
 mvcexpress.core.traceobjects.command.TraceCommand_sendMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.command.TraceCommand_sendMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.command.TraceCommand_sendMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.command.TraceCommand_sendMessage
 });
 mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage = function(moduleName,commandObject,type,params,preSend) {
 	mvcexpress.core.traceobjects.TraceObj_SendMessage.call(this,preSend?mvcexpress.core.traceobjects.MvcTraceActions.COMMAND_SENDSCOPEMESSAGE:mvcexpress.core.traceobjects.MvcTraceActions.COMMAND_SENDSCOPEMESSAGE_CLEAN,moduleName);
@@ -10087,7 +9623,9 @@ $hxClasses["mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage"]
 mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage.__name__ = ["mvcexpress","core","traceobjects","command","TraceCommand_sendScopeMessage"];
 mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage
 });
 mvcexpress.core.traceobjects.commandmap = {}
 mvcexpress.core.traceobjects.commandmap.TraceCommandMap_execute = function(moduleName,commandObject,commandClass,params) {
@@ -10103,6 +9641,14 @@ mvcexpress.core.traceobjects.commandmap.TraceCommandMap_execute.prototype = $ext
 	toString: function() {
 		return "©* " + mvcexpress.core.traceobjects.MvcTraceActions.COMMANDMAP_EXECUTE + " > commandClass : " + Std.string(this.commandClass) + ", params : " + Std.string(this.params) + "     {" + this.moduleName + "}";
 	}
+	,messageFromCommand: null
+	,messageFromProxy: null
+	,messageFromMediator: null
+	,messageFromModule: null
+	,view: null
+	,params: null
+	,commandClass: null
+	,commandObject: null
 	,__class__: mvcexpress.core.traceobjects.commandmap.TraceCommandMap_execute
 });
 mvcexpress.core.traceobjects.commandmap.TraceCommandMap_handleCommandExecute = function(moduleName,commandObject,commandClass,type,params) {
@@ -10119,6 +9665,15 @@ mvcexpress.core.traceobjects.commandmap.TraceCommandMap_handleCommandExecute.pro
 	toString: function() {
 		return "©* " + mvcexpress.core.traceobjects.MvcTraceActions.COMMANDMAP_HANDLECOMMANDEXECUTE + " > messageType : " + this.type + ", params : " + Std.string(this.params) + " Executed with : " + Std.string(this.commandClass) + "{" + this.moduleName + "}";
 	}
+	,messageFromCommand: null
+	,messageFromProxy: null
+	,messageFromMediator: null
+	,messageFromModule: null
+	,view: null
+	,params: null
+	,type: null
+	,commandClass: null
+	,commandObject: null
 	,__class__: mvcexpress.core.traceobjects.commandmap.TraceCommandMap_handleCommandExecute
 });
 mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map = function(moduleName,type,commandClass) {
@@ -10133,6 +9688,8 @@ mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map.prototype = $extend(
 	toString: function() {
 		return "©©©+ " + mvcexpress.core.traceobjects.MvcTraceActions.COMMANDMAP_MAP + " > type : " + this.type + ", commandClass : " + Std.string(this.commandClass) + "     {" + this.moduleName + "}";
 	}
+	,commandClass: null
+	,type: null
 	,__class__: mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map
 });
 mvcexpress.core.traceobjects.commandmap.TraceCommandMap_unmap = function(moduleName,type,commandClass) {
@@ -10147,6 +9704,8 @@ mvcexpress.core.traceobjects.commandmap.TraceCommandMap_unmap.prototype = $exten
 	toString: function() {
 		return "©©©- " + mvcexpress.core.traceobjects.MvcTraceActions.COMMANDMAP_UNMAP + " > type : " + this.type + ", commandClass : " + Std.string(this.commandClass) + "     {" + this.moduleName + "}";
 	}
+	,commandClass: null
+	,type: null
 	,__class__: mvcexpress.core.traceobjects.commandmap.TraceCommandMap_unmap
 });
 mvcexpress.core.traceobjects.mediator = {}
@@ -10161,7 +9720,10 @@ $hxClasses["mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler"] = m
 mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler.__name__ = ["mvcexpress","core","traceobjects","mediator","TraceMediator_addHandler"];
 mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler.__super__ = mvcexpress.core.traceobjects.TraceObj;
 mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler.prototype = $extend(mvcexpress.core.traceobjects.TraceObj.prototype,{
-	__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler
+	mediatorObject: null
+	,handler: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler
 });
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage = function(moduleName,mediatorObject,type,params,preSend) {
 	mvcexpress.core.traceobjects.TraceObj_SendMessage.call(this,preSend?mvcexpress.core.traceobjects.MvcTraceActions.MEDIATOR_SENDMESSAGE:mvcexpress.core.traceobjects.MvcTraceActions.MEDIATOR_SENDMESSAGE_CLEAN,moduleName);
@@ -10174,7 +9736,9 @@ $hxClasses["mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage"] = 
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage.__name__ = ["mvcexpress","core","traceobjects","mediator","TraceMediator_sendMessage"];
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage
 });
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage = function(moduleName,mediatorObject,type,params,preSend) {
 	mvcexpress.core.traceobjects.TraceObj_SendMessage.call(this,preSend?mvcexpress.core.traceobjects.MvcTraceActions.MEDIATOR_SENDSCOPEMESSAGE:mvcexpress.core.traceobjects.MvcTraceActions.MEDIATOR_SENDSCOPEMESSAGE_CLEAN,moduleName);
@@ -10187,7 +9751,9 @@ $hxClasses["mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage.__name__ = ["mvcexpress","core","traceobjects","mediator","TraceMediator_sendScopeMessage"];
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage
 });
 mvcexpress.core.traceobjects.mediatormap = {}
 mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_map = function(moduleName,viewClass,mediatorClass) {
@@ -10202,6 +9768,8 @@ mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_map.prototype = $exten
 	toString: function() {
 		return "§§§+ " + mvcexpress.core.traceobjects.MvcTraceActions.MEDIATORMAP_MAP + " > viewClass : " + Std.string(this.viewClass) + ", mediatorClass : " + Std.string(this.mediatorClass) + "     {" + this.moduleName + "}";
 	}
+	,mediatorClass: null
+	,viewClass: null
 	,__class__: mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_map
 });
 mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_mediate = function(moduleName,viewObject,mediatorObject,viewClass,mediatorClass,mediatorClassName) {
@@ -10219,6 +9787,14 @@ mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_mediate.prototype = $e
 	toString: function() {
 		return "§*+ " + mvcexpress.core.traceobjects.MvcTraceActions.MEDIATORMAP_MEDIATE + " > viewObject : " + Std.string(this.viewObject) + " (viewClass:" + Std.string(this.viewClass) + ")" + " WITH > mediatorClass : " + Std.string(this.mediatorClass) + "     {" + this.moduleName + "}";
 	}
+	,handleObjects: null
+	,dependencies: null
+	,view: null
+	,mediatorClassName: null
+	,mediatorClass: null
+	,viewClass: null
+	,mediatorObject: null
+	,viewObject: null
 	,__class__: mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_mediate
 });
 mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmap = function(moduleName,viewClass) {
@@ -10232,6 +9808,7 @@ mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmap.prototype = $ext
 	toString: function() {
 		return "§§§- " + mvcexpress.core.traceobjects.MvcTraceActions.MEDIATORMAP_UNMAP + " > viewClass : " + Std.string(this.viewClass) + "     {" + this.moduleName + "}";
 	}
+	,viewClass: null
 	,__class__: mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmap
 });
 mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate = function(moduleName,viewObject) {
@@ -10245,6 +9822,11 @@ mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate.prototype = 
 	toString: function() {
 		return "§*- " + mvcexpress.core.traceobjects.MvcTraceActions.MEDIATORMAP_UNMEDIATE + " > viewObject : " + Std.string(this.viewObject) + "     {" + this.moduleName + "}";
 	}
+	,mediatorClassName: null
+	,mediatorClass: null
+	,viewClass: null
+	,mediatorObject: null
+	,viewObject: null
 	,__class__: mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate
 });
 mvcexpress.core.traceobjects.messenger = {}
@@ -10261,6 +9843,9 @@ mvcexpress.core.traceobjects.messenger.TraceMessenger_addHandler.prototype = $ex
 	toString: function() {
 		return "••<+ " + mvcexpress.core.traceobjects.MvcTraceActions.MESSENGER_ADDHANDLER + " > type : " + this.type + ", handlerClassName : " + this.handlerClassName + "     {" + this.moduleName + "}";
 	}
+	,handlerClassName: null
+	,handler: null
+	,type: null
 	,__class__: mvcexpress.core.traceobjects.messenger.TraceMessenger_addHandler
 });
 mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler = function(moduleName,ptype,phandler) {
@@ -10275,6 +9860,8 @@ mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler.prototype = 
 	toString: function() {
 		return "••<- " + mvcexpress.core.traceobjects.MvcTraceActions.MESSENGER_REMOVEHANDLER + " > type : " + this.type + "     {" + this.moduleName + "}";
 	}
+	,handler: null
+	,type: null
 	,__class__: mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler
 });
 mvcexpress.core.traceobjects.messenger.TraceMessenger_send = function(moduleName,type,params) {
@@ -10289,6 +9876,8 @@ mvcexpress.core.traceobjects.messenger.TraceMessenger_send.prototype = $extend(m
 	toString: function() {
 		return "•> " + mvcexpress.core.traceobjects.MvcTraceActions.MESSENGER_SEND + " > type : " + this.type + ", params : " + Std.string(this.params) + "     {" + this.moduleName + "}";
 	}
+	,params: null
+	,type: null
 	,__class__: mvcexpress.core.traceobjects.messenger.TraceMessenger_send
 });
 mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler = function(moduleName,type,params,handler,handlerClassName) {
@@ -10303,7 +9892,15 @@ $hxClasses["mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler"]
 mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler.__name__ = ["mvcexpress","core","traceobjects","messenger","TraceMessenger_send_handler"];
 mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler.__super__ = mvcexpress.core.traceobjects.TraceObj;
 mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler.prototype = $extend(mvcexpress.core.traceobjects.TraceObj.prototype,{
-	__class__: mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler
+	messageFromCommand: null
+	,messageFromProxy: null
+	,messageFromMediator: null
+	,messageFromModule: null
+	,handlerClassName: null
+	,handler: null
+	,params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler
 });
 mvcexpress.core.traceobjects.modulebase = {}
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage = function(moduleName,moduleObject,type,params,preSend) {
@@ -10317,7 +9914,9 @@ $hxClasses["mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage"
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage.__name__ = ["mvcexpress","core","traceobjects","modulebase","TraceModuleBase_sendMessage"];
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage
 });
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage = function(moduleName,moduleObject,type,params,preSend) {
 	mvcexpress.core.traceobjects.TraceObj_SendMessage.call(this,preSend?mvcexpress.core.traceobjects.MvcTraceActions.MODULEBASE_SENDSCOPEMESSAGE:mvcexpress.core.traceobjects.MvcTraceActions.MODULEBASE_SENDSCOPEMESSAGE_CLEAN,moduleName);
@@ -10330,7 +9929,9 @@ $hxClasses["mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMes
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage.__name__ = ["mvcexpress","core","traceobjects","modulebase","TraceModuleBase_sendScopeMessage"];
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage
 });
 mvcexpress.core.traceobjects.modulemanager = {}
 mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule = function(moduleName,autoInit) {
@@ -10344,6 +9945,7 @@ mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule.proto
 	toString: function() {
 		return "#####+ " + mvcexpress.core.traceobjects.MvcTraceActions.MODULEMANAGER_CREATEMODULE + " > moduleName : " + this.moduleName + ", autoInit : " + Std.string(this.autoInit);
 	}
+	,autoInit: null
 	,__class__: mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule
 });
 mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_disposeModule = function(moduleName) {
@@ -10372,6 +9974,10 @@ mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_registerScope.prot
 	toString: function() {
 		return "##**++ " + mvcexpress.core.traceobjects.MvcTraceActions.MODULEMANAGER_CREATEMODULE + " > moduleName : " + this.moduleName + " scopeName=" + this.scopeName + " messageSending=" + Std.string(this.messageSending) + " messageReceiving=" + Std.string(this.messageReceiving) + " proxieMap=" + Std.string(this.proxieMap) + "]";
 	}
+	,proxieMap: null
+	,messageReceiving: null
+	,messageSending: null
+	,scopeName: null
 	,__class__: mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_registerScope
 });
 mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_unregisterScope = function(moduleName,scopeName) {
@@ -10385,6 +9991,7 @@ mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_unregisterScope.pr
 	toString: function() {
 		return "##**-- " + mvcexpress.core.traceobjects.MvcTraceActions.MODULEMANAGER_UNREGISTERSCOPE + " > moduleName : " + this.moduleName + ", scopeName : " + this.scopeName;
 	}
+	,scopeName: null
 	,__class__: mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_unregisterScope
 });
 mvcexpress.core.traceobjects.proxy = {}
@@ -10398,7 +10005,9 @@ $hxClasses["mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage"] = mvcexp
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage.__name__ = ["mvcexpress","core","traceobjects","proxy","TraceProxy_sendMessage"];
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage
 });
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage = function(moduleName,proxyObject,type,params,preSend) {
 	mvcexpress.core.traceobjects.TraceObj_SendMessage.call(this,preSend?mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE:mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE_CLEAN,moduleName);
@@ -10411,7 +10020,9 @@ $hxClasses["mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage"] = m
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage.__name__ = ["mvcexpress","core","traceobjects","proxy","TraceProxy_sendScopeMessage"];
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage.__super__ = mvcexpress.core.traceobjects.TraceObj_SendMessage;
 mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage.prototype = $extend(mvcexpress.core.traceobjects.TraceObj_SendMessage.prototype,{
-	__class__: mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage
+	params: null
+	,type: null
+	,__class__: mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage
 });
 mvcexpress.core.traceobjects.proxymap = {}
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectPending = function(moduleName,hostObject,injectObject,rule) {
@@ -10427,6 +10038,9 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectPending.prototype = $e
 	toString: function() {
 		return "!!!!! " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_INJECTPENDING + " > for id:" + this.rule.injectClassAndName + "(needed in " + Std.string(this.hostObject) + ")" + "     {" + this.moduleName + "}";
 	}
+	,rule: null
+	,injectObject: null
+	,hostObject: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectPending
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff = function(moduleName,hostObject,injectObject,rule) {
@@ -10440,7 +10054,10 @@ $hxClasses["mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff"] = 
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff.__name__ = ["mvcexpress","core","traceobjects","proxymap","TraceProxyMap_injectStuff"];
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff.__super__ = mvcexpress.core.traceobjects.TraceObj;
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff.prototype = $extend(mvcexpress.core.traceobjects.TraceObj.prototype,{
-	__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff
+	rule: null
+	,injectObject: null
+	,hostObject: null
+	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap = function(moduleName,proxyClass,injectClass,name,proxyParams) {
 	mvcexpress.core.traceobjects.TraceObj.call(this,mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_LAZYMAP,moduleName);
@@ -10456,6 +10073,12 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap.prototype = $extend(
 	toString: function() {
 		return "¶¶¶+ " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_LAZYMAP + " > proxyClass : " + Std.string(this.proxyClass) + ", injectClass : " + Std.string(this.injectClass) + ", name : " + this.name + ", proxyParams : " + Std.string(this.proxyParams) + "     {" + this.moduleName + "}";
 	}
+	,view: null
+	,dependencies: null
+	,proxyParams: null
+	,name: null
+	,injectClass: null
+	,proxyClass: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_map = function(moduleName,proxyObject,injectClass,name) {
@@ -10471,6 +10094,11 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_map.prototype = $extend(mvce
 	toString: function() {
 		return "¶¶¶+ " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_MAP + " > proxyObject : " + Std.string(this.proxyObject) + ", injectClass : " + Std.string(this.injectClass) + ", name : " + this.name + "     {" + this.moduleName + "}";
 	}
+	,view: null
+	,dependencies: null
+	,name: null
+	,injectClass: null
+	,proxyObject: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_map
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeMap = function(moduleName,scopeName,proxyObject,injectClass,name) {
@@ -10487,6 +10115,12 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeMap.prototype = $extend
 	toString: function() {
 		return "{}¶¶¶+ " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_SCOPEMAP + " > scopeName : " + this.scopeName + "proxyObject : " + Std.string(this.proxyObject) + ", injectClass : " + Std.string(this.injectClass) + ", name : " + this.name + "     {" + this.moduleName + "}";
 	}
+	,view: null
+	,dependencies: null
+	,name: null
+	,injectClass: null
+	,proxyObject: null
+	,scopeName: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeMap
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeUnmap = function(moduleName,scopeName,injectClass,name) {
@@ -10502,6 +10136,11 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeUnmap.prototype = $exte
 	toString: function() {
 		return "{}¶¶¶¶- " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_SCOPEUNMAP + " > scopeName : " + this.scopeName + ", injectClass : " + Std.string(this.injectClass) + ", name : " + this.name + "     {" + this.moduleName + "}";
 	}
+	,view: null
+	,dependencies: null
+	,name: null
+	,injectClass: null
+	,scopeName: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeUnmap
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopedInjectPending = function(scopeName,moduleName,hostObject,injectObject,rule) {
@@ -10518,6 +10157,10 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopedInjectPending.prototyp
 	toString: function() {
 		return "!!!!! " + mvcexpress.core.traceobjects.MvcTraceActions.PROXYMAP_INJECTPENDING + " > for scopeName:" + this.scopeName + " with id:" + this.rule.injectClassAndName + "(needed in " + Std.string(this.hostObject) + ")" + "     {" + this.moduleName + "}";
 	}
+	,rule: null
+	,injectObject: null
+	,hostObject: null
+	,scopeName: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopedInjectPending
 });
 mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap = function(moduleName,injectClass,name) {
@@ -10532,6 +10175,10 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap.prototype = $extend(mv
 	toString: function() {
 		return "¶¶¶¶- " + mvcexpress.core.traceobjects.MvcTraceActions.COMMANDMAP_UNMAP + " > injectClass : " + Std.string(this.injectClass) + ", name : " + this.name + "     {" + this.moduleName + "}";
 	}
+	,view: null
+	,dependencies: null
+	,name: null
+	,injectClass: null
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap
 });
 mvcexpress.mvc = {}
@@ -10564,6 +10211,12 @@ mvcexpress.mvc.Command.prototype = {
 		this.messenger.send(type,params);
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,false));
 	}
+	,isExecuting: null
+	,messageType: null
+	,messenger: null
+	,mediatorMap: null
+	,proxyMap: null
+	,commandMap: null
 	,__class__: mvcexpress.mvc.Command
 }
 mvcexpress.mvc.Mediator = function() {
@@ -10693,6 +10346,15 @@ mvcexpress.mvc.Mediator.prototype = {
 	}
 	,onRegister: function() {
 	}
+	,eventListenerCaptureRegistry: null
+	,eventListenerRegistry: null
+	,handlerVoRegistry: null
+	,pendingInjections: null
+	,_isReady: null
+	,messenger: null
+	,mediatorMap: null
+	,proxyMap: null
+	,moduleName: null
 	,__class__: mvcexpress.mvc.Mediator
 	,__properties__: {get_isReady:"get_isReady"}
 }
@@ -10715,6 +10377,7 @@ mvcexpress.mvc.PooledCommand.prototype = $extend(mvcexpress.mvc.Command.prototyp
 	,get_isLocked: function() {
 		return this._isLocked;
 	}
+	,_isLocked: null
 	,__class__: mvcexpress.mvc.PooledCommand
 	,__properties__: {get_isLocked:"get_isLocked"}
 });
@@ -10794,6 +10457,12 @@ mvcexpress.mvc.Proxy.prototype = {
 	}
 	,onRegister: function() {
 	}
+	,pendingInjections: null
+	,dependantCommands: null
+	,proxyScopes: null
+	,messenger: null
+	,_isReady: null
+	,proxyMap: null
 	,__class__: mvcexpress.mvc.Proxy
 	,__properties__: {get_isReady:"get_isReady"}
 }
@@ -10823,7 +10492,6 @@ mvcexpress.utils.MvcExpressTools.checkClassStringConstants = function(args) {
 					var j = _g3[_g2];
 					++_g2;
 					var value = Reflect.field(constantClass,j);
-					haxe.Log.trace("eee:",{ fileName : "MvcExpressTools.hx", lineNumber : 51, className : "mvcexpress.utils.MvcExpressTools", methodName : "checkClassStringConstants", customParams : [value]});
 					if(js.Boot.__instanceof(value,String)) {
 						if(mvcexpress.utils.StringConstantRegistry.stringRegistry.exists(value)) throw "Class " + Std.string(constantClass) + " and " + Std.string(Reflect.field(mvcexpress.utils.StringConstantRegistry.stringRegistry,value)) + " have same string constant value : " + value; else mvcexpress.utils.StringConstantRegistry.stringRegistry.set(value,constantClass);
 					}
@@ -10842,24 +10510,31 @@ mvcexpress.utils.RttiHelper.__name__ = ["mvcexpress","utils","RttiHelper"];
 mvcexpress.utils.RttiHelper.getMetaFields = function(type) {
 	var metalist = new Array();
 	while(type != null) {
+		var allFields = Type.getInstanceFields(type);
 		var typeMeta = haxe.rtti.Meta.getFields(type);
-		var rtti = type.__rtti;
-		if(rtti == null) break;
-		var infos = new haxe.rtti.XmlParser().processElement(Xml.parse(rtti).firstElement());
-		var _g = 0, _g1 = Reflect.fields(infos);
-		while(_g < _g1.length) {
-			var i = _g1[_g];
-			++_g;
-			haxe.Log.trace("infos:>>" + Std.string(Reflect.field(infos,i)),{ fileName : "RttiHelper.hx", lineNumber : 23, className : "mvcexpress.utils.RttiHelper", methodName : "getMetaFields"});
-		}
+		var meta = { };
 		var _g = 0, _g1 = Reflect.fields(typeMeta);
 		while(_g < _g1.length) {
 			var field = _g1[_g];
 			++_g;
-			var meta = { };
 			meta[field] = Reflect.field(typeMeta,field);
-			metalist.push(meta);
 		}
+		var _g = 0, _g1 = Reflect.fields(allFields);
+		while(_g < _g1.length) {
+			var field = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = Reflect.fields(meta);
+			while(_g2 < _g3.length) {
+				var k = _g3[_g2];
+				++_g2;
+				if(k == allFields[field]) {
+					var obj = Type.createInstance(type,[]);
+					haxe.Log.trace(Type["typeof"](Reflect.field(obj,k)),{ fileName : "RttiHelper.hx", lineNumber : 30, className : "mvcexpress.utils.RttiHelper", methodName : "getMetaFields"});
+					haxe.Log.trace("all fields > " + k + ">" + allFields[field] + Std.string(Type["typeof"](allFields[field])),{ fileName : "RttiHelper.hx", lineNumber : 31, className : "mvcexpress.utils.RttiHelper", methodName : "getMetaFields"});
+				}
+			}
+		}
+		metalist.push(meta);
 		type = Type.getSuperClass(type);
 	}
 	return metalist;
@@ -10885,6 +10560,9 @@ openfl.display.Tilesheet.prototype = {
 		this.nmeCenterPoints.push(centerPoint);
 		return this.nmeTileRects.length - 1;
 	}
+	,nmeTileRects: null
+	,nmeCenterPoints: null
+	,nmeBitmap: null
 	,__class__: openfl.display.Tilesheet
 }
 var suites = {}
@@ -10897,7 +10575,9 @@ $hxClasses["suites.TestViewEvent"] = suites.TestViewEvent;
 suites.TestViewEvent.__name__ = ["suites","TestViewEvent"];
 suites.TestViewEvent.__super__ = flash.events.Event;
 suites.TestViewEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: suites.TestViewEvent
+	testClass: null
+	,messageType: null
+	,__class__: suites.TestViewEvent
 });
 suites.general = {}
 suites.general.GeneralTests = function() {
@@ -11025,6 +10705,11 @@ suites.mediatormap.MediatorMapTests.prototype = {
 		Reflect.field(this,funcName).apply(this,[]);
 		this.runAfterEveryTest();
 	}
+	,callsExpected: null
+	,callCaunter: null
+	,mediatorMap: null
+	,proxyMap: null
+	,messenger: null
 	,__class__: suites.mediatormap.MediatorMapTests
 }
 suites.mediatormap.medatormaptestobj = {}
@@ -11127,6 +10812,10 @@ suites.mediators.MediatorTests.prototype = {
 		Reflect.field(this,funcName).apply(this,[]);
 		this.runAfterEveryTest();
 	}
+	,testView: null
+	,mediatorMap: null
+	,proxyMap: null
+	,messenger: null
 	,__class__: suites.mediators.MediatorTests
 }
 suites.messenger = {}
@@ -11180,8 +10869,57 @@ suites.messenger.MessengerTests.prototype = {
 		Reflect.field(this,funcName).apply(this,[]);
 		this.runAfterEveryTest();
 	}
+	,messenger: null
 	,__class__: suites.messenger.MessengerTests
 }
+suites.modules = {}
+suites.modules.ModularTests = function() {
+	this.modules_construct_core_module();
+	this.modules_construct_sprite_module();
+	this.modules_construct_movieclip_module();
+};
+$hxClasses["suites.modules.ModularTests"] = suites.modules.ModularTests;
+suites.modules.ModularTests.__name__ = ["suites","modules","ModularTests"];
+suites.modules.ModularTests.prototype = {
+	modules_construct_movieclip_module: function() {
+		new suites.modules.objects.MovieClipModuleTester();
+	}
+	,modules_construct_sprite_module: function() {
+		new suites.modules.objects.SpriteModuleTester();
+	}
+	,modules_construct_core_module: function() {
+		new suites.modules.objects.CoreModuleTester();
+	}
+	,__class__: suites.modules.ModularTests
+}
+suites.modules.objects = {}
+suites.modules.objects.CoreModuleTester = function() {
+	mvcexpress.modules.ModuleCore.call(this);
+};
+$hxClasses["suites.modules.objects.CoreModuleTester"] = suites.modules.objects.CoreModuleTester;
+suites.modules.objects.CoreModuleTester.__name__ = ["suites","modules","objects","CoreModuleTester"];
+suites.modules.objects.CoreModuleTester.__super__ = mvcexpress.modules.ModuleCore;
+suites.modules.objects.CoreModuleTester.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	__class__: suites.modules.objects.CoreModuleTester
+});
+suites.modules.objects.MovieClipModuleTester = function() {
+	mvcexpress.modules.ModuleMovieClip.call(this);
+};
+$hxClasses["suites.modules.objects.MovieClipModuleTester"] = suites.modules.objects.MovieClipModuleTester;
+suites.modules.objects.MovieClipModuleTester.__name__ = ["suites","modules","objects","MovieClipModuleTester"];
+suites.modules.objects.MovieClipModuleTester.__super__ = mvcexpress.modules.ModuleMovieClip;
+suites.modules.objects.MovieClipModuleTester.prototype = $extend(mvcexpress.modules.ModuleMovieClip.prototype,{
+	__class__: suites.modules.objects.MovieClipModuleTester
+});
+suites.modules.objects.SpriteModuleTester = function() {
+	mvcexpress.modules.ModuleSprite.call(this);
+};
+$hxClasses["suites.modules.objects.SpriteModuleTester"] = suites.modules.objects.SpriteModuleTester;
+suites.modules.objects.SpriteModuleTester.__name__ = ["suites","modules","objects","SpriteModuleTester"];
+suites.modules.objects.SpriteModuleTester.__super__ = mvcexpress.modules.ModuleSprite;
+suites.modules.objects.SpriteModuleTester.prototype = $extend(mvcexpress.modules.ModuleSprite.prototype,{
+	__class__: suites.modules.objects.SpriteModuleTester
+});
 suites.proxymap = {}
 suites.proxymap.NamedInterfacedProxyMapTests = function() {
 	this.runBeforeEveryTest();
@@ -11215,11 +10953,15 @@ suites.proxymap.NamedInterfacedProxyMapTests.prototype = {
 		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
 		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
 	}
+	,namedTestingProxy: null
+	,proxyMap: null
+	,messenger: null
 	,__class__: suites.proxymap.NamedInterfacedProxyMapTests
 }
 suites.proxymap.OldProxyMapTests = function() {
-	this.testFunction("using_class_proxy");
 	this.testFunction("using_object_test");
+	this.testFunction("using_object_proxy_twice_both_should_be_equal");
+	this.testFunction("mapping_object_proxy_twice_throws_error");
 	this.testFunction("mappings_does_not_exists_throws_error");
 	this.testFunction("removing_class_proxy");
 	this.testFunction("removing_object_proxy");
@@ -11322,6 +11064,10 @@ suites.proxymap.OldProxyMapTests.prototype = {
 		Reflect.field(this,funcName).apply(this,[]);
 		this.runAfterEveryTest();
 	}
+	,callsExpected: null
+	,callCaunter: null
+	,proxyMap: null
+	,messenger: null
 	,__class__: suites.proxymap.OldProxyMapTests
 }
 suites.proxymap.namedproxytestobj = {}
@@ -11332,18 +11078,36 @@ $hxClasses["suites.proxymap.namedproxytestobj.NamedProxyTestingProxy"] = suites.
 suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__name__ = ["suites","proxymap","namedproxytestobj","NamedProxyTestingProxy"];
 suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__super__ = mvcexpress.mvc.Proxy;
 suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
-	__class__: suites.proxymap.namedproxytestobj.NamedProxyTestingProxy
+	proxyNamedNotNullClass: null
+	,proxyNamed: null
+	,proxyNamedInterface: null
+	,proxyInterface: null
+	,proxy: null
+	,__class__: suites.proxymap.namedproxytestobj.NamedProxyTestingProxy
 });
 suites.proxymap.proxytestobj = {}
 suites.proxymap.proxytestobj.ITestProxy = function() { }
 $hxClasses["suites.proxymap.proxytestobj.ITestProxy"] = suites.proxymap.proxytestobj.ITestProxy;
 suites.proxymap.proxytestobj.ITestProxy.__name__ = ["suites","proxymap","proxytestobj","ITestProxy"];
+suites.proxymap.proxytestobj.DifferentProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["suites.proxymap.proxytestobj.DifferentProxy"] = suites.proxymap.proxytestobj.DifferentProxy;
+suites.proxymap.proxytestobj.DifferentProxy.__name__ = ["suites","proxymap","proxytestobj","DifferentProxy"];
+suites.proxymap.proxytestobj.DifferentProxy.__interfaces__ = [suites.proxymap.proxytestobj.ITestProxy];
+suites.proxymap.proxytestobj.DifferentProxy.__super__ = mvcexpress.mvc.Proxy;
+suites.proxymap.proxytestobj.DifferentProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	__class__: suites.proxymap.proxytestobj.DifferentProxy
+});
 suites.proxymap.proxytestobj.ProxyTestObj = function() {
 };
 $hxClasses["suites.proxymap.proxytestobj.ProxyTestObj"] = suites.proxymap.proxytestobj.ProxyTestObj;
 suites.proxymap.proxytestobj.ProxyTestObj.__name__ = ["suites","proxymap","proxytestobj","ProxyTestObj"];
 suites.proxymap.proxytestobj.ProxyTestObj.prototype = {
-	__class__: suites.proxymap.proxytestobj.ProxyTestObj
+	testProxy2: null
+	,testProxy1112: null
+	,testProxy: null
+	,__class__: suites.proxymap.proxytestobj.ProxyTestObj
 }
 suites.proxymap.proxytestobj.TestProxy = function() {
 	mvcexpress.mvc.Proxy.call(this);
@@ -11353,7 +11117,8 @@ suites.proxymap.proxytestobj.TestProxy.__name__ = ["suites","proxymap","proxytes
 suites.proxymap.proxytestobj.TestProxy.__interfaces__ = [suites.proxymap.proxytestobj.ITestProxy];
 suites.proxymap.proxytestobj.TestProxy.__super__ = mvcexpress.mvc.Proxy;
 suites.proxymap.proxytestobj.TestProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
-	__class__: suites.proxymap.proxytestobj.TestProxy
+	different: null
+	,__class__: suites.proxymap.proxytestobj.TestProxy
 });
 suites.testobjects = {}
 suites.testobjects.ITestObject = function() { }
@@ -11419,6 +11184,8 @@ suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mv
 		this.view.addEventListener(suites.TestViewEvent.TRIGER_ADD_HANDLER,$bind(this,this.addTestHandler));
 		suites.testobjects.view.MediatorSpriteMediator.instance = this;
 	}
+	,view: null
+	,test: null
 	,__class__: suites.testobjects.view.MediatorSpriteMediator
 });
 suites.utils = {}
@@ -11627,6 +11394,10 @@ utils.AsyncUtil.prototype = $extend(flash.events.EventDispatcher.prototype,{
 		if(this._passThroughArgs != null) this._callbackArgs = this._callbackArgs.concat(this._passThroughArgs);
 		if(this._callback != null) this._callback.apply(null,this._callbackArgs);
 	}
+	,_callbackArgs: null
+	,_passThroughArgs: null
+	,_callback: null
+	,_testCase: null
 	,__class__: utils.AsyncUtil
 });
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
@@ -11663,13 +11434,6 @@ var Bool = $hxClasses.Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = $hxClasses.Class = { __name__ : ["Class"]};
 var Enum = { };
-Xml.Element = "element";
-Xml.PCData = "pcdata";
-Xml.CData = "cdata";
-Xml.Comment = "comment";
-Xml.DocType = "doctype";
-Xml.ProcessingInstruction = "processingInstruction";
-Xml.Document = "document";
 haxe.Resource.content = [];
 flash.display.DisplayObject.GRAPHICS_INVALID = 2;
 flash.display.DisplayObject.MATRIX_INVALID = 4;
@@ -12065,18 +11829,6 @@ haxe.Template.expr_int = new EReg("^[0-9]+$","");
 haxe.Template.expr_float = new EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","");
 haxe.Template.globals = { };
 haxe.ds.ObjectMap.count = 0;
-haxe.xml.Parser.escapes = (function($this) {
-	var $r;
-	var h = new haxe.ds.StringMap();
-	h.set("lt","<");
-	h.set("gt",">");
-	h.set("amp","&");
-	h.set("quot","\"");
-	h.set("apos","'");
-	h.set("nbsp",String.fromCharCode(160));
-	$r = h;
-	return $r;
-}(this));
 integration.moduleinittests.testobj.InitTestModuleCore.NAME = "InitTestModuleCore";
 integration.moduleinittests.testobj.InitTestModuleMovieClip.NAME = "InitTestModuleMovieClip";
 integration.moduleinittests.testobj.InitTestModuleSprite.NAME = "InitTestModuleSprite";
@@ -12159,10 +11911,10 @@ suites.TestViewEvent.REMOVE_LOCAL_HANDLER = "removeLocalHandler";
 suites.TestViewEvent.REMOVE_REMOTE_HANDLER = "removeRemoteHandler";
 suites.TestViewEvent.TEST_GET_PROXY_CLASS = "testGetProxyClass";
 suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE = "mediatorMapTestType";
-suites.proxymap.proxytestobj.ProxyTestObj.__meta__ = { fields : { testProxy2 : { inject : null}, testProxy : { inject : null}}};
+suites.proxymap.proxytestobj.ProxyTestObj.__meta__ = { fields : { testProxy2 : { inject : null}, testProxy : { inject : [{ name : "toto", scope : "tata"}]}}};
+suites.proxymap.proxytestobj.TestProxy.__meta__ = { fields : { different : { inject : null}}};
 suites.testobjects.view.MediatorSpriteMediator.__meta__ = { fields : { view : { inject : null}, test : { inject : null}}};
 suites.utils.objects.ConstantsA.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
-suites.utils.objects.ConstantsA.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";
 suites.utils.objects.ConstantsAB.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";
 suites.utils.objects.ConstantsB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";

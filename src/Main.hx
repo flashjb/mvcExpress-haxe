@@ -7,7 +7,7 @@ import suites.mediators.MediatorTests;
 import suites.mediatormap.MediatorMapTests;
 import suites.proxymap.OldProxyMapTests;
 import suites.proxymap.NamedInterfacedProxyMapTests;
-//import suites.modules.ModularTests;
+import suites.modules.ModularTests;
 import suites.utils.UtilsTests;
 import mvcexpress.MvcExpress;
 
@@ -22,12 +22,12 @@ class Main
 		//new ModuleInitTests();
 		//new MessengerTests();
 		//new OldProxyMapTests();
-		//new NamedInterfacedProxyMapTests();
+		new NamedInterfacedProxyMapTests();
 		//new MediatorMapTests();
 		//new MediatorTests();
 		
 		//new ModularTests();
-		new UtilsTests();
+		//new UtilsTests();
 	}
 	
 	public static function main() 
