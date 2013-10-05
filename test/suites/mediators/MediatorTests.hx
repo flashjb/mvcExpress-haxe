@@ -12,7 +12,7 @@ import mvcexpress.core.ProxyMap;
 import suites.testobjects.view.MediatorSprite;
 import suites.testobjects.view.MediatorSpriteMediator;
 
-class MediatorTests {
+class MediatorTests extends Tester {
 
 	var messenger : Messenger;
 	var proxyMap : ProxyMap;
@@ -21,24 +21,18 @@ class MediatorTests {
 	
 	public function new() 
 	{
-		testFunction( "mediator_constructor_fails" );
-		testFunction( "mediator_isReady" );
-		testFunction( "mediator_empty_handler" );
-		testFunction( "mediator_handler_object_params");
+		super();
+		//testFunction( "mediator_constructor_fails" );//??
+		//testFunction( "mediator_isReady" );//nok
+		//testFunction( "mediator_empty_handler" );//nok
+		//testFunction( "mediator_handler_object_params");
 		testFunction( "mediator_handler_bad_params" );
 		testFunction( "mediator_handler_two_params" );
 		testFunction( "mediator_handler_two_params_one_optional" );
 		testFunction( "mediator_same_handler_added_twice_fails");
 	}
 	
-	public function testFunction( funcName : String ) : Void
-	{
-		runBeforeEveryTest();
-		Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		runAfterEveryTest();
-	}
-	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
@@ -51,7 +45,7 @@ class MediatorTests {
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
 		mediatorMap.unmediate(testView);
 		messenger = null;

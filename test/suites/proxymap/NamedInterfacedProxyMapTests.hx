@@ -13,7 +13,7 @@ import suites.proxymap.proxytestobj.ITestProxy;
 import suites.proxymap.proxytestobj.TestProxy;
 import suites.proxymap.namedproxytestobj.NamedProxyTestingProxy;
 
-class NamedInterfacedProxyMapTests {
+class NamedInterfacedProxyMapTests extends Tester {
 
 	var messenger : Messenger;
 	var proxyMap : ProxyMap;
@@ -21,12 +21,11 @@ class NamedInterfacedProxyMapTests {
 	
 	public function new()
 	{
-		runBeforeEveryTest();
-		class_proxy_not_null();
-		runAfterEveryTest();
+		super();
+		testFunction("class_proxy_not_null");
 	}
 	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
@@ -35,7 +34,7 @@ class NamedInterfacedProxyMapTests {
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;

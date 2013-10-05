@@ -13,6 +13,33 @@ class ChannelingTests {
 	var channelModulA : ChannelModuleA;
 	var channelModulB : ChannelModuleB;
 	
+	
+	public function new() 
+	{
+		testFunction( "channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage" );
+		testFunction( "channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing" );
+		testFunction( "channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");
+		testFunction( "channeling_moduleToModuleChanneling_add2ChannelHandler_sendsMessage" );
+		testFunction( "channeling_moduleToModuleChanneling_addChannelHandler_sendsMessageWithParams" );
+		testFunction( "channeling_messegeToCommandChanneling_addChannelCommand_commandsHandlesMessage" );
+		testFunction( "channeling_messegeToCommandChanneling_addAndRemoveChannelCommand_commandsHandlesNothing");
+
+	}
+	
+	var _currentTest : Int = 0;
+	public function testFunction( funcName : String ) : Void
+	{
+		trace("\n*-------------------------*\n* current Test = "+ cast(++_currentTest) +": "+funcName+"\n*-------------------------*");
+		runBeforeEveryTest();
+		try
+		{
+			Reflect.callMethod(this, Reflect.field(this, funcName), []);
+		}catch( e:Dynamic ){
+			trace( e );
+		}
+		runAfterEveryTest();
+	}
+	
 	public function runBeforeEveryTest() : Void {
 		channelModulA = new ChannelModuleA();
 		channelModulB = new ChannelModuleB();
@@ -122,7 +149,6 @@ class ChannelingTests {
 		Assert.assertFalse(channelModulA.view.test2handled);
 		Assert.assertFalse(channelModulA.view.test3handled);
 	}
-
 	
 	public function channeling_messegeToCommandChanneling_addChannelCommand_commandsHandlesMessage() : Void {
 		//
@@ -134,6 +160,7 @@ class ChannelingTests {
 		//
 		Assert.assertTrue("Command test1 must be true after commandMap.channelMap() and  sendChannelMessage()", channelModulB.command1executed);
 	}
+
 
 	
 	public function channeling_messegeToCommandChanneling_addAndRemoveChannelCommand_commandsHandlesNothing() : Void {

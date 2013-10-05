@@ -7,6 +7,7 @@ package suites.mediatormap;
 import flash.display.Bitmap;
 import flash.display.Sprite;
 import utils.Assert;
+
 import mvcexpress.core.MediatorMap;
 import mvcexpress.core.ModuleManager;
 import mvcexpress.core.ProxyMap;
@@ -20,7 +21,7 @@ import suites.testobjects.view.MediatorSprite;
 import suites.testobjects.view.MediatorSpriteMediator;
 import utils.AsyncUtil;
 
-class MediatorMapTests {
+class MediatorMapTests extends Tester {
 
 	var messenger : Messenger;
 	var proxyMap : ProxyMap;
@@ -31,26 +32,20 @@ class MediatorMapTests {
 	
 	public function new() 
 	{
+		super();
 		testFunction( "mediatorMap_onRegister_and_no_onRemove" );
 		testFunction( "mediatorMap_onRegister_and_onRemove" );
 		testFunction( "mediatorMap_messag_callBack_test" );
-		//testFunction( "mediatorMap_doubleMediate_fails");>>OK
+		testFunction( "mediatorMap_doubleMediate_fails");//>>OK
 		testFunction( "mediatorMap_mediateWith_notFails" );
-	//	testFunction( "mediatorMap_doubleMediateWith_fails" );>> OK
+		testFunction( "mediatorMap_doubleMediateWith_fails" );//>> OK
 		testFunction( "debug_test_isMapped_false_wrong_view" );
 		testFunction( "debug_test_isMapped_false_wrong_mediator");
 		testFunction( "debug_test_isMapped_true");
-		//testFunction( "debug_map_not_mediator_fails");
+		testFunction( "debug_map_not_mediator_fails");//>> OK
 	}
 	
-	public function testFunction( funcName : String ) : Void
-	{
-		runBeforeEveryTest();
-		Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		runAfterEveryTest();
-	}
-	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
@@ -62,7 +57,7 @@ class MediatorMapTests {
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;

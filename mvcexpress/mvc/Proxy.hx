@@ -16,7 +16,7 @@ import mvcexpress.core.messenger.Messenger;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage;
 import mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage;
 
-class Proxy 
+@:rtti class Proxy 
 {
 	var isReady(get_isReady, never) : Bool;
 

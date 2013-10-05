@@ -12,36 +12,31 @@ import mvcexpress.core.messenger.Messenger;
 import suites.proxymap.proxytestobj.ProxyTestObj;
 import suites.proxymap.proxytestobj.TestProxy;
 
-class OldProxyMapTests {
+class OldProxyMapTests extends Tester {
 
 	var messenger : Messenger;
 	var proxyMap : ProxyMap;
 	var callCaunter : Int;
 	var callsExpected : Int;
 	
+	
 	public function new()
 	{
-		//testFunction( "using_class_proxy" );//>> Injection failed!!
-		//testFunction( "using_class_proxy_twice_both_should_be_equal" );
-		//testFunction( "mapping_class_proxy_twice_throws_error" );
-		testFunction( "using_object_test" );
-		testFunction( "using_object_proxy_twice_both_should_be_equal" );
-		testFunction( "mapping_object_proxy_twice_throws_error" );
-		testFunction( "mappings_does_not_exists_throws_error" );
-		testFunction( "removing_class_proxy" );
-		testFunction( "removing_object_proxy" );
+		super();
+		testFunction( "using_class_proxy" );// OK
+		testFunction( "using_class_proxy_twice_both_should_be_equal" );// OK
+		testFunction( "mapping_class_proxy_twice_throws_error" ); //>> Error sent // OK
+		testFunction( "using_object_test" );// OK
+		testFunction( "using_object_proxy_twice_both_should_be_equal" );// OK
+		testFunction( "mapping_object_proxy_twice_throws_error" );// >> Error sent // OK
+		testFunction( "mappings_does_not_exists_throws_error" );// >> Error sent // OK
+		testFunction( "removing_class_proxy" );//>> throw error ... is it ok ???
+		testFunction( "removing_object_proxy" );//>> throw error ... is it ok ???
 		testFunction( "debug_test_isMapped_false" );
 		testFunction( "debug_test_isMapped_true" );
 	}
 	
-	public function testFunction( funcName : String ) : Void
-	{
-		runBeforeEveryTest();
-		Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		runAfterEveryTest();
-	}
-	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
@@ -52,7 +47,7 @@ class OldProxyMapTests {
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
 		messenger = null;
 		proxyMap = null;
@@ -71,10 +66,7 @@ class OldProxyMapTests {
 		var obj1 : ProxyTestObj = new ProxyTestObj();
 		proxyMap.injectStuff( obj1, ProxyTestObj );
 		
-		//trace(obj1.testProxy);
-		
-		//TODO : make injection work
-	//	Assert.assertNotNull("Injected object must be not null", obj1.testProxy);
+		Assert.assertNotNull("Injected object must be not null", obj1.testProxy);
 	}
 
 	//----------------------------------
@@ -89,7 +81,6 @@ class OldProxyMapTests {
 		proxyMap.injectStuff(obj1, ProxyTestObj);
 		proxyMap.injectStuff(obj2, ProxyTestObj);
 		
-		//TODO : make injection work
 		Assert.assertEquals("Injected class object must be equel everythere.", obj1.testProxy, obj2.testProxy);
 	}
 
@@ -113,8 +104,7 @@ class OldProxyMapTests {
 		var obj1 : ProxyTestObj = new ProxyTestObj();
 		proxyMap.injectStuff(obj1, ProxyTestObj);
 		
-		//TODO : make injection work
-		//Assert.assertEquals("Maped value object must be used for iject object.", obj1.testProxy, testProxy);
+		Assert.assertEquals("Maped value object must be used for iject object.", obj1.testProxy, testProxy);
 	}
 
 	//----------------------------------

@@ -572,34 +572,28 @@ class ProxyMap implements IProxyMap
 	 */
 	function getInjectRules(signatureClass : Class<Dynamic>) : Array<InjectRuleVO> 
 	{
-		trace( "*****getInjectRules", signatureClass);
 		var retVal  : Array<InjectRuleVO> = new Array<InjectRuleVO>();
-		var fieldsMeta : Array<Dynamic>   = RttiHelper.getMetaFields(signatureClass);
-		for( listedMeta in fieldsMeta ) 
+		var variablestoadd  : Array<Dynamic>   = RttiHelper.getMetaFields(signatureClass);
+		
+		for( variable in variablestoadd ) 
 		{
-			var type = signatureClass ;//Reflect.field(m, "type");
-			for( m in Reflect.fields(listedMeta) ) 
+			for( key in Reflect.fields(variable) ) 
 			{
-				var name : String  = m;
-				
-				type = Type.getClass(name);
-				trace("meta : var name :", name);
-				
-				var fields = Type.getClassFields(signatureClass);
-				for( i in fields )
-				{
-					trace( "field>>"+i +">>"+Reflect.field(signatureClass,i));
-					if( i == name )
-						type = Type.getClass( i );
-				}
-				trace("meta : var type :",type);
-				
-				var meta : Dynamic = Reflect.field(listedMeta, m);
-				var inject = Reflect.hasField(meta, "inject");
+				var name : String   = key;
+				var data : Dynamic  = Reflect.field(variable, key);
+				var type = Reflect.field(data, "type"); 
+				var meta = Reflect.field(data, "meta"); 
+				var inject = ( meta != null ) ? Reflect.hasField(meta, "inject") : false;
 				
 				if( inject ) // injection
 				{
-					var args = Reflect.field(meta, "inject");
+					var args = null; 
+					try{
+						args = Reflect.field(meta, "inject")[0];
+					} catch ( o : Dynamic ) {
+					//    trace("Injection has no argument");
+					}
+					
 					var injectName : String = "";
 					var scopeName  : String = "";
 					
@@ -608,20 +602,14 @@ class ProxyMap implements IProxyMap
 						scopeName  = Reflect.hasField(args, "scope")  ? Reflect.field(args, "scope") : Reflect.hasField(args, "constScope") ? getInjectByConstName(Reflect.field(args, "constScope")) : "";
 					}
 					
-					trace("type check:",Type.getClass( type ), signatureClass);
-					
 					var mapRule : InjectRuleVO = new InjectRuleVO();
 						mapRule.varName   = name;
 						mapRule.injectClassAndName = type + injectName;
 						mapRule.scopeName = scopeName != "" ? scopeName : null;
 					retVal[retVal.length] = mapRule;
-					
-					trace(">> NEW injectRule : "+ mapRule);
 				}
 			}
 		}
-					
-					
 		return retVal;
 	}
 

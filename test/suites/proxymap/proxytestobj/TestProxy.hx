@@ -8,8 +8,9 @@ import mvcexpress.mvc.Proxy;
 
 class TestProxy extends Proxy implements ITestProxy {
 
-	@inject 
-	public var different : DifferentProxy;
+	//@inject({name:"difeerentName"})
+	//@inject()
+	//public var different : DifferentProxy;
 	
 	public function new() {
 		super();

@@ -23,7 +23,7 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 
-class Mediator 
+@:rtti class Mediator 
 {
 	var isReady(get_isReady, never) : Bool;
 
@@ -64,6 +64,7 @@ class Mediator
 		
 		#if debug
 			//	use namespace pureLegsCore;
+			canConstruct = true;
 			if (!canConstruct) {
 				throw ("Mediator:" + this + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.");
 			}

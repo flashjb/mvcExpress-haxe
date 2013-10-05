@@ -25,7 +25,7 @@ class MediatorSpriteMediator extends Mediator {
 		addHandler("test_handler_two_params", handleTestWithTwoParams);
 		addHandler("test_handler_two_params_one_optional", handleTestWithTwoParamsOneOptional);
 		
-		//TODO injection not work
+		//TODO injection not work for Mediator
 		view.addEventListener(TestViewEvent.TRIGER_ADD_HANDLER, addTestHandler);
 		
 		MediatorSpriteMediator.instance = this;

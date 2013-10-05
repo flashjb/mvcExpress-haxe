@@ -10,38 +10,28 @@ import integration.moduleinittests.testobj.InitTestModuleMovieClip;
 import integration.moduleinittests.testobj.InitTestModuleSprite;
 import mvcexpress.modules.ModuleCore;
 
-class ModuleInitTests {
+class ModuleInitTests extends Tester {
 
 	var module : Dynamic;
 	
 	public function new() : Void 
 	{
+		super();
+		testFunction("moduleInit_coreAutoInit_notNull");
+		testFunction("moduleInit_coreNoAutoInit_null");
+		testFunction("moduleInit_corePostAutoInit_notNull");
 		
-		moduleInit_coreAutoInit_notNull();
-		runAfterEveryTest();
-		moduleInit_coreNoAutoInit_null();
-		runAfterEveryTest();
-		moduleInit_corePostAutoInit_notNull();
-		runAfterEveryTest();
+		testFunction("moduleInit_movieClipAutoInit_notNull");
+		testFunction("moduleInit_movieClipNoAutoInit_null");
+		testFunction("moduleInit_movieClipPostAutoInit_notNull");
 		
-		moduleInit_movieClipAutoInit_notNull();
-		runAfterEveryTest();
-		moduleInit_movieClipNoAutoInit_null();
-		runAfterEveryTest();
-		moduleInit_movieClipPostAutoInit_notNull();
-		runAfterEveryTest();
-		
-		moduleInit_spriteAutoInit_notNull();
-		runAfterEveryTest();
-		moduleInit_spriteNoAutoInit_null();
-		runAfterEveryTest();
-		moduleInit_spritePostAutoInit_notNull();
-		runAfterEveryTest();
+		testFunction("moduleInit_spriteAutoInit_notNull");
+		testFunction("moduleInit_spriteNoAutoInit_null");
+		testFunction("moduleInit_spritePostAutoInit_notNull");
 		
 	}
-
 	
-	public function runAfterEveryTest() : Void 
+	override public function runAfterEveryTest() : Void 
 	{
 		if(module)  {
 			//Reflect.callMethod( module, "disposeModule", [] );

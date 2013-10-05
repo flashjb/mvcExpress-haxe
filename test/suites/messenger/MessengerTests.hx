@@ -14,27 +14,21 @@ import utils.Assert;
 import utils.Async;
 import utils.AsyncUtil;
 
-class MessengerTests {
+class MessengerTests extends Tester {
 
 	var messenger : Messenger;
 	
 	public function new() 
 	{
-		
+		super();
 		testFunction( "add_and_handle_callback" );
 		testFunction( "add_callback_and_sendNot_then_message_fails_silently" );
 		testFunction( "add_callback_and_disable_then_message_fails_silently" );
 		testFunction( "add_and_remove_callback_then_message_fails_silently");
 	}
 	
-	public function testFunction( funcName : String ) : Void
-	{
-		runBeforeEveryTest();
-		Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		runAfterEveryTest();
-	}
 	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		//use namespace pureLegsCore
 		Messenger.allowInstantiation = true;
 		messenger = new Messenger("test");
@@ -42,7 +36,7 @@ class MessengerTests {
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
 		messenger = null;
 	}

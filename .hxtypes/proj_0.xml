@@ -16,8 +16,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="34" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="52" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="18"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/flash/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -375,6 +375,66 @@
 	In the context of haxe dates, a timestamp is defined as the number of
 	milliseconds elapsed since 1st January 1970.</haxe_doc>
 	</class>
+	<class path="EReg" params="" file="/usr/lib/haxe/std/flash/_std/EReg.hx">
+		<matched public="1" set="method" line="37">
+			<f a="n">
+				<x path="Int"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Returns the matched sub-group [n] of [this] EReg.
+		
+		This method should only be called after [this].match() or
+		[this].matchSub(), and then operates on the String of that operation.
+		
+		The index [n] corresponds to the n-th set of parentheses in the pattern
+		of [this] EReg. If no such sub-group exists, an exception is thrown.
+		
+		If [n] equals 0, the whole matched substring is returned.</haxe_doc>
+		</matched>
+		<match public="1" set="method" line="31">
+			<f a="s">
+				<c path="String"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Tells if [this] regular expression matches String [s].
+		
+		This method modifies the internal state.
+		
+		If [s] is null, the result is unspecified.</haxe_doc>
+		</match>
+		<result><c path="+Array"/></result>
+		<r><c path="flash.utils.RegExp"/></r>
+		<new public="1" set="method" line="27">
+			<f a="r:opt">
+				<c path="String"/>
+				<c path="String"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Creates a new regular expression with pattern [r] and modifiers [opt].
+		
+		This is equivalent to the shorthand syntax ~/r/opt
+		
+		If [r] or [opt] are null, the result is unspecified.</haxe_doc>
+		</new>
+		<haxe_doc>The EReg class represents regular expressions.
+	
+	While basic usage and patterns consistently work across platforms, some more
+	complex operations may yield different results. This is a necessary trade-
+	off to retain a certain level of performance.
+	
+	EReg instances can be created by calling the constructor, or with the
+	special syntax ~/pattern/modifier
+	
+	EReg instances maintain an internal state, which is affected by several of
+	its methods.
+	
+	A detailed explanation of the supported operations is available at
+	http://haxe.org/doc/cross/regexp</haxe_doc>
+		<meta>
+			<m n=":keep"/>
+			<m n=":coreApi"/>
+		</meta>
+	</class>
 	<abstract path="Enum" params="T" file="/usr/lib/haxe/std/Enum.hx">
 		<haxe_doc>An abstract type that represents an Enum type.
 	
@@ -391,6 +451,53 @@
 	See [Type] for the haXe Reflection API.</haxe_doc>
 		<meta><m n=":coreType"/></meta>
 	</abstract>
+	<class path="List" params="T" file="/usr/lib/haxe/std/List.hx">
+		<iterator public="1" set="method" line="161">
+			<f a=""><t path="Iterator"><c path="List.T"/></t></f>
+			<haxe_doc>Returns an iterator on the elements of the list.</haxe_doc>
+		</iterator>
+		<remove public="1" set="method" line="138">
+			<f a="v">
+				<c path="List.T"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Removes the first occurence of [v] in [this] List.
+		
+		If [v] is found by checking standard equality, it is removed from [this]
+		List and the function returns true.
+		
+		Otherwise, false is returned.</haxe_doc>
+		</remove>
+		<last public="1" set="method" line="90">
+			<f a=""><t path="Null"><c path="List.T"/></t></f>
+			<haxe_doc>Returns the last element of [this] List, or null if no elements exist.
+		
+		This function does not modify [this] List.</haxe_doc>
+		</last>
+		<add public="1" set="method" line="49">
+			<f a="item">
+				<c path="List.T"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Adds element [item] at the end of [this] List.
+		
+		[this].length increases by 1.</haxe_doc>
+		</add>
+		<length public="1" set="null">
+			<x path="Int"/>
+			<haxe_doc>The length of [this] List.</haxe_doc>
+		</length>
+		<q><c path="Array"><d/></c></q>
+		<h><c path="Array"><d/></c></h>
+		<new public="1" set="method" line="40">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>Creates a new empty list.</haxe_doc>
+		</new>
+		<haxe_doc>A linked-list of elements. The list is composed of two-elements arrays
+	that are chained together. It is optimized so that adding or removing an
+	element does not imply copying the whole array content every time.</haxe_doc>
+		<meta><m n=":keep"/></meta>
+	</class>
 	<abstract path="Map" params="K:V" file="/usr/lib/haxe/std/Map.hx">
 		<from>
 			<c path="haxe.ds.StringMap"><c path="fromStringMap.V"/></c>
@@ -3891,6 +3998,30 @@
 
 		If x is outside of the signed Int32 range, or is NaN, NEGATIVE_INFINITY or POSITIVE_INFINITY, the result is unspecified.</haxe_doc>
 		</int>
+		<parseInt public="1" set="method" line="38" static="1">
+			<f a="x">
+				<c path="String"/>
+				<t path="Null"><x path="Int"/></t>
+			</f>
+			<haxe_doc>Converts a String to an Int.
+
+		Leading whitespaces are ignored.
+
+		If x starts with 0x or 0X, hexadecimal notation is recognized where the following digits may
+		contain 0-9 and A-F.
+
+		Otherwise x is read as decimal number with 0-9 being allowed characters. x may also start with
+		a - to denote a negative value.
+
+		In decimal mode, parsing continues until an invalid character is detected, in which case the
+		result up to that point is returned. For hexadecimal notation, the effect of invalid characters
+		is unspecified.
+
+		Leading 0s that are not part of the 0x/0X hexadecimal notation are ignored, which means octal
+		notation is not supported.
+
+		If the input cannot be recognized, the result is null.</haxe_doc>
+		</parseInt>
 		<haxe_doc>The Std class provides standard methods for manipulating basic types.</haxe_doc>
 		<meta>
 			<m n=":keep"/>
@@ -4150,7 +4281,94 @@
 	String can be concatenated by using the + operator. If an operand is not a
 	String, it is passed through Std.string() first.</haxe_doc>
 	</class>
+	<class path="StringBuf" params="" file="/usr/lib/haxe/std/StringBuf.hx">
+		<toString public="1" set="method" line="88">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>Returns the content of [this] StringBuf as String.
+		
+		The buffer is not emptied by this operation.</haxe_doc>
+		</toString>
+		<add public="1" set="method" line="53">
+			<f a="x">
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>Appends the representation of [x] to [this] StringBuf.
+		
+		The exact representation of [x] may vary per platform. To get more
+		consistent behavior, this function should be called with
+		Std.string(x).
+		
+		If [x] is null, the String "null" is appended.</haxe_doc>
+		</add>
+		<b><c path="String"/></b>
+		<new public="1" set="method" line="42">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>Creates a new StringBuf instance.
+		
+		This may involve initialization of the internal buffer.</haxe_doc>
+		</new>
+		<haxe_doc>A String buffer is an efficient way to build a big string by appending small
+	elements together.
+	
+	Its cross-platform implementation uses String concatenation internally, but
+	StringBuf may be optimized for different targets.
+	
+	Unlike String, an instance of StringBuf is not immutable in the sense that
+	it can be passed as argument to functions which modify it by appending more
+	values. However, the internal buffer cannot be modified.</haxe_doc>
+		<meta><m n=":keep"/></meta>
+	</class>
 	<class path="StringTools" params="" file="/usr/lib/haxe/std/StringTools.hx">
+		<isSpace public="1" set="method" line="162" static="1">
+			<f a="s:pos">
+				<c path="String"/>
+				<x path="Int"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Tells if the character in the string [s] at position [pos] is a space.
+
+		A character is considered to be a space character if its character code
+		is 9,10,11,12,13 or 32.
+
+		If [s] is the empty String "", or if pos is not a valid position within
+		[s], the result is false.</haxe_doc>
+		</isSpace>
+		<ltrim public="1" set="method" line="176" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes leading space characters of [s].
+
+		This function internally calls isSpace() to decide which characters to
+		remove.
+
+		If [s] is the empty String "" or consists only of space characters, the
+		result is the empty String "".</haxe_doc>
+		</ltrim>
+		<rtrim public="1" set="method" line="201" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes trailing space characters of [s].
+
+		This function internally calls isSpace() to decide which characters to
+		remove.
+
+		If [s] is the empty String "" or consists only of space characters, the
+		result is the empty String "".</haxe_doc>
+		</rtrim>
+		<trim public="1" set="method" line="223" static="1">
+			<f a="s">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Removes leading and trailing space characters of [s].
+
+		This is a convenience function for ltrim(rtrim(s)).</haxe_doc>
+		</trim>
 		<replace public="1" set="method" line="288" static="1">
 			<f a="s:sub:by">
 				<c path="String"/>
@@ -4174,6 +4392,16 @@
 	If the first argument to any of the methods is null, the result is
 	unspecified.</haxe_doc>
 		<meta><m n=":keep"/></meta>
+	</class>
+	<class path="Tester" params="" file="test/Tester.hx">
+		<runAfterEveryTest public="1" set="method" line="26"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="21"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="9"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<_currentTest><x path="Int"/></_currentTest>
+		<new public="1" set="method" line="4"><f a=""><x path="Void"/></f></new>
 	</class>
 	<enum path="ValueType" params="" file="/usr/lib/haxe/std/flash/_std/Type.hx" module="Type">
 		<TUnknown/>
@@ -4301,23 +4529,6 @@
 	<x path="Bool"/>
 	<c path="Array"><c path="String"/></c>
 </f></describe>
-		<getInstanceFields public="1" set="method" line="199" static="1">
-			<f a="c">
-				<x path="Class"><d/></x>
-				<c path="Array"><c path="String"/></c>
-			</f>
-			<haxe_doc>Returns a list of the instance fields of class [c].
-		
-		This only includes fields which are known at compile-time. In
-		particular, using getInstanceFields(getClass(obj)) will not include
-		any fields which were added to obj at runtime.
-		
-		The order of the fields in the returned Array is unspecified.
-		
-		If [c] is null, the result is unspecified.
-		
-		(As3) This method only returns instance fields that are public.</haxe_doc>
-		</getInstanceFields>
 		<getClassFields public="1" set="method" line="203" static="1">
 			<f a="c">
 				<x path="Class"><d/></x>
@@ -4344,10 +4555,146 @@
 		per platform. Assumptions regarding this should be minimized to avoid
 		surprises.</haxe_doc>
 		</typeof>
+		<enumParameters public="1" set="method" line="268" static="1">
+			<f a="e">
+				<x path="EnumValue"/>
+				<c path="Array"><d/></c>
+			</f>
+			<haxe_doc>Returns a list of the constructor arguments of enum instance [e].
+		
+		If [e] has no arguments, the result is [].
+		
+		Otherwise the result are the values that were used as arguments to [e],
+		in the order of their declaration.
+		
+		If [e] is null, the result is unspecified.</haxe_doc>
+		</enumParameters>
 		<haxe_doc>The haxe Reflection API allows retrieval of type information at runtime.
 	
 	This class complements the more lightweight Reflect class, with a focus on
 	class and enum instances.</haxe_doc>
+		<meta>
+			<m n=":keep"/>
+			<m n=":coreApi"/>
+		</meta>
+	</class>
+	<enum path="XmlType" params="" file="/usr/lib/haxe/std/flash/_std/Xml.hx" module="Xml"/>
+	<class path="Xml" params="" file="/usr/lib/haxe/std/flash/_std/Xml.hx">
+		<Element public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Element>
+		<PCData public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</PCData>
+		<CData public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</CData>
+		<Comment public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Comment>
+		<DocType public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</DocType>
+		<ProcessingInstruction public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</ProcessingInstruction>
+		<Document public="1" set="null" static="1">
+			<e path="XmlType"/>
+			<haxe_doc>A type of Xml node.</haxe_doc>
+		</Document>
+		<parse public="1" set="method" line="45" static="1">
+			<f a="str">
+				<c path="String"/>
+				<c path="Xml"/>
+			</f>
+			<haxe_doc>Parse a String into an Xml object.</haxe_doc>
+		</parse>
+		<compare set="method" line="67" static="1">
+			<f a="a:b">
+				<c path="Xml"/>
+				<c path="Xml"/>
+				<x path="Bool"/>
+			</f>
+			<meta><m n=":keep"/></meta>
+		</compare>
+		<getNodeType set="method" line="104" static="1"><f a="node">
+	<c path="flash.xml.XML"/>
+	<e path="XmlType"/>
+</f></getNodeType>
+		<wrap set="method" line="180" static="1"><f a="node:?type">
+	<c path="flash.xml.XML"/>
+	<e path="XmlType"/>
+	<c path="Xml"/>
+</f></wrap>
+		<toString public="1" set="method" line="389">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>Returns a String representation of the Xml node.</haxe_doc>
+		</toString>
+		<firstElement public="1" set="method" line="348">
+			<f a=""><c path="Xml"/></f>
+			<haxe_doc>Returns the first child node which is an Element.</haxe_doc>
+		</firstElement>
+		<elementsNamed public="1" set="method" line="314">
+			<f a="name">
+				<c path="String"/>
+				<t path="Iterator"><c path="Xml"/></t>
+			</f>
+			<haxe_doc>Returns an iterator of all child nodes which are Elements with the given nodeName.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</elementsNamed>
+		<elements public="1" set="method" line="298">
+			<f a=""><t path="Iterator"><c path="Xml"/></t></f>
+			<haxe_doc>Returns an iterator of all child nodes which are Elements.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</elements>
+		<iterator public="1" set="method" line="282">
+			<f a=""><t path="Iterator"><c path="Xml"/></t></f>
+			<haxe_doc>Returns an iterator of all child nodes.
+		Only works if the current node is an Element or a Document.</haxe_doc>
+		</iterator>
+		<exists public="1" set="method" line="255">
+			<f a="att">
+				<c path="String"/>
+				<x path="Bool"/>
+			</f>
+			<haxe_doc>Tells if the Element node has a given attribute.
+		Attributes are case-sensitive.</haxe_doc>
+		</exists>
+		<get public="1" set="method" line="207">
+			<f a="att">
+				<c path="String"/>
+				<c path="String"/>
+			</f>
+			<haxe_doc>Get the given attribute of an Element node. Returns [null] if not found.
+		Attributes are case-sensitive.</haxe_doc>
+		</get>
+		<getAttribNS set="method" line="194"><f a="cur:ns">
+	<c path="flash.xml.XML"/>
+	<c path="Array"><c path="String"/></c>
+	<c path="flash.xml.XMLList"/>
+</f></getAttribNS>
+		<wraps set="method" line="187"><f a="xList">
+	<c path="flash.xml.XMLList"/>
+	<c path="Array"><c path="Xml"/></c>
+</f></wraps>
+		<get_nodeValue set="method" line="140"><f a=""><c path="String"/></f></get_nodeValue>
+		<get_nodeName set="method" line="120"><f a=""><c path="String"/></f></get_nodeName>
+		<_node><c path="flash.xml.XML"/></_node>
+		<nodeType public="1" set="null">
+			<e path="XmlType"/>
+			<haxe_doc>Returns the type of the Xml Node. This should be used before
+		accessing other functions since some might raise an exception
+		if the node type is not correct.</haxe_doc>
+		</nodeType>
+		<new set="method" line="71"><f a=""><x path="Void"/></f></new>
+		<haxe_doc>The standard Xml class and parsing.
+	More API to manipulate XML are available in the [haxe.xml] package.</haxe_doc>
 		<meta>
 			<m n=":keep"/>
 			<m n=":coreApi"/>
@@ -9195,6 +9542,10 @@
 	<x path="Void"/>
 </f></new>
 		<haxe_dynamic><d/></haxe_dynamic>
+	</class>
+	<class path="flash.errors.TypeError" params="" file="/usr/lib/haxe/lib/openfl/1,0,6/flash/errors/TypeError.hx" extern="1">
+		<extends path="flash.errors.Error"/>
+		<meta><m n=":native"><e>"TypeError"</e></m></meta>
 	</class>
 	<class path="flash.events.Event" params="" file="/usr/lib/haxe/lib/openfl/1,0,6/flash/events/Event.hx" extern="1">
 		<ACTIVATE public="1" static="1">
@@ -15788,6 +16139,16 @@
 		<meta><m n=":final"/></meta>
 	</class>
 	<typedef path="flash.utils.Object" params="" file="/usr/lib/haxe/std/flash/utils/Object.hx"><d/></typedef>
+	<class path="flash.utils.QName" params="" file="/usr/lib/haxe/std/flash/utils/QName.hx" extern="1">
+		<uri public="1" set="null"><d/></uri>
+		<localName public="1" set="null"><c path="String"/></localName>
+		<new public="1" set="method"><f a="?namespace:?name">
+	<d/>
+	<d/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":final"/></meta>
+	</class>
 	<class path="flash.utils.RegExp" params="" file="/usr/lib/haxe/std/flash/utils/RegExp.hx" extern="1">
 		<test public="1" set="method">
 			<f a="?s">
@@ -16407,6 +16768,153 @@
 		</meta>
 	</class>
 	<typedef path="haxe.io.BytesData" params="" file="/usr/lib/haxe/std/haxe/io/BytesData.hx"><c path="flash.utils.ByteArray"/></typedef>
+	<typedef path="haxe.rtti.Path" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="String"/></typedef>
+	<typedef path="haxe.rtti.Platforms" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="List"><c path="String"/></c></typedef>
+	<enum path="haxe.rtti.CType" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx">
+		<CUnknown/>
+		<CTypedef a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CTypedef>
+		<CFunction a="args:ret">
+			<c path="List"><a>
+	<t><e path="haxe.rtti.CType"/></t>
+	<opt><x path="Bool"/></opt>
+	<name><c path="String"/></name>
+</a></c>
+			<e path="haxe.rtti.CType"/>
+		</CFunction>
+		<CEnum a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CEnum>
+		<CDynamic a="?t"><e path="haxe.rtti.CType"/></CDynamic>
+		<CClass a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CClass>
+		<CAnonymous a="fields"><c path="List"><t path="haxe.rtti.ClassField"/></c></CAnonymous>
+		<CAbstract a="name:params">
+			<t path="haxe.rtti.Path"/>
+			<c path="List"><e path="haxe.rtti.CType"/></c>
+		</CAbstract>
+	</enum>
+	<typedef path="haxe.rtti.PathParams" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><c path="List"><e path="haxe.rtti.CType"/></c></params>
+</a></typedef>
+	<typedef path="haxe.rtti.TypeParams" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><c path="String"/></c></typedef>
+	<enum path="haxe.rtti.Rights" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType">
+		<RNormal/>
+		<RNo/>
+		<RMethod/>
+		<RInline/>
+		<RDynamic/>
+		<RCall a="m"><c path="String"/></RCall>
+	</enum>
+	<typedef path="haxe.rtti.MetaData" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><a>
+	<params><c path="Array"><c path="String"/></c></params>
+	<name><c path="String"/></name>
+</a></c></typedef>
+	<typedef path="haxe.rtti.ClassField" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<type><e path="haxe.rtti.CType"/></type>
+	<set><e path="haxe.rtti.Rights"/></set>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<name><c path="String"/></name>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<line><t path="Null"><x path="Int"/></t></line>
+	<isPublic><x path="Bool"/></isPublic>
+	<isOverride><x path="Bool"/></isOverride>
+	<get><e path="haxe.rtti.Rights"/></get>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.TypeInfos" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.Classdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<tdynamic><t path="Null"><e path="haxe.rtti.CType"/></t></tdynamic>
+	<superClass><t path="haxe.rtti.PathParams"/></superClass>
+	<statics><c path="List"><t path="haxe.rtti.ClassField"/></c></statics>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<isInterface><x path="Bool"/></isInterface>
+	<isExtern><x path="Bool"/></isExtern>
+	<interfaces><c path="List"><t path="haxe.rtti.PathParams"/></c></interfaces>
+	<file><t path="Null"><c path="String"/></t></file>
+	<fields><c path="List"><t path="haxe.rtti.ClassField"/></c></fields>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.EnumField" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<name><c path="String"/></name>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<doc><c path="String"/></doc>
+	<args><t path="Null"><c path="List"><a>
+	<t><e path="haxe.rtti.CType"/></t>
+	<opt><x path="Bool"/></opt>
+	<name><c path="String"/></name>
+</a></c></t></args>
+</a></typedef>
+	<typedef path="haxe.rtti.Enumdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<isExtern><x path="Bool"/></isExtern>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+	<constructors><c path="List"><t path="haxe.rtti.EnumField"/></c></constructors>
+</a></typedef>
+	<typedef path="haxe.rtti.Typedef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<types><c path="haxe.ds.StringMap"><e path="haxe.rtti.CType"/></c></types>
+	<type><e path="haxe.rtti.CType"/></type>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<typedef path="haxe.rtti.Abstractdef" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><a>
+	<supers><c path="Array"><e path="haxe.rtti.CType"/></c></supers>
+	<subs><c path="Array"><e path="haxe.rtti.CType"/></c></subs>
+	<platforms><t path="haxe.rtti.Platforms"/></platforms>
+	<path><t path="haxe.rtti.Path"/></path>
+	<params><t path="haxe.rtti.TypeParams"/></params>
+	<module><t path="haxe.rtti.Path"/></module>
+	<meta><t path="haxe.rtti.MetaData"/></meta>
+	<isPrivate><x path="Bool"/></isPrivate>
+	<file><t path="Null"><c path="String"/></t></file>
+	<doc><c path="String"/></doc>
+</a></typedef>
+	<enum path="haxe.rtti.TypeTree" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType">
+		<TTypedecl a="t"><t path="haxe.rtti.Typedef"/></TTypedecl>
+		<TPackage a="name:full:subs">
+			<c path="String"/>
+			<c path="String"/>
+			<c path="Array"><e path="haxe.rtti.TypeTree"/></c>
+		</TPackage>
+		<TEnumdecl a="e"><t path="haxe.rtti.Enumdef"/></TEnumdecl>
+		<TClassdecl a="c"><t path="haxe.rtti.Classdef"/></TClassdecl>
+		<TAbstractdecl a="a"><t path="haxe.rtti.Abstractdef"/></TAbstractdecl>
+	</enum>
+	<typedef path="haxe.rtti.TypeRoot" params="" file="/usr/lib/haxe/std/haxe/rtti/CType.hx" module="haxe.rtti.CType"><c path="Array"><e path="haxe.rtti.TypeTree"/></c></typedef>
 	<class path="haxe.rtti.Meta" params="" file="/usr/lib/haxe/std/haxe/rtti/Meta.hx">
 		<getFields public="1" set="method" line="56" static="1">
 			<f a="t">
@@ -16418,17 +16926,171 @@
 		<haxe_doc>An api to access classes and enums metadata at runtime.</haxe_doc>
 		<meta><m n=":keep"/></meta>
 	</class>
+	<class path="haxe.rtti.XmlParser" params="" file="/usr/lib/haxe/std/haxe/rtti/XmlParser.hx">
+		<defplat set="method" line="588"><f a=""><c path="List"><c path="String"/></c></f></defplat>
+		<xtypeparams set="method" line="581"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<c path="List"><e path="haxe.rtti.CType"/></c>
+</f></xtypeparams>
+		<xtype set="method" line="528"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<e path="haxe.rtti.CType"/>
+</f></xtype>
+		<xtypedef set="method" line="500"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Typedef"/>
+</f></xtypedef>
+		<xabstract set="method" line="467"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Abstractdef"/>
+</f></xabstract>
+		<xenumfield set="method" line="437"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.EnumField"/>
+</f></xenumfield>
+		<xenum set="method" line="412"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Enumdef"/>
+</f></xenum>
+		<xclassfield set="method" line="386"><f a="x:?defPublic">
+	<c path="haxe.xml.Fast"/>
+	<x path="Bool"/>
+	<t path="haxe.rtti.ClassField"/>
+</f></xclassfield>
+		<xclass set="method" line="346"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.Classdef"/>
+</f></xclass>
+		<xpath set="method" line="335"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.PathParams"/>
+</f></xpath>
+		<xmeta set="method" line="324"><f a="x">
+	<c path="haxe.xml.Fast"/>
+	<t path="haxe.rtti.MetaData"/>
+</f></xmeta>
+		<processElement public="1" set="method" line="313"><f a="x">
+	<c path="Xml"/>
+	<e path="haxe.rtti.TypeTree"/>
+</f></processElement>
+		<xerror set="method" line="303"><f a="c">
+	<c path="haxe.xml.Fast"/>
+	<d/>
+</f></xerror>
+		<mkRights set="method" line="293"><f a="r">
+	<c path="String"/>
+	<e path="haxe.rtti.Rights"/>
+</f></mkRights>
+		<mkTypeParams set="method" line="286"><f a="p">
+	<c path="String"/>
+	<t path="haxe.rtti.TypeParams"/>
+</f></mkTypeParams>
+		<mkPath set="method" line="282"><f a="p">
+	<c path="String"/>
+	<t path="haxe.rtti.Path"/>
+</f></mkPath>
+		<curplatform><c path="String"/></curplatform>
+		<root public="1"><t path="haxe.rtti.TypeRoot"/></root>
+		<new public="1" set="method" line="31"><f a=""><x path="Void"/></f></new>
+		<meta><m n=":keep"/></meta>
+	</class>
+	<class path="haxe.xml._Fast.NodeAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="32"><f a="name">
+	<c path="String"/>
+	<c path="haxe.xml.Fast"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="28"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="haxe.xml.Fast"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.AttribAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="51"><f a="name">
+	<c path="String"/>
+	<c path="String"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="47"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="String"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.HasAttribAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="70"><f a="name">
+	<c path="String"/>
+	<x path="Bool"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="66"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><x path="Bool"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.HasNodeAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="86"><f a="name">
+	<c path="String"/>
+	<x path="Bool"/>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="82"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><x path="Bool"/></haxe_dynamic>
+	</class>
+	<class path="haxe.xml._Fast.NodeListAccess" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx" private="1" module="haxe.xml.Fast">
+		<resolve public="1" set="method" line="100"><f a="name">
+	<c path="String"/>
+	<c path="List"><c path="haxe.xml.Fast"/></c>
+</f></resolve>
+		<__x><c path="Xml"/></__x>
+		<new public="1" set="method" line="96"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+		<haxe_dynamic><c path="List"><c path="haxe.xml.Fast"/></c></haxe_dynamic>
+	</class>
+	<class path="haxe.xml.Fast" params="" file="/usr/lib/haxe/std/haxe/xml/Fast.hx">
+		<get_elements set="method" line="164"><f a=""><a>
+	<next><f a=""><c path="haxe.xml.Fast"/></f></next>
+	<hasNext><f a=""><x path="Bool"/></f></hasNext>
+</a></f></get_elements>
+		<get_innerHTML set="method" line="157"><f a=""><c path="String"/></f></get_innerHTML>
+		<get_innerData set="method" line="137"><f a=""><c path="String"/></f></get_innerData>
+		<get_name set="method" line="133"><f a=""><c path="String"/></f></get_name>
+		<hasNode public="1" set="null"><c path="haxe.xml._Fast.HasNodeAccess"/></hasNode>
+		<has public="1" set="null"><c path="haxe.xml._Fast.HasAttribAccess"/></has>
+		<att public="1" set="null"><c path="haxe.xml._Fast.AttribAccess"/></att>
+		<nodes public="1" set="null"><c path="haxe.xml._Fast.NodeListAccess"/></nodes>
+		<node public="1" set="null"><c path="haxe.xml._Fast.NodeAccess"/></node>
+		<x public="1" set="null"><c path="Xml"/></x>
+		<new public="1" set="method" line="122"><f a="x">
+	<c path="Xml"/>
+	<x path="Void"/>
+</f></new>
+		<meta><m n=":keep"/></meta>
+	</class>
 	<class path="integration.moduleinittests.ModuleInitTests" params="" file="test/integration/moduleinittests/ModuleInitTests.hx">
-		<moduleInit_spritePostAutoInit_notNull public="1" set="method" line="135"><f a=""><x path="Void"/></f></moduleInit_spritePostAutoInit_notNull>
-		<moduleInit_spriteNoAutoInit_null public="1" set="method" line="126"><f a=""><x path="Void"/></f></moduleInit_spriteNoAutoInit_null>
-		<moduleInit_spriteAutoInit_notNull public="1" set="method" line="117"><f a=""><x path="Void"/></f></moduleInit_spriteAutoInit_notNull>
-		<moduleInit_movieClipPostAutoInit_notNull public="1" set="method" line="104"><f a=""><x path="Void"/></f></moduleInit_movieClipPostAutoInit_notNull>
-		<moduleInit_movieClipNoAutoInit_null public="1" set="method" line="95"><f a=""><x path="Void"/></f></moduleInit_movieClipNoAutoInit_null>
-		<moduleInit_movieClipAutoInit_notNull public="1" set="method" line="87"><f a=""><x path="Void"/></f></moduleInit_movieClipAutoInit_notNull>
-		<moduleInit_corePostAutoInit_notNull public="1" set="method" line="74"><f a=""><x path="Void"/></f></moduleInit_corePostAutoInit_notNull>
-		<moduleInit_coreNoAutoInit_null public="1" set="method" line="65"><f a=""><x path="Void"/></f></moduleInit_coreNoAutoInit_null>
-		<moduleInit_coreAutoInit_notNull public="1" set="method" line="56"><f a=""><x path="Void"/></f></moduleInit_coreAutoInit_notNull>
-		<runAfterEveryTest public="1" set="method" line="44"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<extends path="Tester"/>
+		<moduleInit_spritePostAutoInit_notNull public="1" set="method" line="125"><f a=""><x path="Void"/></f></moduleInit_spritePostAutoInit_notNull>
+		<moduleInit_spriteNoAutoInit_null public="1" set="method" line="116"><f a=""><x path="Void"/></f></moduleInit_spriteNoAutoInit_null>
+		<moduleInit_spriteAutoInit_notNull public="1" set="method" line="107"><f a=""><x path="Void"/></f></moduleInit_spriteAutoInit_notNull>
+		<moduleInit_movieClipPostAutoInit_notNull public="1" set="method" line="94"><f a=""><x path="Void"/></f></moduleInit_movieClipPostAutoInit_notNull>
+		<moduleInit_movieClipNoAutoInit_null public="1" set="method" line="85"><f a=""><x path="Void"/></f></moduleInit_movieClipNoAutoInit_null>
+		<moduleInit_movieClipAutoInit_notNull public="1" set="method" line="77"><f a=""><x path="Void"/></f></moduleInit_movieClipAutoInit_notNull>
+		<moduleInit_corePostAutoInit_notNull public="1" set="method" line="64"><f a=""><x path="Void"/></f></moduleInit_corePostAutoInit_notNull>
+		<moduleInit_coreNoAutoInit_null public="1" set="method" line="55"><f a=""><x path="Void"/></f></moduleInit_coreNoAutoInit_null>
+		<moduleInit_coreAutoInit_notNull public="1" set="method" line="46"><f a=""><x path="Void"/></f></moduleInit_coreAutoInit_notNull>
+		<runAfterEveryTest public="1" set="method" line="34" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
 		<module><d/></module>
 		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
 	</class>
@@ -16807,6 +17469,399 @@
 	<x path="Bool"/>
 	<x path="Void"/>
 </f></new>
+	</class>
+	<class path="integration.scopedmessaging.ChannelingTests" params="" file="test/integration/scopedmessaging/ChannelingTests.hx">
+		<channeling_messegeToCommandChanneling_addAndRemoveChannelCommand_commandsHandlesNothing public="1" set="method" line="166"><f a=""><x path="Void"/></f></channeling_messegeToCommandChanneling_addAndRemoveChannelCommand_commandsHandlesNothing>
+		<channeling_messegeToCommandChanneling_addChannelCommand_commandsHandlesMessage public="1" set="method" line="153"><f a=""><x path="Void"/></f></channeling_messegeToCommandChanneling_addChannelCommand_commandsHandlesMessage>
+		<channeling_moduleToModuleChanneling_addChannelHandler_sendsMessageWithParams public="1" set="method" line="130"><f a=""><x path="Void"/></f></channeling_moduleToModuleChanneling_addChannelHandler_sendsMessageWithParams>
+		<channeling_moduleToModuleChanneling_add2ChannelHandler_sendsMessage public="1" set="method" line="109"><f a=""><x path="Void"/></f></channeling_moduleToModuleChanneling_add2ChannelHandler_sendsMessage>
+		<channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage public="1" set="method" line="90"><f a=""><x path="Void"/></f></channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage>
+		<channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing public="1" set="method" line="72"><f a=""><x path="Void"/></f></channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing>
+		<channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage public="1" set="method" line="55"><f a=""><x path="Void"/></f></channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage>
+		<runAfterEveryTest public="1" set="method" line="49"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="43"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="30"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<_currentTest><x path="Int"/></_currentTest>
+		<channelModulB><c path="integration.scopedmessaging.testobj.moduleb.ChannelModuleB"/></channelModulB>
+		<channelModulA><c path="integration.scopedmessaging.testobj.modulea.ChannelModuleA"/></channelModulA>
+		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="mvcexpress.mvc.Mediator" params="" file="mvcexpress/mvc/Mediator.hx">
+		<__rtti public="1" line="26" static="1"><c path="String"/></__rtti>
+		<canConstruct public="1" static="1"><x path="Bool"/></canConstruct>
+		<remove public="1" set="method" line="335">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc><![CDATA[* framework function to dispose this mediator. 																			<br>
+	 * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)					<br>
+	 * It:																														<br>
+	 * - remove all handle functions created by this mediator																	<br>
+	 * - remove all event listeners created by internal addListener() function													<br>
+	 * - sets internals to null																									<br>
+	 *]]></haxe_doc>
+		</remove>
+		<register public="1" set="method" line="321">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>* marks mediator as ready and calls onRegister()
+	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>
+		</register>
+		<removeAllListeners set="method" line="289">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>* Removes all listeners created by mediators addEventListener() function.
+	 * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.
+	 * Automatically called then mediator is removed(unmediated) by framework.
+	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
+		</removeAllListeners>
+		<removeListener set="method" line="261">
+			<f a="viewObject:type:listener:?useCapture">
+				<c path="flash.events.IEventDispatcher"/>
+				<c path="String"/>
+				<d/>
+				<x path="Bool"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Removes an event listener from the viewObject.
+	 * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>
+		</removeListener>
+		<addListener set="method" line="236">
+			<f a="viewObject:type:listener:?useCapture:?priority:?useWeakReference">
+				<c path="flash.events.IEventDispatcher"/>
+				<c path="String"/>
+				<d/>
+				<x path="Bool"/>
+				<x path="Int"/>
+				<x path="Bool"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.
+	 * 
+	 * 
+	 * 
+	 *   as its only parameter and must return nothing, as this example shows:
+	 *   function(event:Event):void
+	 *   The function can have any name.
+	 * 
+	 * 
+	 *		If two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.
+	 * 
+	 *		A strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>
+		</addListener>
+		<removeScopeHandler set="method" line="214">
+			<f a="scopeName:type:handler">
+				<c path="String"/>
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.
+	 * 
+	 * 
+	 *</haxe_doc>
+		</removeScopeHandler>
+		<addScopeHandler set="method" line="203">
+			<f a="scopeName:type:handler">
+				<c path="String"/>
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.
+	 * 
+	 * 
+	 *</haxe_doc>
+		</addScopeHandler>
+		<removeAllHandlers set="method" line="185">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.
+	 * Automatically called then mediator is removed(unmediated) by framework.
+	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
+		</removeAllHandlers>
+		<removeHandler set="method" line="175">
+			<f a="type:handler">
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Removes handle function from message of given type.
+	 * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.
+	 * 
+	 *</haxe_doc>
+		</removeHandler>
+		<addHandler set="method" line="151">
+			<f a="type:handler">
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* adds handle function to be called then message of given type is sent.
+	 * 
+	 *</haxe_doc>
+		</addHandler>
+		<sendScopeMessage set="method" line="127">
+			<f a="scopeName:type:?params">
+				<c path="String"/>
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
+	 * 
+	 * 
+	 *</haxe_doc>
+		</sendScopeMessage>
+		<sendMessage set="method" line="106">
+			<f a="type:?params">
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Sends a message with optional params object inside of current module.
+	 * 
+	 *</haxe_doc>
+		</sendMessage>
+		<get_isReady set="method" line="94">
+			<f a=""><x path="Bool"/></f>
+			<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>
+		</get_isReady>
+		<onRemove public="1" set="method" line="87">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>
+		</onRemove>
+		<onRegister public="1" set="method" line="80">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>
+		</onRegister>
+		<eventListenerCaptureRegistry>
+			<c path="haxe.ds.ObjectMap">
+				<d/>
+				<x path="Map">
+					<c path="String"/>
+					<c path="flash.events.IEventDispatcher"/>
+				</x>
+			</c>
+			<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>
+		</eventListenerCaptureRegistry>
+		<eventListenerRegistry>
+			<c path="haxe.ds.ObjectMap">
+				<d/>
+				<x path="Map">
+					<c path="String"/>
+					<c path="flash.events.IEventDispatcher"/>
+				</x>
+			</c>
+			<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>
+		</eventListenerRegistry>
+		<handlerVoRegistry>
+			<c path="Array"><c path="mvcexpress.core.messenger.HandlerVO"/></c>
+			<haxe_doc>all added message handlers.</haxe_doc>
+		</handlerVoRegistry>
+		<pendingInjections public="1"><x path="Int"/></pendingInjections>
+		<_isReady><x path="Bool"/></_isReady>
+		<messenger public="1"><c path="mvcexpress.core.messenger.Messenger"/></messenger>
+		<mediatorMap public="1">
+			<c path="mvcexpress.core.interfaces.IMediatorMap"/>
+			<haxe_doc>* Handles application mediators.</haxe_doc>
+		</mediatorMap>
+		<proxyMap public="1"><c path="mvcexpress.core.interfaces.IProxyMap"/></proxyMap>
+		<moduleName public="1"><c path="String"/></moduleName>
+		<isReady get="accessor" set="null"><x path="Bool"/></isReady>
+		<new public="1" set="method" line="59">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>CONSTRUCTOR</haxe_doc>
+		</new>
+		<meta><m n=":rtti"/></meta>
+	</class>
+	<class path="integration.scopedmessaging.testobj.modulea.ChannelAMediator" params="" file="test/integration/scopedmessaging/testobj/modulea/ChannelAMediator.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="12" static="1"><c path="String"/></__rtti>
+		<onRemove public="1" set="method" line="67" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handleTest4Channelmessage set="method" line="61"><f a="testParams">
+	<c path="String"/>
+	<x path="Void"/>
+</f></handleTest4Channelmessage>
+		<handleTest3Channelmessage set="method" line="56"><f a="blank">
+	<d/>
+	<x path="Void"/>
+</f></handleTest3Channelmessage>
+		<handleTest2Channelmessage set="method" line="51"><f a="blank">
+	<d/>
+	<x path="Void"/>
+</f></handleTest2Channelmessage>
+		<handleTest1Channelmessage set="method" line="46"><f a="blank">
+	<d/>
+	<x path="Void"/>
+</f></handleTest1Channelmessage>
+		<removeChannelHandler1 set="method" line="42"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></removeChannelHandler1>
+		<addChannelHandler4 set="method" line="38"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></addChannelHandler4>
+		<addChannelHandler3 set="method" line="34"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></addChannelHandler3>
+		<addChannelHandler2 set="method" line="30"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></addChannelHandler2>
+		<addChannelHandler1 set="method" line="26"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></addChannelHandler1>
+		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1"><c path="integration.scopedmessaging.testobj.modulea.ChannelViewA"/></view>
+		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="integration.scopedmessaging.testobj.modulea.ChannelModuleA" params="" file="test/integration/scopedmessaging/testobj/modulea/ChannelModuleA.hx">
+		<extends path="mvcexpress.modules.ModuleCore"/>
+		<NAME public="1" line="14" static="1"><c path="String"/></NAME>
+		<onDispose set="method" line="58" override="1"><f a=""><x path="Void"/></f></onDispose>
+		<onInit set="method" line="53" override="1"><f a=""><x path="Void"/></f></onInit>
+		<unmapCommand_ComTest1 public="1" set="method" line="49"><f a=""><x path="Void"/></f></unmapCommand_ComTest1>
+		<mapCommand_ComTest1 public="1" set="method" line="45"><f a=""><x path="Void"/></f></mapCommand_ComTest1>
+		<addChannelHandler_testChannel_test4_withParams public="1" set="method" line="41"><f a=""><x path="Void"/></f></addChannelHandler_testChannel_test4_withParams>
+		<addChannelHandler_testChannel_test3 public="1" set="method" line="37"><f a=""><x path="Void"/></f></addChannelHandler_testChannel_test3>
+		<addChannelHandler_test2 public="1" set="method" line="33"><f a=""><x path="Void"/></f></addChannelHandler_test2>
+		<removeChannelHandler_test1 public="1" set="method" line="29"><f a=""><x path="Void"/></f></removeChannelHandler_test1>
+		<addChannelHandler_test1 public="1" set="method" line="25"><f a=""><x path="Void"/></f></addChannelHandler_test1>
+		<cheateTestMediator public="1" set="method" line="19"><f a=""><x path="Void"/></f></cheateTestMediator>
+		<view public="1"><c path="integration.scopedmessaging.testobj.modulea.ChannelViewA"/></view>
+		<new public="1" set="method" line="15"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="integration.scopedmessaging.testobj.modulea.ChannelViewA" params="" file="test/integration/scopedmessaging/testobj/modulea/ChannelViewA.hx">
+		<extends path="flash.display.Sprite"/>
+		<test4params public="1"><c path="String"/></test4params>
+		<test4handled public="1"><x path="Bool"/></test4handled>
+		<test3handled public="1"><x path="Bool"/></test3handled>
+		<test2handled public="1"><x path="Bool"/></test2handled>
+		<test1handled public="1"><x path="Bool"/></test1handled>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="mvcexpress.mvc.Command" params="" file="mvcexpress/mvc/Command.hx">
+		<canConstruct public="1" static="1"><x path="Bool"/></canConstruct>
+		<getMessageType public="1" set="method" line="133">
+			<f a=""><c path="String"/></f>
+			<haxe_doc>* Type of message that executed this command. (If command is not executed by message it set to null.) 
+	 *</haxe_doc>
+		</getMessageType>
+		<unregisterScope set="method" line="121">
+			<f a="scopeName">
+				<c path="String"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Unregisters scope name.
+	 * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.</haxe_doc>
+		</unregisterScope>
+		<registerScope set="method" line="112">
+			<f a="scopeName:?messageSending:?messageReceiving:?proxieMapping">
+				<c path="String"/>
+				<x path="Bool"/>
+				<x path="Bool"/>
+				<x path="Bool"/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Registers scope name.
+	 * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.
+	 * What features module can use with that scope is defined by parameters.
+	 * 
+	 * 
+	 * 
+	 *</haxe_doc>
+		</registerScope>
+		<sendScopeMessage set="method" line="86">
+			<f a="scopeName:type:?params">
+				<c path="String"/>
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
+	 * 
+	 * 
+	 *</haxe_doc>
+		</sendScopeMessage>
+		<sendMessage set="method" line="65">
+			<f a="type:?params">
+				<c path="String"/>
+				<d/>
+				<x path="Void"/>
+			</f>
+			<haxe_doc>* Sends a message with optional params object inside of current module.</haxe_doc>
+		</sendMessage>
+		<isExecuting public="1"><x path="Bool"/></isExecuting>
+		<messageType public="1"><c path="String"/></messageType>
+		<messenger public="1">
+			<c path="mvcexpress.core.messenger.Messenger"/>
+			<haxe_doc>used internally for communication</haxe_doc>
+		</messenger>
+		<mediatorMap public="1">
+			<c path="mvcexpress.core.MediatorMap"/>
+			<haxe_doc>Handles application Mediators.</haxe_doc>
+		</mediatorMap>
+		<proxyMap public="1">
+			<c path="mvcexpress.core.ProxyMap"/>
+			<haxe_doc>Handles application Proxies.</haxe_doc>
+		</proxyMap>
+		<commandMap public="1">
+			<c path="mvcexpress.core.CommandMap"/>
+			<haxe_doc>Handles application Commands.</haxe_doc>
+		</commandMap>
+		<new public="1" set="method" line="50">
+			<f a=""><x path="Void"/></f>
+			<haxe_doc>CONSTRUCTOR</haxe_doc>
+		</new>
+	</class>
+	<class path="integration.scopedmessaging.testobj.modulea.ComTest1Command" params="" file="test/integration/scopedmessaging/testobj/modulea/ComTest1Command.hx">
+		<extends path="mvcexpress.mvc.Command"/>
+		<execute public="1" set="method" line="14"><f a="moduleB">
+	<c path="integration.scopedmessaging.testobj.moduleb.ChannelModuleB"/>
+	<x path="Void"/>
+</f></execute>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="integration.scopedmessaging.testobj.moduleb.ChannelBMediator" params="" file="test/integration/scopedmessaging/testobj/moduleb/ChannelBMediator.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="12" static="1"><c path="String"/></__rtti>
+		<onRemove public="1" set="method" line="41" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<sendChannelMessage4 set="method" line="37"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></sendChannelMessage4>
+		<sendChannelMessage3 set="method" line="33"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></sendChannelMessage3>
+		<sendChannelMessage2 set="method" line="29"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></sendChannelMessage2>
+		<sendChannelMessage1 set="method" line="25"><f a="event">
+	<c path="flash.events.Event"/>
+	<x path="Void"/>
+</f></sendChannelMessage1>
+		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1"><c path="flash.display.Sprite"/></view>
+		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="integration.scopedmessaging.testobj.moduleb.ChannelModuleB" params="" file="test/integration/scopedmessaging/testobj/moduleb/ChannelModuleB.hx">
+		<extends path="mvcexpress.modules.ModuleCore"/>
+		<NAME public="1" line="14" static="1"><c path="String"/></NAME>
+		<onDispose set="method" line="52" override="1"><f a=""><x path="Void"/></f></onDispose>
+		<onInit set="method" line="47" override="1"><f a=""><x path="Void"/></f></onInit>
+		<sendChannelMessage_comTest1 public="1" set="method" line="43"><f a=""><x path="Void"/></f></sendChannelMessage_comTest1>
+		<sendChannelMessage_testChannel_test4_withParams public="1" set="method" line="39"><f a=""><x path="Void"/></f></sendChannelMessage_testChannel_test4_withParams>
+		<sendChannelMessage_testChannel_test3 public="1" set="method" line="35"><f a=""><x path="Void"/></f></sendChannelMessage_testChannel_test3>
+		<sendChannelMessage_test2 public="1" set="method" line="31"><f a=""><x path="Void"/></f></sendChannelMessage_test2>
+		<sendChannelMessage_test1 public="1" set="method" line="27"><f a=""><x path="Void"/></f></sendChannelMessage_test1>
+		<cheateTestMediator public="1" set="method" line="21"><f a=""><x path="Void"/></f></cheateTestMediator>
+		<command1executed public="1"><x path="Bool"/></command1executed>
+		<view><c path="flash.display.Sprite"/></view>
+		<new public="1" set="method" line="16"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.MvcExpress" params="" file="mvcexpress/MvcExpress.hx">
 		<VERSION public="1" get="accessor" set="null" static="1"><c path="String"/></VERSION>
@@ -17583,11 +18638,11 @@
 			</c>
 			<haxe_doc>dictionary of (Vector of InjectRuleVO), stored by class names.</haxe_doc>
 		</classInjectRules>
-		<getProxyById public="1" set="method" line="657"><f a="injectClassAndName">
+		<getProxyById public="1" set="method" line="645"><f a="injectClassAndName">
 	<c path="String"/>
 	<c path="mvcexpress.mvc.Proxy"/>
 </f></getProxyById>
-		<getInjectByConstName set="method" line="629"><f a="constName">
+		<getInjectByConstName set="method" line="617"><f a="constName">
 	<c path="String"/>
 	<c path="String"/>
 </f></getInjectByConstName>
@@ -17781,7 +18836,7 @@
 			<x path="Class"><d/></x>
 			<haxe_doc>* private class to store lazy proxy data.</haxe_doc>
 		</proxyClass>
-		<new public="1" set="method" line="674"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="662"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.inject.InjectRuleVO" params="" file="mvcexpress/core/inject/InjectRuleVO.hx">
 		<toString public="1" set="method" line="19"><f a=""><c path="String"/></f></toString>
@@ -18443,262 +19498,6 @@
 	<x path="Void"/>
 </f></new>
 	</class>
-	<class path="mvcexpress.mvc.Command" params="" file="mvcexpress/mvc/Command.hx">
-		<canConstruct public="1" static="1"><x path="Bool"/></canConstruct>
-		<getMessageType public="1" set="method" line="133">
-			<f a=""><c path="String"/></f>
-			<haxe_doc>* Type of message that executed this command. (If command is not executed by message it set to null.) 
-	 *</haxe_doc>
-		</getMessageType>
-		<unregisterScope set="method" line="121">
-			<f a="scopeName">
-				<c path="String"/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Unregisters scope name.
-	 * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.</haxe_doc>
-		</unregisterScope>
-		<registerScope set="method" line="112">
-			<f a="scopeName:?messageSending:?messageReceiving:?proxieMapping">
-				<c path="String"/>
-				<x path="Bool"/>
-				<x path="Bool"/>
-				<x path="Bool"/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Registers scope name.
-	 * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.
-	 * What features module can use with that scope is defined by parameters.
-	 * 
-	 * 
-	 * 
-	 *</haxe_doc>
-		</registerScope>
-		<sendScopeMessage set="method" line="86">
-			<f a="scopeName:type:?params">
-				<c path="String"/>
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * 
-	 * 
-	 *</haxe_doc>
-		</sendScopeMessage>
-		<sendMessage set="method" line="65">
-			<f a="type:?params">
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Sends a message with optional params object inside of current module.</haxe_doc>
-		</sendMessage>
-		<isExecuting public="1"><x path="Bool"/></isExecuting>
-		<messageType public="1"><c path="String"/></messageType>
-		<messenger public="1">
-			<c path="mvcexpress.core.messenger.Messenger"/>
-			<haxe_doc>used internally for communication</haxe_doc>
-		</messenger>
-		<mediatorMap public="1">
-			<c path="mvcexpress.core.MediatorMap"/>
-			<haxe_doc>Handles application Mediators.</haxe_doc>
-		</mediatorMap>
-		<proxyMap public="1">
-			<c path="mvcexpress.core.ProxyMap"/>
-			<haxe_doc>Handles application Proxies.</haxe_doc>
-		</proxyMap>
-		<commandMap public="1">
-			<c path="mvcexpress.core.CommandMap"/>
-			<haxe_doc>Handles application Commands.</haxe_doc>
-		</commandMap>
-		<new public="1" set="method" line="50">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>CONSTRUCTOR</haxe_doc>
-		</new>
-	</class>
-	<class path="mvcexpress.mvc.Mediator" params="" file="mvcexpress/mvc/Mediator.hx">
-		<canConstruct public="1" static="1"><x path="Bool"/></canConstruct>
-		<remove public="1" set="method" line="334">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc><![CDATA[* framework function to dispose this mediator. 																			<br>
-	 * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)					<br>
-	 * It:																														<br>
-	 * - remove all handle functions created by this mediator																	<br>
-	 * - remove all event listeners created by internal addListener() function													<br>
-	 * - sets internals to null																									<br>
-	 *]]></haxe_doc>
-		</remove>
-		<register public="1" set="method" line="320">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>* marks mediator as ready and calls onRegister()
-	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>
-		</register>
-		<removeAllListeners set="method" line="288">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>* Removes all listeners created by mediators addEventListener() function.
-	 * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.
-	 * Automatically called then mediator is removed(unmediated) by framework.
-	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
-		</removeAllListeners>
-		<removeListener set="method" line="260">
-			<f a="viewObject:type:listener:?useCapture">
-				<c path="flash.events.IEventDispatcher"/>
-				<c path="String"/>
-				<d/>
-				<x path="Bool"/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Removes an event listener from the viewObject.
-	 * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>
-		</removeListener>
-		<addListener set="method" line="235">
-			<f a="viewObject:type:listener:?useCapture:?priority:?useWeakReference">
-				<c path="flash.events.IEventDispatcher"/>
-				<c path="String"/>
-				<d/>
-				<x path="Bool"/>
-				<x path="Int"/>
-				<x path="Bool"/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.
-	 * 
-	 * 
-	 * 
-	 *   as its only parameter and must return nothing, as this example shows:
-	 *   function(event:Event):void
-	 *   The function can have any name.
-	 * 
-	 * 
-	 *		If two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.
-	 * 
-	 *		A strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>
-		</addListener>
-		<removeScopeHandler set="method" line="213">
-			<f a="scopeName:type:handler">
-				<c path="String"/>
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.
-	 * 
-	 * 
-	 *</haxe_doc>
-		</removeScopeHandler>
-		<addScopeHandler set="method" line="202">
-			<f a="scopeName:type:handler">
-				<c path="String"/>
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.
-	 * 
-	 * 
-	 *</haxe_doc>
-		</addScopeHandler>
-		<removeAllHandlers set="method" line="184">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.
-	 * Automatically called then mediator is removed(unmediated) by framework.
-	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
-		</removeAllHandlers>
-		<removeHandler set="method" line="174">
-			<f a="type:handler">
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Removes handle function from message of given type.
-	 * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.
-	 * 
-	 *</haxe_doc>
-		</removeHandler>
-		<addHandler set="method" line="150">
-			<f a="type:handler">
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* adds handle function to be called then message of given type is sent.
-	 * 
-	 *</haxe_doc>
-		</addHandler>
-		<sendScopeMessage set="method" line="126">
-			<f a="scopeName:type:?params">
-				<c path="String"/>
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.
-	 * 
-	 * 
-	 *</haxe_doc>
-		</sendScopeMessage>
-		<sendMessage set="method" line="105">
-			<f a="type:?params">
-				<c path="String"/>
-				<d/>
-				<x path="Void"/>
-			</f>
-			<haxe_doc>* Sends a message with optional params object inside of current module.
-	 * 
-	 *</haxe_doc>
-		</sendMessage>
-		<get_isReady set="method" line="93">
-			<f a=""><x path="Bool"/></f>
-			<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>
-		</get_isReady>
-		<onRemove public="1" set="method" line="86">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>
-		</onRemove>
-		<onRegister public="1" set="method" line="79">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>
-		</onRegister>
-		<eventListenerCaptureRegistry>
-			<c path="haxe.ds.ObjectMap">
-				<d/>
-				<x path="Map">
-					<c path="String"/>
-					<c path="flash.events.IEventDispatcher"/>
-				</x>
-			</c>
-			<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>
-		</eventListenerCaptureRegistry>
-		<eventListenerRegistry>
-			<c path="haxe.ds.ObjectMap">
-				<d/>
-				<x path="Map">
-					<c path="String"/>
-					<c path="flash.events.IEventDispatcher"/>
-				</x>
-			</c>
-			<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>
-		</eventListenerRegistry>
-		<handlerVoRegistry>
-			<c path="Array"><c path="mvcexpress.core.messenger.HandlerVO"/></c>
-			<haxe_doc>all added message handlers.</haxe_doc>
-		</handlerVoRegistry>
-		<pendingInjections public="1"><x path="Int"/></pendingInjections>
-		<_isReady><x path="Bool"/></_isReady>
-		<messenger public="1"><c path="mvcexpress.core.messenger.Messenger"/></messenger>
-		<mediatorMap public="1">
-			<c path="mvcexpress.core.interfaces.IMediatorMap"/>
-			<haxe_doc>* Handles application mediators.</haxe_doc>
-		</mediatorMap>
-		<proxyMap public="1"><c path="mvcexpress.core.interfaces.IProxyMap"/></proxyMap>
-		<moduleName public="1"><c path="String"/></moduleName>
-		<isReady get="accessor" set="null"><x path="Bool"/></isReady>
-		<new public="1" set="method" line="59">
-			<f a=""><x path="Void"/></f>
-			<haxe_doc>CONSTRUCTOR</haxe_doc>
-		</new>
-	</class>
 	<class path="mvcexpress.mvc.PooledCommand" params="" file="mvcexpress/mvc/PooledCommand.hx">
 		<extends path="mvcexpress.mvc.Command"/>
 		<unlock public="1" set="method" line="40">
@@ -18725,6 +19524,7 @@
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.mvc.Proxy" params="" file="mvcexpress/mvc/Proxy.hx">
+		<__rtti public="1" line="19" static="1"><c path="String"/></__rtti>
 		<getDependantCommands public="1" set="method" line="203"><f a=""><x path="Map">
 	<d/>
 	<x path="Class"><d/></x>
@@ -18823,6 +19623,7 @@
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>CONSTRUCTOR</haxe_doc>
 		</new>
+		<meta><m n=":rtti"/></meta>
 	</class>
 	<class path="mvcexpress.utils.MvcExpressTools" params="" file="mvcexpress/utils/MvcExpressTools.hx">
 		<checkClassSuperClass public="1" set="method" line="17" static="1"><f a="classObject:superClass">
@@ -19036,44 +19837,41 @@
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.mediatormap.MediatorMapTests" params="" file="test/suites/mediatormap/MediatorMapTests.hx">
-		<callBackIncrease public="1" set="method" line="197"><f a="?obj">
+		<extends path="Tester"/>
+		<callBackIncrease public="1" set="method" line="192"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackIncrease>
-		<callBackCheck set="method" line="190"><f a="?obj">
+		<callBackCheck set="method" line="185"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackCheck>
-		<callBackSuccess public="1" set="method" line="182"><f a="?obj">
+		<callBackSuccess public="1" set="method" line="177"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackSuccess>
-		<callBackFail set="method" line="178"><f a="?obj">
+		<callBackFail set="method" line="173"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackFail>
-		<debug_map_not_mediator_fails public="1" set="method" line="164"><f a=""><x path="Void"/></f></debug_map_not_mediator_fails>
-		<debug_test_isMapped_true public="1" set="method" line="158"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
-		<debug_test_isMapped_false_wrong_mediator public="1" set="method" line="152"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_mediator>
-		<debug_test_isMapped_false_wrong_view public="1" set="method" line="146"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_view>
-		<mediatorMap_doubleMediateWith_fails public="1" set="method" line="127"><f a=""><x path="Void"/></f></mediatorMap_doubleMediateWith_fails>
-		<mediatorMap_mediateWith_notFails public="1" set="method" line="114"><f a=""><x path="Void"/></f></mediatorMap_mediateWith_notFails>
-		<mediatorMap_doubleMediate_fails public="1" set="method" line="107"><f a=""><x path="Void"/></f></mediatorMap_doubleMediate_fails>
-		<mediatorMap_messag_callBack_test public="1" set="method" line="98"><f a=""><x path="Void"/></f></mediatorMap_messag_callBack_test>
-		<mediatorMap_onRegister_and_onRemove public="1" set="method" line="86"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_onRemove>
-		<mediatorMap_onRegister_and_no_onRemove public="1" set="method" line="75"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_no_onRemove>
-		<runAfterEveryTest public="1" set="method" line="65"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="53"><f a=""><x path="Void"/></f></runBeforeEveryTest>
-		<testFunction public="1" set="method" line="46"><f a="funcName">
-	<c path="String"/>
-	<x path="Void"/>
-</f></testFunction>
+		<debug_map_not_mediator_fails public="1" set="method" line="159"><f a=""><x path="Void"/></f></debug_map_not_mediator_fails>
+		<debug_test_isMapped_true public="1" set="method" line="153"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
+		<debug_test_isMapped_false_wrong_mediator public="1" set="method" line="147"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_mediator>
+		<debug_test_isMapped_false_wrong_view public="1" set="method" line="141"><f a=""><x path="Void"/></f></debug_test_isMapped_false_wrong_view>
+		<mediatorMap_doubleMediateWith_fails public="1" set="method" line="122"><f a=""><x path="Void"/></f></mediatorMap_doubleMediateWith_fails>
+		<mediatorMap_mediateWith_notFails public="1" set="method" line="109"><f a=""><x path="Void"/></f></mediatorMap_mediateWith_notFails>
+		<mediatorMap_doubleMediate_fails public="1" set="method" line="102"><f a=""><x path="Void"/></f></mediatorMap_doubleMediate_fails>
+		<mediatorMap_messag_callBack_test public="1" set="method" line="93"><f a=""><x path="Void"/></f></mediatorMap_messag_callBack_test>
+		<mediatorMap_onRegister_and_onRemove public="1" set="method" line="81"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_onRemove>
+		<mediatorMap_onRegister_and_no_onRemove public="1" set="method" line="70"><f a=""><x path="Void"/></f></mediatorMap_onRegister_and_no_onRemove>
+		<runAfterEveryTest public="1" set="method" line="60" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="48" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<callsExpected><x path="Int"/></callsExpected>
 		<callCaunter><x path="Int"/></callCaunter>
 		<mediatorMap><c path="mvcexpress.core.MediatorMap"/></mediatorMap>
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
-		<new public="1" set="method" line="32"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="33"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.mediatormap.medatormaptestobj.MediatorMapTestSprite" params="" file="test/suites/mediatormap/medatormaptestobj/MediatorMapTestSprite.hx">
 		<extends path="flash.display.Sprite"/>
@@ -19081,6 +19879,7 @@
 	</class>
 	<class path="suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator" params="" file="test/suites/mediatormap/medatormaptestobj/MediatorMapTestSpriteMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="9" static="1"><c path="String"/></__rtti>
 		<TEST_MESSAGE_TYPE public="1" line="11" static="1"><c path="String"/></TEST_MESSAGE_TYPE>
 		<REGISTER_TEST_FUNCTION public="1" line="12" static="1"><d/></REGISTER_TEST_FUNCTION>
 		<REMOVE_TEST_FUNCTION public="1" line="15" static="1"><d/></REMOVE_TEST_FUNCTION>
@@ -19094,20 +19893,17 @@
 		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.mediators.MediatorTests" params="" file="test/suites/mediators/MediatorTests.hx">
-		<mediator_same_handler_added_twice_fails public="1" set="method" line="126"><f a=""><x path="Void"/></f></mediator_same_handler_added_twice_fails>
-		<mediator_handler_two_params_one_optional public="1" set="method" line="121"><f a=""><x path="Void"/></f></mediator_handler_two_params_one_optional>
-		<mediator_handler_two_params public="1" set="method" line="116"><f a=""><x path="Void"/></f></mediator_handler_two_params>
-		<mediator_handler_bad_params public="1" set="method" line="111"><f a=""><x path="Void"/></f></mediator_handler_bad_params>
-		<mediator_handler_object_params public="1" set="method" line="106"><f a=""><x path="Void"/></f></mediator_handler_object_params>
-		<mediator_empty_handler public="1" set="method" line="78"><f a=""><x path="Void"/></f></mediator_empty_handler>
-		<mediator_isReady public="1" set="method" line="73"><f a=""><x path="Void"/></f></mediator_isReady>
-		<mediator_constructor_fails public="1" set="method" line="64"><f a=""><x path="Void"/></f></mediator_constructor_fails>
-		<runAfterEveryTest public="1" set="method" line="54"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="41"><f a=""><x path="Void"/></f></runBeforeEveryTest>
-		<testFunction public="1" set="method" line="34"><f a="funcName">
-	<c path="String"/>
-	<x path="Void"/>
-</f></testFunction>
+		<extends path="Tester"/>
+		<mediator_same_handler_added_twice_fails public="1" set="method" line="120"><f a=""><x path="Void"/></f></mediator_same_handler_added_twice_fails>
+		<mediator_handler_two_params_one_optional public="1" set="method" line="115"><f a=""><x path="Void"/></f></mediator_handler_two_params_one_optional>
+		<mediator_handler_two_params public="1" set="method" line="110"><f a=""><x path="Void"/></f></mediator_handler_two_params>
+		<mediator_handler_bad_params public="1" set="method" line="105"><f a=""><x path="Void"/></f></mediator_handler_bad_params>
+		<mediator_handler_object_params public="1" set="method" line="100"><f a=""><x path="Void"/></f></mediator_handler_object_params>
+		<mediator_empty_handler public="1" set="method" line="72"><f a=""><x path="Void"/></f></mediator_empty_handler>
+		<mediator_isReady public="1" set="method" line="67"><f a=""><x path="Void"/></f></mediator_isReady>
+		<mediator_constructor_fails public="1" set="method" line="58"><f a=""><x path="Void"/></f></mediator_constructor_fails>
+		<runAfterEveryTest public="1" set="method" line="48" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="35" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<testView><c path="suites.testobjects.view.MediatorSprite"/></testView>
 		<mediatorMap><c path="mvcexpress.core.MediatorMap"/></mediatorMap>
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
@@ -19115,28 +19911,25 @@
 		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.messenger.MessengerTests" params="" file="test/suites/messenger/MessengerTests.hx">
-		<callbacknormal public="1" set="method" line="104"><f a="obj">
+		<extends path="Tester"/>
+		<callbacknormal public="1" set="method" line="98"><f a="obj">
 	<d/>
 	<x path="Void"/>
 </f></callbacknormal>
-		<callBackSuccess public="1" set="method" line="101"><f a="obj">
+		<callBackSuccess public="1" set="method" line="95"><f a="obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackSuccess>
-		<callBackFail set="method" line="97"><f a="obj">
+		<callBackFail set="method" line="91"><f a="obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackFail>
-		<add_and_remove_callback_then_message_fails_silently public="1" set="method" line="86"><f a=""><x path="Void"/></f></add_and_remove_callback_then_message_fails_silently>
-		<add_callback_and_disable_then_message_fails_silently public="1" set="method" line="74"><f a=""><x path="Void"/></f></add_callback_and_disable_then_message_fails_silently>
-		<add_callback_and_sendNot_then_message_fails_silently public="1" set="method" line="64"><f a=""><x path="Void"/></f></add_callback_and_sendNot_then_message_fails_silently>
-		<add_and_handle_callback public="1" set="method" line="54"><f a=""><x path="Void"/></f></add_and_handle_callback>
-		<runAfterEveryTest public="1" set="method" line="45"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="37"><f a=""><x path="Void"/></f></runBeforeEveryTest>
-		<testFunction public="1" set="method" line="30"><f a="funcName">
-	<c path="String"/>
-	<x path="Void"/>
-</f></testFunction>
+		<add_and_remove_callback_then_message_fails_silently public="1" set="method" line="80"><f a=""><x path="Void"/></f></add_and_remove_callback_then_message_fails_silently>
+		<add_callback_and_disable_then_message_fails_silently public="1" set="method" line="68"><f a=""><x path="Void"/></f></add_callback_and_disable_then_message_fails_silently>
+		<add_callback_and_sendNot_then_message_fails_silently public="1" set="method" line="58"><f a=""><x path="Void"/></f></add_callback_and_sendNot_then_message_fails_silently>
+		<add_and_handle_callback public="1" set="method" line="48"><f a=""><x path="Void"/></f></add_and_handle_callback>
+		<runAfterEveryTest public="1" set="method" line="39" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="31" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
 		<new public="1" set="method" line="21"><f a=""><x path="Void"/></f></new>
 	</class>
@@ -19159,56 +19952,55 @@
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.NamedInterfacedProxyMapTests" params="" file="test/suites/proxymap/NamedInterfacedProxyMapTests.hx">
-		<class_proxy_not_null public="1" set="method" line="45"><f a=""><x path="Void"/></f></class_proxy_not_null>
-		<runAfterEveryTest public="1" set="method" line="38"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="29"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<extends path="Tester"/>
+		<class_proxy_not_null public="1" set="method" line="44"><f a=""><x path="Void"/></f></class_proxy_not_null>
+		<runAfterEveryTest public="1" set="method" line="37" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="28" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<namedTestingProxy><c path="suites.proxymap.namedproxytestobj.NamedProxyTestingProxy"/></namedTestingProxy>
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
 		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.OldProxyMapTests" params="" file="test/suites/proxymap/OldProxyMapTests.hx">
-		<callBackIncrease public="1" set="method" line="219"><f a="?obj">
+		<extends path="Tester"/>
+		<callBackIncrease public="1" set="method" line="209"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackIncrease>
-		<callBackCheck set="method" line="212"><f a="?obj">
+		<callBackCheck set="method" line="202"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackCheck>
-		<callBackSuccess public="1" set="method" line="206"><f a="?obj">
+		<callBackSuccess public="1" set="method" line="196"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackSuccess>
-		<callBackFail set="method" line="202"><f a="?obj">
+		<callBackFail set="method" line="192"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></callBackFail>
-		<debug_test_isMapped_true public="1" set="method" line="192"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
-		<debug_test_isMapped_false public="1" set="method" line="184"><f a=""><x path="Void"/></f></debug_test_isMapped_false>
-		<removing_object_proxy public="1" set="method" line="171"><f a=""><x path="Void"/></f></removing_object_proxy>
-		<removing_class_proxy public="1" set="method" line="159"><f a=""><x path="Void"/></f></removing_class_proxy>
-		<mappings_does_not_exists_throws_error public="1" set="method" line="149"><f a=""><x path="Void"/></f></mappings_does_not_exists_throws_error>
-		<mapping_object_proxy_twice_throws_error public="1" set="method" line="139"><f a=""><x path="Void"/></f></mapping_object_proxy_twice_throws_error>
-		<using_object_proxy_twice_both_should_be_equal public="1" set="method" line="124"><f a=""><x path="Void"/></f></using_object_proxy_twice_both_should_be_equal>
-		<using_object_test public="1" set="method" line="109"><f a=""><x path="Void"/></f></using_object_test>
-		<mapping_class_proxy_twice_throws_error public="1" set="method" line="100"><f a=""><x path="Void"/></f></mapping_class_proxy_twice_throws_error>
-		<using_class_proxy_twice_both_should_be_equal public="1" set="method" line="84"><f a=""><x path="Void"/></f></using_class_proxy_twice_both_should_be_equal>
-		<using_class_proxy public="1" set="method" line="67"><f a=""><x path="Void"/></f></using_class_proxy>
-		<runAfterEveryTest public="1" set="method" line="55"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="44"><f a=""><x path="Void"/></f></runBeforeEveryTest>
-		<testFunction public="1" set="method" line="37"><f a="funcName">
-	<c path="String"/>
-	<x path="Void"/>
-</f></testFunction>
+		<debug_test_isMapped_true public="1" set="method" line="182"><f a=""><x path="Void"/></f></debug_test_isMapped_true>
+		<debug_test_isMapped_false public="1" set="method" line="174"><f a=""><x path="Void"/></f></debug_test_isMapped_false>
+		<removing_object_proxy public="1" set="method" line="161"><f a=""><x path="Void"/></f></removing_object_proxy>
+		<removing_class_proxy public="1" set="method" line="149"><f a=""><x path="Void"/></f></removing_class_proxy>
+		<mappings_does_not_exists_throws_error public="1" set="method" line="139"><f a=""><x path="Void"/></f></mappings_does_not_exists_throws_error>
+		<mapping_object_proxy_twice_throws_error public="1" set="method" line="129"><f a=""><x path="Void"/></f></mapping_object_proxy_twice_throws_error>
+		<using_object_proxy_twice_both_should_be_equal public="1" set="method" line="114"><f a=""><x path="Void"/></f></using_object_proxy_twice_both_should_be_equal>
+		<using_object_test public="1" set="method" line="100"><f a=""><x path="Void"/></f></using_object_test>
+		<mapping_class_proxy_twice_throws_error public="1" set="method" line="91"><f a=""><x path="Void"/></f></mapping_class_proxy_twice_throws_error>
+		<using_class_proxy_twice_both_should_be_equal public="1" set="method" line="76"><f a=""><x path="Void"/></f></using_class_proxy_twice_both_should_be_equal>
+		<using_class_proxy public="1" set="method" line="62"><f a=""><x path="Void"/></f></using_class_proxy>
+		<runAfterEveryTest public="1" set="method" line="50" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="39" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<callsExpected><x path="Int"/></callsExpected>
 		<callCaunter><x path="Int"/></callCaunter>
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
-		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="23"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.namedproxytestobj.NamedProxyTestingProxy" params="" file="test/suites/proxymap/namedproxytestobj/NamedProxyTestingProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
+		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
 		<proxyNamedNotNullClass public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></proxyNamedNotNullClass>
 		<proxyNamed public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></proxyNamed>
 		<proxyNamedInterface public="1"><c path="suites.proxymap.proxytestobj.ITestProxy"/></proxyNamedInterface>
@@ -19217,31 +20009,21 @@
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.proxymap.proxytestobj.ITestProxy" params="" file="test/suites/proxymap/proxytestobj/ITestProxy.hx" interface="1"/>
-	<class path="suites.proxymap.proxytestobj.DifferentProxy" params="" file="test/suites/proxymap/proxytestobj/DifferentProxy.hx">
-		<extends path="mvcexpress.mvc.Proxy"/>
-		<implements path="suites.proxymap.proxytestobj.ITestProxy"/>
-		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
-	</class>
 	<class path="suites.proxymap.proxytestobj.ProxyTestObj" params="" file="test/suites/proxymap/proxytestobj/ProxyTestObj.hx">
-		<testProxy2 public="1">
-			<d/>
-			<meta><m n="inject"/></meta>
-		</testProxy2>
+		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
 		<testProxy1112 public="1"><c path="suites.proxymap.proxytestobj.TestProxy"/></testProxy1112>
 		<testProxy public="1">
-			<c path="suites.proxymap.proxytestobj.DifferentProxy"/>
-			<meta><m n="inject"><e>{name:"toto",scope:"tata"}</e></m></meta>
+			<c path="suites.proxymap.proxytestobj.TestProxy"/>
+			<meta><m n="inject"/></meta>
 		</testProxy>
-		<new public="1" set="method" line="22"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="25"><f a=""><x path="Void"/></f></new>
+		<meta><m n=":rtti"/></meta>
 	</class>
 	<class path="suites.proxymap.proxytestobj.TestProxy" params="" file="test/suites/proxymap/proxytestobj/TestProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
 		<implements path="suites.proxymap.proxytestobj.ITestProxy"/>
-		<different public="1">
-			<c path="suites.proxymap.proxytestobj.DifferentProxy"/>
-			<meta><m n="inject"/></meta>
-		</different>
-		<new public="1" set="method" line="14"><f a=""><x path="Void"/></f></new>
+		<__rtti public="1" line="9" static="1"><c path="String"/></__rtti>
+		<new public="1" set="method" line="15"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.testobjects.ITestObject" params="" file="test/suites/testobjects/ITestObject.hx" interface="1"/>
 	<class path="suites.testobjects.TestObject" params="" file="test/suites/testobjects/TestObject.hx">
@@ -19264,12 +20046,14 @@
 	<class path="suites.testobjects.model.SimpleTestProxy" params="" file="test/suites/testobjects/model/SimpleTestProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
 		<implements path="suites.testobjects.model.ISimpleTestProxy"/>
+		<__rtti public="1" line="9" static="1"><c path="String"/></__rtti>
 		<onRemove set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRemove>
 		<onRegister set="method" line="15" override="1"><f a=""><x path="Void"/></f></onRegister>
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.testobjects.modulemain.MainDataProxy" params="" file="test/suites/testobjects/modulemain/MainDataProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
+		<__rtti public="1" line="9" static="1"><c path="String"/></__rtti>
 		<getTestProxy public="1" set="method" line="34"><f a="proxyClass:name">
 	<x path="Class"><d/></x>
 	<c path="String"/>
@@ -19394,6 +20178,7 @@
 	</class>
 	<class path="suites.testobjects.modulemain.MainViewMediator" params="" file="test/suites/testobjects/modulemain/MainViewMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="12" static="1"><c path="String"/></__rtti>
 		<trigerRemoteHandler set="method" line="63"><f a="params">
 	<d/>
 	<x path="Void"/>
@@ -19433,6 +20218,7 @@
 	</class>
 	<class path="suites.testobjects.view.MediatorSpriteMediator" params="" file="test/suites/testobjects/view/MediatorSpriteMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="13" static="1"><c path="String"/></__rtti>
 		<instance public="1" static="1"><c path="suites.testobjects.view.MediatorSpriteMediator"/></instance>
 		<getIsReady public="1" set="method" line="61"><f a=""><x path="Bool"/></f></getIsReady>
 		<handleTestWithTwoParamsOneOptional public="1" set="method" line="58"><f a="params:?extraParam">

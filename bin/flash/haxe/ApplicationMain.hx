@@ -31,16 +31,16 @@ class ApplicationMain {
 			flash.Lib.current.addEventListener(flash.events.Event.ENTER_FRAME, onEnter);
 		}
 		
-		/*
-		#if !fdb
-		haxe.Log.trace = flashTrace;
-		#end
-		*/
+		
+		//#if !fdb
+		//haxe.Log.trace = flashTrace;
+		//#end
+		
 		if (call_real)
 			begin();
 	}
-/*
-	#if !fdb
+
+	/*#if !fdb
 	private static function flashTrace( v : Dynamic, ?pos : haxe.PosInfos ) {
 		var className = pos.className.substr(pos.className.lastIndexOf('.') + 1);
 		var message = className+"::"+pos.methodName+":"+pos.lineNumber+": " + v;
@@ -50,7 +50,7 @@ class ApplicationMain {
 		else untyped flash.Boot.__trace(v, pos);
     }
 	#end
-*/
+/*/
 	private static function begin() {
 		var hasMain = false;
 		
