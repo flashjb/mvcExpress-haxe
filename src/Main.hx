@@ -1,7 +1,8 @@
 package;
 
-import suites.general.GeneralTests;
 import integration.moduleinittests.ModuleInitTests;
+import suites.faturegetproxy.FeatureGetProxyTests;
+import suites.general.GeneralTests;
 import suites.messenger.MessengerTests;
 import suites.mediators.MediatorTests;
 import suites.mediatormap.MediatorMapTests;
@@ -22,12 +23,12 @@ class Main
 		//new ModuleInitTests();
 		//new MessengerTests();
 		//new OldProxyMapTests();
-		new NamedInterfacedProxyMapTests();
+		//new NamedInterfacedProxyMapTests();
 		//new MediatorMapTests();
 		//new MediatorTests();
-		
 		//new ModularTests();
 		//new UtilsTests();
+		new FeatureGetProxyTests();
 	}
 	
 	public static function main() 

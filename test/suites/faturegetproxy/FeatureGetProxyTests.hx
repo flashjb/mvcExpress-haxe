@@ -12,13 +12,38 @@ import suites.testobjects.modulemain.MainModule;
 class FeatureGetProxyTests {
 
 	var mainModule : MainModule;
+	var _currentTest : Int = 0;
 	//private var externalModule:ExternalModule;
+	
+	public function new() 
+	{
+		testFunction("featureGetProxy_get_proxy_in_proxy");
+		testFunction("featureGetProxy_get_proxy_in_mediator");
+		testFunction("featureGetProxy_get_proxy_in_command");
+		testFunction("featureGetProxy_get_proxy_in_module");
+		testFunction("featureGetProxy_get_proxy_interfaced_in_proxy");
+		testFunction("featureGetProxy_get_proxy_interfaced_in_mediator");
+		testFunction("featureGetProxy_get_proxy_interfaced_in_command");
+		testFunction("featureGetProxy_get_proxy_interfaced_in_module");
+		testFunction("featureGetProxy_get_proxy_interfaced_named_in_proxy");
+		testFunction("featureGetProxy_get_proxy_interfaced_named_in_mediator");
+		testFunction("featureGetProxy_get_proxy_interfaced_named_in_command");
+		testFunction("featureGetProxy_get_proxy_interfaced_named_in_module");
+	
+	}
+
+	public function testFunction( funcName : String ) : Void
+	{
+		trace("\n*-------------------------*\n* current Test = "+ cast(++_currentTest) +" \n*-------------------------*");
+		runBeforeEveryTest();
+		Reflect.callMethod(this, Reflect.field(this, funcName), []);
+		runAfterEveryTest();
+	}
 	
 	public function runBeforeEveryTest() : Void {
 		mainModule = new MainModule();
 		//externalModule = new ExternalModule();
 	}
-
 	
 	public function runAfterEveryTest() : Void {
 		mainModule.disposeModule();
@@ -70,7 +95,6 @@ class FeatureGetProxyTests {
 		var returnedObj : Dynamic = mainModule.getProxyFromProxy(ISimpleTestProxy);
 		Assert.assertStrictlyEquals("You should be abble to get mapped proxies from other proxies.", testProxy, returnedObj);
 	}
-
 	
 	public function featureGetProxy_get_proxy_interfaced_in_mediator() : Void {
 		var testProxy : SimpleTestProxy = new SimpleTestProxy();
@@ -99,6 +123,7 @@ class FeatureGetProxyTests {
 	//     Get interfaced and named proxy
 	//----------------------------------
 	
+
 	public function featureGetProxy_get_proxy_interfaced_named_in_proxy() : Void {
 		var testProxy : SimpleTestProxy = new SimpleTestProxy();
 		mainModule.mapTestProxy(testProxy, ISimpleTestProxy, "testName");
@@ -122,7 +147,6 @@ class FeatureGetProxyTests {
 		Assert.assertStrictlyEquals("You should be abble to get mapped proxies from mediators.", testProxy, returnedObj);
 	}
 
-	
 	public function featureGetProxy_get_proxy_interfaced_named_in_module() : Void {
 		var testProxy : SimpleTestProxy = new SimpleTestProxy();
 		mainModule.mapTestProxy(testProxy, ISimpleTestProxy, "testName");

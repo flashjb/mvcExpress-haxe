@@ -30,8 +30,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="33" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="16"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="34" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/html5/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -39,11 +39,6 @@
 		<meta><m n=":build"><e>'???'</e></m></meta>
 	</class>
 	<class path="Array" params="T" file="/usr/lib/haxe/std/js/_std/Array.hx" extern="1">
-		<iterator public="1" get="inline" set="null" line="55">
-			<f a=""><t path="Iterator"><c path="Array.T"/></t></f>
-			<meta><m n=":runtime"/></meta>
-			<haxe_doc>Returns an iterator of the Array values.</haxe_doc>
-		</iterator>
 		<unshift public="1" set="method">
 			<f a="x">
 				<c path="Array.T"/>
@@ -2003,7 +1998,6 @@
 			<m n=":coreApi"/>
 		</meta>
 	</class>
-	<enum path="XmlType" params="" file="/usr/lib/haxe/std/js/_std/Xml.hx" module="Xml"/>
 	<class path="haxe.Timer" params="" file="/usr/lib/haxe/std/haxe/Timer.hx">
 		<delay public="1" set="method" line="110" static="1">
 			<f a="f:time_ms">
@@ -19964,6 +19958,10 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<x path="Void"/>
 </f></new>
 	</class>
+	<class path="suites.SuiteModuleNames" params="" file="test/suites/SuiteModuleNames.hx">
+		<MAIN_MODULE public="1" line="9" static="1"><c path="String"/></MAIN_MODULE>
+		<EXTERNAL_MODULE public="1" line="10" static="1"><c path="String"/></EXTERNAL_MODULE>
+	</class>
 	<class path="suites.TestViewEvent" params="" file="test/suites/TestViewEvent.hx">
 		<extends path="flash.events.Event"/>
 		<ADD_LOCAL_HANDLER public="1" line="11" static="1"><c path="String"/></ADD_LOCAL_HANDLER>
@@ -19980,6 +19978,29 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<x path="Class"><d/></x>
 	<x path="Void"/>
 </f></new>
+	</class>
+	<class path="suites.faturegetproxy.FeatureGetProxyTests" params="" file="test/suites/faturegetproxy/FeatureGetProxyTests.hx">
+		<featureGetProxy_get_proxy_interfaced_named_in_module public="1" set="method" line="150"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_named_in_module>
+		<featureGetProxy_get_proxy_interfaced_named_in_command public="1" set="method" line="143"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_named_in_command>
+		<featureGetProxy_get_proxy_interfaced_named_in_mediator public="1" set="method" line="135"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_named_in_mediator>
+		<featureGetProxy_get_proxy_interfaced_named_in_proxy public="1" set="method" line="127"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_named_in_proxy>
+		<featureGetProxy_get_proxy_interfaced_in_module public="1" set="method" line="115"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_in_module>
+		<featureGetProxy_get_proxy_interfaced_in_command public="1" set="method" line="107"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_in_command>
+		<featureGetProxy_get_proxy_interfaced_in_mediator public="1" set="method" line="99"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_in_mediator>
+		<featureGetProxy_get_proxy_interfaced_in_proxy public="1" set="method" line="92"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_in_proxy>
+		<featureGetProxy_get_proxy_in_module public="1" set="method" line="81"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_in_module>
+		<featureGetProxy_get_proxy_in_command public="1" set="method" line="73"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_in_command>
+		<featureGetProxy_get_proxy_in_mediator public="1" set="method" line="65"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_in_mediator>
+		<featureGetProxy_get_proxy_in_proxy public="1" set="method" line="57"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_in_proxy>
+		<runAfterEveryTest public="1" set="method" line="48"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="43"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<testFunction public="1" set="method" line="35"><f a="funcName">
+	<c path="String"/>
+	<x path="Void"/>
+</f></testFunction>
+		<_currentTest><x path="Int"/></_currentTest>
+		<mainModule><c path="suites.testobjects.modulemain.MainModule"/></mainModule>
+		<new public="1" set="method" line="18"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.general.GeneralTests" params="" file="test/suites/general/GeneralTests.hx">
 		<general_debug_flag public="1" set="method" line="26"><f a=""><x path="Void"/></f></general_debug_flag>
@@ -20198,6 +20219,184 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<class path="suites.testobjects.TestObject" params="" file="test/suites/testobjects/TestObject.hx">
 		<implements path="suites.testobjects.ITestObject"/>
 		<new public="1" set="method" line="7"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.controller.GetProxyTestCommand" params="" file="test/suites/testobjects/controller/GetProxyTestCommand.hx">
+		<extends path="mvcexpress.mvc.Command"/>
+		<execute public="1" set="method" line="15"><f a="proxyData">
+	<d/>
+	<x path="Void"/>
+</f></execute>
+		<dataProxy public="1">
+			<c path="suites.testobjects.modulemain.MainDataProxy"/>
+			<meta><m n="inject"/></meta>
+		</dataProxy>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.model.ISimpleTestProxy" params="" file="test/suites/testobjects/model/ISimpleTestProxy.hx" interface="1"/>
+	<class path="suites.testobjects.model.SimpleTestProxy" params="" file="test/suites/testobjects/model/SimpleTestProxy.hx">
+		<extends path="mvcexpress.mvc.Proxy"/>
+		<implements path="suites.testobjects.model.ISimpleTestProxy"/>
+		<onRemove set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister set="method" line="15" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.modulemain.MainDataProxy" params="" file="test/suites/testobjects/modulemain/MainDataProxy.hx">
+		<extends path="mvcexpress.mvc.Proxy"/>
+		<getTestProxy public="1" set="method" line="34"><f a="proxyClass:name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="mvcexpress.mvc.Proxy"/>
+</f></getTestProxy>
+		<onRemove set="method" line="31" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister set="method" line="28" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<testProxy public="1"><c path="mvcexpress.mvc.Proxy"/></testProxy>
+		<remoteHandlerCount public="1"><x path="Int"/></remoteHandlerCount>
+		<remoteCommandCount public="1"><x path="Int"/></remoteCommandCount>
+		<localHandlerCount public="1"><x path="Int"/></localHandlerCount>
+		<localCommandCount public="1"><x path="Int"/></localCommandCount>
+		<new public="1" set="method" line="19"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.modulemain.MainLocalCommand" params="" file="test/suites/testobjects/modulemain/MainLocalCommand.hx">
+		<extends path="mvcexpress.mvc.Command"/>
+		<execute public="1" set="method" line="15"><f a="blank">
+	<d/>
+	<x path="Void"/>
+</f></execute>
+		<dataProxy public="1">
+			<c path="suites.testobjects.modulemain.MainDataProxy"/>
+			<meta><m n="inject"/></meta>
+		</dataProxy>
+		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.modulemain.MainModule" params="" file="test/suites/testobjects/modulemain/MainModule.hx">
+		<extends path="mvcexpress.modules.ModuleSprite"/>
+		<NAME public="1" line="22" static="1"><c path="String"/></NAME>
+		<get_remoteHandlerCount public="1" set="method" line="138"><f a=""><x path="Int"/></f></get_remoteHandlerCount>
+		<get_remoteCommandCount public="1" set="method" line="134"><f a=""><x path="Int"/></f></get_remoteCommandCount>
+		<get_localHandlerCount public="1" set="method" line="130"><f a=""><x path="Int"/></f></get_localHandlerCount>
+		<get_localCommandCount public="1" set="method" line="126"><f a=""><x path="Int"/></f></get_localCommandCount>
+		<getProxyInCommand public="1" set="method" line="115"><f a="proxyClass:?name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="mvcexpress.mvc.Proxy"/>
+</f></getProxyInCommand>
+		<getProxyFromMediator public="1" set="method" line="106"><f a="proxyClass:?name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="mvcexpress.mvc.Proxy"/>
+</f></getProxyFromMediator>
+		<getProxyFromProxy public="1" set="method" line="102"><f a="proxyClass:?name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="mvcexpress.mvc.Proxy"/>
+</f></getProxyFromProxy>
+		<getTestProxy public="1" set="method" line="98"><f a="proxyClass:?name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="mvcexpress.mvc.Proxy"/>
+</f></getTestProxy>
+		<mapTestProxy public="1" set="method" line="94"><f a="testProxy:?injectClass:?name">
+	<c path="mvcexpress.mvc.Proxy"/>
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<x path="Void"/>
+</f></mapTestProxy>
+		<removeRemoteHandler public="1" set="method" line="83"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></removeRemoteHandler>
+		<removeLocalHandler public="1" set="method" line="72"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></removeLocalHandler>
+		<removeLocalCommand public="1" set="method" line="68"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></removeLocalCommand>
+		<sendTestMessage public="1" set="method" line="64"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></sendTestMessage>
+		<createRemoteHandler public="1" set="method" line="56"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></createRemoteHandler>
+		<createLocalHandler public="1" set="method" line="45"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></createLocalHandler>
+		<createLocalCommand public="1" set="method" line="41"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></createLocalCommand>
+		<onDispose set="method" line="33" override="1"><f a=""><x path="Void"/></f></onDispose>
+		<onInit set="method" line="27" override="1"><f a=""><x path="Void"/></f></onInit>
+		<testView><c path="suites.testobjects.modulemain.MainView"/></testView>
+		<dataProxy><c path="suites.testobjects.modulemain.MainDataProxy"/></dataProxy>
+		<remoteHandlerCount public="1" get="accessor" set="null"><x path="Int"/></remoteHandlerCount>
+		<remoteCommandCount public="1" get="accessor" set="null"><x path="Int"/></remoteCommandCount>
+		<localHandlerCount public="1" get="accessor" set="null"><x path="Int"/></localHandlerCount>
+		<localCommandCount public="1" get="accessor" set="null"><x path="Int"/></localCommandCount>
+		<new public="1" set="method" line="23"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.modulemain.MainView" params="" file="test/suites/testobjects/modulemain/MainView.hx">
+		<extends path="flash.display.Sprite"/>
+		<testGetProxyClass public="1" set="method" line="33"><f a="proxyClass:?name">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<x path="Void"/>
+</f></testGetProxyClass>
+		<removeRemoteHandler public="1" set="method" line="29"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></removeRemoteHandler>
+		<removeLocalhandler public="1" set="method" line="25"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></removeLocalhandler>
+		<addRemoteHandler public="1" set="method" line="21"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></addRemoteHandler>
+		<addLocalhandler public="1" set="method" line="17"><f a="message">
+	<c path="String"/>
+	<x path="Void"/>
+</f></addLocalhandler>
+		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="suites.testobjects.modulemain.MainViewMediator" params="" file="test/suites/testobjects/modulemain/MainViewMediator.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<trigerRemoteHandler set="method" line="63"><f a="params">
+	<d/>
+	<x path="Void"/>
+</f></trigerRemoteHandler>
+		<trigerLocalHandler set="method" line="59"><f a="params">
+	<d/>
+	<x path="Void"/>
+</f></trigerLocalHandler>
+		<handleTestProxyGetHandler set="method" line="51"><f a="event">
+	<c path="suites.TestViewEvent"/>
+	<x path="Void"/>
+</f></handleTestProxyGetHandler>
+		<handleRemoveLocalHandler set="method" line="44"><f a="event">
+	<c path="suites.TestViewEvent"/>
+	<x path="Void"/>
+</f></handleRemoveLocalHandler>
+		<handleAddLocalHandler set="method" line="37"><f a="event">
+	<c path="suites.TestViewEvent"/>
+	<x path="Void"/>
+</f></handleAddLocalHandler>
+		<onRemove public="1" set="method" line="29" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister public="1" set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<dataProxy public="1">
+			<c path="suites.testobjects.modulemain.MainDataProxy"/>
+			<meta><m n="inject"/></meta>
+		</dataProxy>
+		<view public="1">
+			<c path="suites.testobjects.modulemain.MainView"/>
+			<meta><m n="inject"/></meta>
+		</view>
+		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.testobjects.view.MediatorSprite" params="" file="test/suites/testobjects/view/MediatorSprite.hx">
 		<extends path="flash.display.Sprite"/>

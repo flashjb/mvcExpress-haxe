@@ -6,14 +6,19 @@ package suites.testobjects.modulemain;
 
 import mvcexpress.mvc.Proxy;
 
-class MainDataProxy extends Proxy {
+class MainDataProxy extends Proxy 
+{
 
 	public var localCommandCount : Int;
 	public var localHandlerCount : Int;
 	public var remoteCommandCount : Int;
 	public var remoteHandlerCount : Int;
+	
 	public var testProxy : Proxy;
-	public function new() {
+	
+	public function new() 
+	{
+		super();
 		localCommandCount = 0;
 		localHandlerCount = 0;
 		remoteCommandCount = 0;

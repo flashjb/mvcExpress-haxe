@@ -11,6 +11,7 @@ import suites.TestViewEvent;
 class MainView extends Sprite {
 
 	public function new() {
+		super();
 	}
 
 	public function addLocalhandler(message : String) : Void {

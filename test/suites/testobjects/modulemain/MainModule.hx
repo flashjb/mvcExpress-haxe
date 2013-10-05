@@ -9,14 +9,16 @@ import mvcexpress.mvc.Proxy;
 import suites.SuiteModuleNames;
 import suites.testobjects.controller.GetProxyTestCommand;
 
-class MainModule extends ModuleSprite {
-	public var localCommandCount(getLocalCommandCount, never) : Int;
-	public var localHandlerCount(getLocalHandlerCount, never) : Int;
-	public var remoteCommandCount(getRemoteCommandCount, never) : Int;
-	public var remoteHandlerCount(getRemoteHandlerCount, never) : Int;
+class MainModule extends ModuleSprite 
+{
+	public var localCommandCount(get_localCommandCount, never)   : Int;
+	public var localHandlerCount(get_localHandlerCount, never)   : Int;
+	public var remoteCommandCount(get_remoteCommandCount, never) : Int;
+	public var remoteHandlerCount(get_remoteHandlerCount, never) : Int;
 
 	var dataProxy : MainDataProxy;
-	var testView : MainView;
+	var testView  : MainView;
+	
 	static public var NAME : String = SuiteModuleNames.MAIN_MODULE;
 	public function new() {
 		super(MainModule.NAME, true, false);
@@ -41,7 +43,7 @@ class MainModule extends ModuleSprite {
 	}
 
 	public function createLocalHandler(message : String) : Void {
-		if(!testView)  {
+		if( testView == null )  {
 			testView = new MainView();
 			mediatorMap.mediate(testView);
 		}
@@ -52,7 +54,7 @@ class MainModule extends ModuleSprite {
 	//commandMap.mapRemote(message, MainRemoteCommand, SuiteModuleNames.EXTERNAL_MODULE);
 	//}
 	public function createRemoteHandler(message : String) : Void {
-		if(!testView)  {
+		if( testView == null )  {
 			testView = new MainView();
 			mediatorMap.mediate(testView);
 		}
@@ -68,7 +70,7 @@ class MainModule extends ModuleSprite {
 	}
 
 	public function removeLocalHandler(message : String) : Void {
-		if(!testView)  {
+		if( testView != null )  {
 			testView = new MainView();
 			mediatorMap.mediate(testView);
 		}
@@ -79,7 +81,7 @@ class MainModule extends ModuleSprite {
 	//commandMap.unmapRemote(message, MainRemoteCommand, SuiteModuleNames.EXTERNAL_MODULE);
 	//}
 	public function removeRemoteHandler(message : String) : Void {
-		if(!testView)  {
+		if( testView == null )  {
 			testView = new MainView();
 			mediatorMap.mediate(testView);
 		}
@@ -102,7 +104,7 @@ class MainModule extends ModuleSprite {
 	}
 
 	public function getProxyFromMediator(proxyClass : Class<Dynamic>, name : String = "") : Proxy {
-		if(!testView)  {
+		if( testView == null )  {
 			testView = new MainView();
 			mediatorMap.mediate(testView);
 		}
@@ -119,21 +121,21 @@ class MainModule extends ModuleSprite {
 	}
 
 	//----------------------------------
-	//
+	// GETTERS & SETTERS
 	//----------------------------------
-	public function getLocalCommandCount() : Int {
+	public function get_localCommandCount() : Int {
 		return dataProxy.localCommandCount;
 	}
 
-	public function getLocalHandlerCount() : Int {
+	public function get_localHandlerCount() : Int {
 		return dataProxy.localHandlerCount;
 	}
 
-	public function getRemoteCommandCount() : Int {
+	public function get_remoteCommandCount() : Int {
 		return dataProxy.remoteCommandCount;
 	}
 
-	public function getRemoteHandlerCount() : Int {
+	public function get_remoteHandlerCount() : Int {
 		return dataProxy.remoteHandlerCount;
 	}
 

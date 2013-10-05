@@ -9,12 +9,15 @@ import mvcexpress.mvc.Mediator;
 import suites.SuiteModuleNames;
 import suites.TestViewEvent;
 
-class ExternalViewMediator extends Mediator {
-
+class ExternalViewMediator extends Mediator 
+{
 	
+	@inject 
 	public var view : ExternalView;
 	
+	@inject 
 	public var dataProxy : ExternalDataProxy;
+	
 	override public function onRegister() : Void {
 		view.addEventListener(TestViewEvent.ADD_LOCAL_HANDLER, handleAddLocalHandler);
 		view.addEventListener(TestViewEvent.ADD_REMOTE_HANDLER, handleAddRemoteHandler);

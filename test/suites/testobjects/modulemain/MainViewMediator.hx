@@ -12,9 +12,12 @@ import suites.TestViewEvent;
 class MainViewMediator extends Mediator {
 
 	
+	@inject 
 	public var view : MainView;
 	
+	@inject 
 	public var dataProxy : MainDataProxy;
+	
 	override public function onRegister() : Void {
 		view.addEventListener(TestViewEvent.ADD_LOCAL_HANDLER, handleAddLocalHandler);
 		//view.addEventListener(TestViewEvent.ADD_REMOTE_HANDLER, handleAddRemoteHandler);

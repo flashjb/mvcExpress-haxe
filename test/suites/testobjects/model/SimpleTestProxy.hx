@@ -9,6 +9,7 @@ import mvcexpress.mvc.Proxy;
 class SimpleTestProxy extends Proxy implements ISimpleTestProxy {
 
 	public function new() {
+		super();
 	}
 
 	override function onRegister() : Void {
