@@ -12,6 +12,7 @@ class ScopedProxyInjectProxy extends Proxy {
 	
 	public var myProxy : ScopedTestProxy;
 	public function new() {
+		super();
 	}
 
 	public function storeTestData(testData : String) : Void {

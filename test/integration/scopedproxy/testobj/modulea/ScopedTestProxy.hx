@@ -11,6 +11,7 @@ class ScopedTestProxy extends Proxy {
 
 	public var storedData : String;
 	public function new() {
+		super();
 	}
 
 	override function onRegister() : Void {

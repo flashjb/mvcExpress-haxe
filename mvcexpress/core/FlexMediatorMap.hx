@@ -53,7 +53,7 @@ class FlexMediatorMap extends MediatorMap
 	 */
 	override public function unmediate(viewObject : Dynamic) : Void 
 	{
-		var mediator : Mediator = mediatorRegistry[viewObject];
+		var mediator : Mediator = mediatorRegistry.get(viewObject);
 		if( mediator != null )  {
 			super.unmediate(viewObject);
 		} else  {

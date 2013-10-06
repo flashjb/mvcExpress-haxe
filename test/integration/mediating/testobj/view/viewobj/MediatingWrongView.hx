@@ -9,6 +9,7 @@ import flash.display.Sprite;
 class MediatingWrongView extends Sprite {
 
 	public function new() {
+		super();
 	}
 
 }

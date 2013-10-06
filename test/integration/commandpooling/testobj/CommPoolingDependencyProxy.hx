@@ -6,11 +6,13 @@ package integration.commandpooling.testobj;
 
 import mvcexpress.mvc.Proxy;
 
-class CommPoolingDependencyProxy extends Proxy {
-	public var proxyName(getProxyName, never) : String;
+class CommPoolingDependencyProxy extends Proxy 
+{
+	public var proxyName(get_proxyName, never) : String;
 
 	var _proxyName : String;
 	public function new(proxyName : String = "undefined") {
+		super();
 		this._proxyName = proxyName;
 	}
 
@@ -20,7 +22,7 @@ class CommPoolingDependencyProxy extends Proxy {
 	override function onRemove() : Void {
 	}
 
-	public function getProxyName() : String {
+	public function get_proxyName() : String {
 		return _proxyName;
 	}
 

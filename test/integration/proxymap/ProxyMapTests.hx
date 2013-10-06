@@ -13,16 +13,23 @@ import integration.proxymap.testobj.TestContsView;
 import integration.proxymap.testobj.TestContsViewMediator;
 import integration.proxymap.testobj.TexsWithConstNameInjectProxy;
 
-class ProxyMapTests {
+class ProxyMapTests  extends Tester  {
 
 	var module : GenericTestModule;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new ()
+	{
+		super();
+		testFunction("proxyMap_injectIntoProxyConstNamedVariable_injectedOk");
+		testFunction("proxyMap_injectIntoMediatorConstNamedVariable_injectedOk");
+		testFunction("proxyMap_injectIntoCommandConstNamedVariable_injectedOk");
+	}
+	
+	override public function runBeforeEveryTest() : Void {
 		module = new GenericTestModule("ProxyMap_test");
 	}
-
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		module.disposeModule();
 	}
 
@@ -36,8 +43,6 @@ class ProxyMapTests {
 		//
 		module.proxymap_map(new TexsWithConstNameInjectProxy());
 	}
-
-	
 	public function proxyMap_injectIntoMediatorConstNamedVariable_injectedOk() : Void {
 		var testProxy : GenericTestProxy = new GenericTestProxy();
 		module.proxymap_map(testProxy, null, TestConstObject.TEST_CONST_FOR_PROXY_INJECT);

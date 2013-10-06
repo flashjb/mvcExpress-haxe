@@ -13,7 +13,9 @@
 -cp bin/flash/haxe
 #--remap nme:flash
 --no-inline
--D debug
+
+#for debugging
+-D fdb
 -debug
 
 --next

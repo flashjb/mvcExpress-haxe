@@ -21,18 +21,37 @@ import mvcexpress.MvcExpress;
 import utils.Assert;
 import utils.AsyncUtil;
 
-class ScopeControlTests {
+class ScopeControlTests  extends Tester  {
 
 	var moduleOut : GenericTestModule;
 	var moduleIn : GenericTestModule;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new ()
+	{
+		super();
+		testFunction("scopeControl_messageOutWithoutScopeRegister_fails");
+		testFunction("scopeControl_messageInHandleWithoutScopeRegister_fails");
+		testFunction("scopeControl_messageInCommandMapWithoutScopeRegister_fails");
+		testFunction("scopeControl_scopedInjectWithoutScopeRegister_fails");
+		testFunction("scopeControl_messageOutWithScopeRegister_ok");
+		testFunction("scopeControl_messageInHandleWithScopeRegister_ok");
+		testFunction("scopeControl_messageInCommandMapWithScopeRegister_ok");
+		testFunction("scopeControl_scopedInjectWithScopeRegister_ok");
+		testFunction("scopeControl_messageOutWithScopeRegisterWithModuleRecreate_fails");
+		testFunction("scopeControl_messageInHandleWithScopeRegisterWithModuleRecreate_fails");
+		testFunction("scopeControl_messageInCommandMapWithScopeRegisterWithModuleRecreate_fails");
+		testFunction("scopeControl_scopedInjectWithScopeRegisterWithModuleRecreate_fails");
+		testFunction("scopeControl_messageOutAndInWithScopeRegister_ok");
+		testFunction("scopeControl_injectedProxyChangeShouldBeHandled_ok");
+		
+	}
+	
+	override public function runBeforeEveryTest() : Void {
 		moduleOut = new GenericTestModule("moduleOut");
 		moduleIn = new GenericTestModule("moduleIn");
 	}
 
-	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		moduleOut.disposeModule();
 		moduleIn.disposeModule();
 	}
@@ -55,7 +74,6 @@ class ScopeControlTests {
 		moduleIn.commandMap_scopeMap(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE, GenericCommand);
 	}
 
-	
 	public function scopeControl_scopedInjectWithoutScopeRegister_fails() : Void {
 		moduleIn.proxymap_scopeMap(GenericScopeIds.TEST_SCOPE, new GenericTestProxy());
 	}
@@ -63,7 +81,7 @@ class ScopeControlTests {
 	//----------------------------------
 	//     should be ok after registernig
 	//----------------------------------
-	
+
 	public function scopeControl_messageOutWithScopeRegister_ok() : Void {
 		moduleOut.registerScopeTest(GenericScopeIds.TEST_SCOPE, true, false, false);
 		moduleOut.sendScopeMessageTest(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE);
@@ -74,14 +92,12 @@ class ScopeControlTests {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, true, false);
 		moduleIn.mediatorMap_mediateWith(new GenericViewObject(), GenericViewObjectMediator_handlingScopeMessage);
 	}
-
 	
 	public function scopeControl_messageInCommandMapWithScopeRegister_ok() : Void {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, true, false);
 		moduleIn.commandMap_scopeMap(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE, GenericCommand);
 	}
 
-	
 	public function scopeControl_scopedInjectWithScopeRegister_ok() : Void {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, false, true);
 		moduleIn.proxymap_scopeMap(GenericScopeIds.TEST_SCOPE, new GenericTestProxy());
@@ -98,7 +114,7 @@ class ScopeControlTests {
 		moduleOut.sendScopeMessageTest(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE);
 	}
 
-	
+
 	public function scopeControl_messageInHandleWithScopeRegisterWithModuleRecreate_fails() : Void {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, true, false);
 		moduleIn.disposeModule();
@@ -106,7 +122,7 @@ class ScopeControlTests {
 		moduleIn.mediatorMap_mediateWith(new GenericViewObject(), GenericViewObjectMediator_handlingScopeMessage);
 	}
 
-	
+		
 	public function scopeControl_messageInCommandMapWithScopeRegisterWithModuleRecreate_fails() : Void {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, true, false);
 		moduleIn.disposeModule();
@@ -114,7 +130,7 @@ class ScopeControlTests {
 		moduleIn.commandMap_scopeMap(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE, GenericCommand);
 	}
 
-	
+
 	public function scopeControl_scopedInjectWithScopeRegisterWithModuleRecreate_fails() : Void {
 		moduleIn.registerScopeTest(GenericScopeIds.TEST_SCOPE, false, false, true);
 		moduleIn.disposeModule();

@@ -8,16 +8,29 @@ import utils.Assert;
 import integration.lazyproxy.testobj.modulea.LazyProxy;
 import integration.lazyproxy.testobj.modulea.LazyProxyModuleA;
 
-class LazyProxyTests {
+class LazyProxyTests  extends Tester 
+{
 
 	var lazyProxyModulA : LazyProxyModuleA;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new (){
+		super();
+		testFunction("lazyProxy_lazyMaping_proxyNotInstantiated");
+		testFunction("lazyProxy_lazyMapingThenInjectingToProxy_proxyInstantiatedOnce");
+		testFunction("lazyProxy_lazyAndNormalMaping_fails");
+		testFunction("lazyProxy_normalAndLazyMaping_fails");
+		testFunction("lazyProxy_lazyMapingTwice_fails");
+		testFunction("lazyProxy_lazyMapingNotProxy_fails");
+		testFunction("lazyProxy_lazyMaping1Param_ok");
+		testFunction("lazyProxy_lazyMaping10Params_ok");
+		testFunction("lazyProxy_lazyMaping11Params_fails");
+	}
+	
+	override public function runBeforeEveryTest() : Void {
 		lazyProxyModulA = new LazyProxyModuleA();
 	}
 
-	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		lazyProxyModulA.disposeModule();
 		LazyProxy.instantiateCount = 0;
 	}
@@ -28,7 +41,6 @@ class LazyProxyTests {
 		Assert.assertEquals("Lazy mapping should not instantiate proxy.", LazyProxy.instantiateCount, 0);
 	}
 
-	
 	public function lazyProxy_lazyMapingThenInjectingToProxy_proxyInstantiatedOnce() : Void {
 		lazyProxyModulA.lazyMap();
 		lazyProxyModulA.createProxyWithLazyInject();
@@ -70,15 +82,14 @@ class LazyProxyTests {
 		lazyProxyModulA.mapWithParams([1]);
 	}
 
-	
 	public function lazyProxy_lazyMaping10Params_ok() : Void {
 		lazyProxyModulA.mapWithParams([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 	}
 
-	
 	public function lazyProxy_lazyMaping11Params_fails() : Void {
 		#if debug
-			lazyProxyModulA.mapWithParams([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+			lazyProxyModulA.mapWithParams([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10, 11, 10, 11, 10, 11, 10, 11, 11, 10, 11, 10, 11, 10, 11, 11, 10, 11]);
+			return;
 		#end
 		
 		throw ("debug mode only.");

@@ -11,7 +11,8 @@ import mvcexpress.MvcExpress;
 import utils.Assert;
 import utils.AsyncUtil;
 
-class ScopedProxyTests {
+class ScopedProxyTests extends Tester
+{
 
 	static public var SCOPED_PROXY_MESSAGE_NAME : String = "scopedProxyMessageName";
 	static public var SCOPED_PROXY_SCOPE_NAME : String = "proxyScope";
@@ -20,13 +21,35 @@ class ScopedProxyTests {
 	var scopedTestProxy : ScopedTestProxy;
 	var randomData : String;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new() : Void 
+	{
+		super();
+		testFunction("scopedProxy_hostAndInjectHostedToMediator_injectOk");
+		testFunction("scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk");
+		testFunction("scopedProxy_hostAndInjectHostedToProxy_injectOk");
+		testFunction("scopedProxy_unmapScopedProxyTwice_ok");
+	
+		testFunction("scopedProxy_injectPendingProxyToCommandThenHost_injectFails");
+		testFunction("scopedProxy_injectPendingProxyToProxyThenHost_injectOk");
+		testFunction("scopedProxy_injectPendingProxyToMediatorThenHost_injectOk");
+		testFunction("scopedProxy_hostAndInjectThenMessage_communicatinOk");
+		testFunction("scopedProxy_HostAndMapThenMessageLocaly_communicatinOk");
+		testFunction("scopedProxy_MapAndHostThenMessageLocaly_communicatinOk");
+		testFunction("scopedProxy_hostThenUnhostAndInjectHosted_injectFails");
+		testFunction("scopedProxy_injectHostedToCommand_injectFails");
+		testFunction("scopedProxy_injectHostedToProxy_injectFails");
+		testFunction("scopedProxy_injectHostedToMediator_injectFails");
+		testFunction("scopedProxy_hostAndInjectHostedToCommand_injectOk");
+		testFunction("scopedProxy_hostAndInjectHostedToProxyTwice_injectOk");
+	}
+	
+	override public function runBeforeEveryTest() : Void {
 		scopedProxyModuleA = new ScopedProxyModuleA();
 		scopedProxyModuleB = new ScopedProxyModuleB();
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		scopedTestProxy = null;
 		scopedProxyModuleA.disposeModule();
 		scopedProxyModuleB.disposeModule();
@@ -143,7 +166,6 @@ class ScopedProxyTests {
 
 	// B inject to proxy
 	// inject fail
-	
 	public function scopedProxy_injectHostedToProxy_injectFails() : Void {
 		scopedProxyModuleB.createProxyWithItject();
 	}

@@ -2,8 +2,8 @@
 <launchConfiguration type="com.powerflasher.fdt.ui.ViewerLaunchGroup">
 <booleanAttribute key="KILL_PREVIOUS_VIEWER" value="true"/>
 <stringAttribute key="MAIN_CLASS" value="bin/flash/bin/swf/Main.swf"/>
-<intAttribute key="PLAYER_HEIGHT" value="400"/>
-<intAttribute key="PLAYER_WIDTH" value="550"/>
+<intAttribute key="PLAYER_HEIGHT" value="768"/>
+<intAttribute key="PLAYER_WIDTH" value="1024"/>
 <stringAttribute key="PROJECT_NAME" value="mvcExpress-haxe"/>
 <stringAttribute key="START_SWF_WITH" value="External SWF Viewer"/>
 </launchConfiguration>

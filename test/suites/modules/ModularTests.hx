@@ -8,14 +8,15 @@ import suites.modules.objects.CoreModuleTester;
 import suites.modules.objects.MovieClipModuleTester;
 import suites.modules.objects.SpriteModuleTester;
 
-class ModularTests {
+class ModularTests extends Tester {
 
 	
 	public function new()  
 	{
-		modules_construct_core_module();
-		modules_construct_sprite_module();
-		modules_construct_movieclip_module();
+		super();
+		testFunction("modules_construct_core_module");
+		testFunction("modules_construct_sprite_module");
+		testFunction("modules_construct_movieclip_module");
 	}
 
 	

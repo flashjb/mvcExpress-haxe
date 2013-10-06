@@ -16,15 +16,15 @@ import suites.utils.objects.ConstantsA;
 import suites.utils.objects.ConstantsAB;
 import suites.utils.objects.ConstantsB;
 
-class UtilsTests {
+class UtilsTests extends Tester {
 
 	public function new()
 	{
-		utils_checkClassSuperclass_tests();
-		
-		utils_two_class_check();
-		utils_one_class_check();
-		utils_two_class_with_duplicated_constants_fails();
+		super();
+		testFunction("utils_checkClassSuperclass_tests");
+		testFunction("utils_two_class_check");
+		testFunction("utils_one_class_check");
+		testFunction("utils_two_class_with_duplicated_constants_fails");
 	}
 	
 	

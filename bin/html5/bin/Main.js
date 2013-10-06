@@ -84,12 +84,10 @@ ApplicationMain.preloader_onComplete = function(event) {
 }
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
-	new suites.general.GeneralTests();
-	new integration.moduleinittests.ModuleInitTests();
-	new suites.messenger.MessengerTests();
-	new suites.proxymap.OldProxyMapTests();
-	new suites.proxymap.NamedInterfacedProxyMapTests();
-	new suites.mediatormap.MediatorMapTests();
+	new integration.scopedmessaging.ChannelingTests();
+	new suites.faturegetproxy.FeatureGetProxyTests();
+	new integration.scopedproxy.ScopedProxyTests();
+	new integration.scopecontrol.ScopeControlTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -1573,9 +1571,12 @@ StringTools.hex = function(n,digits) {
 	if(digits != null) while(s.length < digits) s = "0" + s;
 	return s;
 }
-var Tester = function() {
+var Tester = function(inProgress) {
+	if(inProgress == null) inProgress = false;
+	this._inProgress = false;
 	this._currentTest = 0;
-	haxe.Log.trace("\n\n*****************************\n -- " + Type.getClassName(Type.getClass(this)) + " -- \n*****************************",{ fileName : "Tester.hx", lineNumber : 5, className : "Tester", methodName : "new"});
+	this._inProgress = inProgress;
+	haxe.Log.trace("\n\n*****************************\n -- " + Type.getClassName(Type.getClass(this)) + " -- \n*****************************",{ fileName : "Tester.hx", lineNumber : 9, className : "Tester", methodName : "new"});
 };
 $hxClasses["Tester"] = Tester;
 Tester.__name__ = ["Tester"];
@@ -1585,14 +1586,28 @@ Tester.prototype = {
 	,runBeforeEveryTest: function() {
 	}
 	,testFunction: function(funcName) {
-		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + ": " + funcName + "\n*-------------------------*",{ fileName : "Tester.hx", lineNumber : 11, className : "Tester", methodName : "testFunction"});
-		this.runBeforeEveryTest();
-		try {
+		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + ": " + funcName + "\n*-------------------------*",{ fileName : "Tester.hx", lineNumber : 14, className : "Tester", methodName : "testFunction"});
+		if(this._inProgress) {
+			this.runBeforeEveryTest();
 			Reflect.field(this,funcName).apply(this,[]);
-		} catch( e ) {
-			haxe.Log.trace("#@##@#$%#@ ERROR >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 17, className : "Tester", methodName : "testFunction"});
+			this.runAfterEveryTest();
+		} else {
+			try {
+				this.runBeforeEveryTest();
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR BEFORE >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 27, className : "Tester", methodName : "testFunction"});
+			}
+			try {
+				Reflect.field(this,funcName).apply(this,[]);
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 33, className : "Tester", methodName : "testFunction"});
+			}
+			try {
+				this.runAfterEveryTest();
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR AFTER >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 39, className : "Tester", methodName : "testFunction"});
+			}
 		}
-		this.runAfterEveryTest();
 	}
 	,__class__: Tester
 }
@@ -1681,32 +1696,6 @@ Type.getClassFields = function(c) {
 	HxOverrides.remove(a,"__super__");
 	HxOverrides.remove(a,"prototype");
 	return a;
-}
-Type["typeof"] = function(v) {
-	var _g = typeof(v);
-	switch(_g) {
-	case "boolean":
-		return ValueType.TBool;
-	case "string":
-		return ValueType.TClass(String);
-	case "number":
-		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
-		return ValueType.TFloat;
-	case "object":
-		if(v == null) return ValueType.TNull;
-		var e = v.__enum__;
-		if(e != null) return ValueType.TEnum(e);
-		var c = v.__class__;
-		if(c != null) return ValueType.TClass(c);
-		return ValueType.TObject;
-	case "function":
-		if(v.__name__ || v.__ename__) return ValueType.TObject;
-		return ValueType.TFunction;
-	case "undefined":
-		return ValueType.TNull;
-	default:
-		return ValueType.TUnknown;
-	}
 }
 var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
 var Xml = function() {
@@ -7468,12 +7457,6 @@ haxe.ds.IntMap.prototype = {
 		delete(this.h[key]);
 		return true;
 	}
-	,exists: function(key) {
-		return this.h.hasOwnProperty(key);
-	}
-	,get: function(key) {
-		return this.h[key];
-	}
 	,set: function(key,value) {
 		this.h[key] = value;
 	}
@@ -8312,7 +8295,1080 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 	}
 	throw "Unexpected end";
 }
+var mvcexpress = {}
+mvcexpress.modules = {}
+mvcexpress.modules.ModuleCore = function(moduleName,autoInit) {
+	if(autoInit == null) autoInit = true;
+	this.moduleBase = mvcexpress.core.ModuleManager.createModule(moduleName,autoInit);
+	if(autoInit) {
+		this.proxyMap = this.moduleBase.proxyMap;
+		this.mediatorMap = this.moduleBase.mediatorMap;
+		this.commandMap = this.moduleBase.commandMap;
+		this.onInit();
+	}
+};
+$hxClasses["mvcexpress.modules.ModuleCore"] = mvcexpress.modules.ModuleCore;
+mvcexpress.modules.ModuleCore.__name__ = ["mvcexpress","modules","ModuleCore"];
+mvcexpress.modules.ModuleCore.prototype = {
+	listMappedCommands: function() {
+		return this.moduleBase.listMappedCommands();
+	}
+	,listMappedProxies: function() {
+		return this.moduleBase.listMappedProxies();
+	}
+	,listMappedMediators: function() {
+		return this.moduleBase.listMappedMediators();
+	}
+	,listMappedMessages: function() {
+		return this.moduleBase.listMappedMessages();
+	}
+	,unregisterScope: function(scopeName) {
+		this.moduleBase.unregisterScope(scopeName);
+	}
+	,registerScope: function(scopeName,messageSending,messageReceiving,proxieMapping) {
+		if(proxieMapping == null) proxieMapping = false;
+		if(messageReceiving == null) messageReceiving = true;
+		if(messageSending == null) messageSending = true;
+		this.moduleBase.registerScope(scopeName,messageSending,messageReceiving,proxieMapping);
+	}
+	,sendScopeMessage: function(scopeName,type,params) {
+		this.moduleBase.sendScopeMessage(scopeName,type,params);
+	}
+	,sendMessage: function(type,params) {
+		this.moduleBase.sendMessage(type,params);
+	}
+	,onDispose: function() {
+	}
+	,disposeModule: function() {
+		this.onDispose();
+		this.moduleBase.disposeModule();
+	}
+	,onInit: function() {
+	}
+	,initModule: function() {
+		this.moduleBase.initModule();
+		this.proxyMap = this.moduleBase.proxyMap;
+		this.mediatorMap = this.moduleBase.mediatorMap;
+		this.commandMap = this.moduleBase.commandMap;
+		this.onInit();
+	}
+	,get_moduleName: function() {
+		return this.moduleBase.get_moduleName();
+	}
+	,__class__: mvcexpress.modules.ModuleCore
+	,__properties__: {get_moduleName:"get_moduleName"}
+}
 var integration = {}
+integration.agenerictestobjects = {}
+integration.agenerictestobjects.GenericTestModule = function(moduleName) {
+	mvcexpress.modules.ModuleCore.call(this,moduleName);
+};
+$hxClasses["integration.agenerictestobjects.GenericTestModule"] = integration.agenerictestobjects.GenericTestModule;
+integration.agenerictestobjects.GenericTestModule.__name__ = ["integration","agenerictestobjects","GenericTestModule"];
+integration.agenerictestobjects.GenericTestModule.__super__ = mvcexpress.modules.ModuleCore;
+integration.agenerictestobjects.GenericTestModule.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	unregisterScopeTest: function(scopeName) {
+		mvcexpress.modules.ModuleCore.prototype.unregisterScope.call(this,scopeName);
+	}
+	,registerScopeTest: function(scopeName,messageSending,messageReceiving,proxieMap) {
+		if(proxieMap == null) proxieMap = false;
+		if(messageReceiving == null) messageReceiving = true;
+		if(messageSending == null) messageSending = true;
+		mvcexpress.modules.ModuleCore.prototype.registerScope.call(this,scopeName,messageSending,messageReceiving,proxieMap);
+	}
+	,commandMap_checkIsClassPooled: function(commandClass) {
+		return this.commandMap.checkIsClassPooled(commandClass);
+	}
+	,commandMap_clearCommandPool: function(commandClass) {
+		this.commandMap.clearCommandPool(commandClass);
+	}
+	,commandMap_isMapped: function(type,commandClass) {
+		return this.commandMap.isMapped(type,commandClass);
+	}
+	,commandMap_scopeUnmap: function(scopeName,type,commandClass) {
+		this.commandMap.scopeUnmap(scopeName,type,commandClass);
+	}
+	,commandMap_scopeMap: function(scopeName,type,commandClass) {
+		this.commandMap.scopeMap(scopeName,type,commandClass);
+	}
+	,commandMap_unmap: function(type,commandClass) {
+		this.commandMap.unmap(type,commandClass);
+	}
+	,commandMap_map: function(type,commandClass) {
+		this.commandMap.map(type,commandClass);
+	}
+	,commandMap_execute: function(commandClass,params) {
+		this.commandMap.execute(commandClass,params);
+	}
+	,mediatorMap_isMediated: function(viewObject) {
+		return this.mediatorMap.isMediated(viewObject);
+	}
+	,mediatorMap_isMapped: function(viewClass,mediatorClass) {
+		return this.mediatorMap.isMapped(viewClass,mediatorClass);
+	}
+	,mediatorMap_unmediate: function(viewObject) {
+		this.mediatorMap.unmediate(viewObject);
+	}
+	,mediatorMap_mediateWith: function(viewObject,mediatorClass,injectClass) {
+		this.mediatorMap.mediateWith(viewObject,mediatorClass,injectClass);
+	}
+	,mediatorMap_mediate: function(viewObject) {
+		this.mediatorMap.mediate(viewObject);
+	}
+	,mediatorMap_unmap: function(viewClass) {
+		this.mediatorMap.unmap(viewClass);
+	}
+	,mediatorMap_map: function(viewClass,mediatorClass,injectClass) {
+		this.mediatorMap.map(viewClass,mediatorClass,injectClass);
+	}
+	,proxymap_lazyMap: function(proxyClass,injectClass,name,proxyParams) {
+		if(name == null) name = "";
+		return this.proxyMap.lazyMap(proxyClass,injectClass,name,proxyParams);
+	}
+	,proxymap_isMapped: function(proxyObject,injectClass,name) {
+		if(name == null) name = "";
+		return this.proxyMap.isMapped(proxyObject,injectClass,name);
+	}
+	,proxymap_getProxy: function(injectClass,name) {
+		if(name == null) name = "";
+		return this.proxyMap.getProxy(injectClass,name);
+	}
+	,proxymap_scopeUnmap: function(scopeName,injectClass,name) {
+		if(name == null) name = "";
+		this.proxyMap.scopeUnmap(scopeName,injectClass,name);
+	}
+	,proxymap_scopeMap: function(scopeName,proxyObject,injectClass,name) {
+		if(name == null) name = "";
+		this.proxyMap.scopeMap(scopeName,proxyObject,injectClass,name);
+	}
+	,proxymap_unmap: function(injectClass,name) {
+		if(name == null) name = "";
+		return this.proxyMap.unmap(injectClass,name);
+	}
+	,proxymap_map: function(proxyObject,injectClass,name) {
+		if(name == null) name = "";
+		return this.proxyMap.map(proxyObject,injectClass,name);
+	}
+	,sendScopeMessageTest: function(scopeName,type,params) {
+		mvcexpress.modules.ModuleCore.prototype.sendScopeMessage.call(this,scopeName,type,params);
+	}
+	,sendMessageTest: function(type,params) {
+		mvcexpress.modules.ModuleCore.prototype.sendMessage.call(this,type,params);
+	}
+	,__class__: integration.agenerictestobjects.GenericTestModule
+});
+integration.agenerictestobjects.constants = {}
+integration.agenerictestobjects.constants.GenericScopeIds = function() { }
+$hxClasses["integration.agenerictestobjects.constants.GenericScopeIds"] = integration.agenerictestobjects.constants.GenericScopeIds;
+integration.agenerictestobjects.constants.GenericScopeIds.__name__ = ["integration","agenerictestobjects","constants","GenericScopeIds"];
+integration.agenerictestobjects.constants.GenericTestMessage = function() { }
+$hxClasses["integration.agenerictestobjects.constants.GenericTestMessage"] = integration.agenerictestobjects.constants.GenericTestMessage;
+integration.agenerictestobjects.constants.GenericTestMessage.__name__ = ["integration","agenerictestobjects","constants","GenericTestMessage"];
+integration.agenerictestobjects.constants.GenericTestStrings = function() { }
+$hxClasses["integration.agenerictestobjects.constants.GenericTestStrings"] = integration.agenerictestobjects.constants.GenericTestStrings;
+integration.agenerictestobjects.constants.GenericTestStrings.__name__ = ["integration","agenerictestobjects","constants","GenericTestStrings"];
+mvcexpress.mvc = {}
+mvcexpress.mvc.Command = function() {
+	if(!mvcexpress.mvc.Command.canConstruct) throw "Command:" + Std.string(this) + " can be constructed only by framework. If you want to execute it - map it to message with commandMap.map() and send a message, or execute it directly with commandMap.execute()";
+};
+$hxClasses["mvcexpress.mvc.Command"] = mvcexpress.mvc.Command;
+mvcexpress.mvc.Command.__name__ = ["mvcexpress","mvc","Command"];
+mvcexpress.mvc.Command.canConstruct = null;
+mvcexpress.mvc.Command.prototype = {
+	getMessageType: function() {
+		return this.messageType;
+	}
+	,unregisterScope: function(scopeName) {
+		mvcexpress.core.ModuleManager.unregisterScope(this.messenger.moduleName,scopeName);
+	}
+	,registerScope: function(scopeName,messageSending,messageReceiving,proxieMapping) {
+		if(proxieMapping == null) proxieMapping = false;
+		if(messageReceiving == null) messageReceiving = true;
+		if(messageSending == null) messageSending = true;
+		mvcexpress.core.ModuleManager.registerScope(this.messenger.moduleName,scopeName,messageSending,messageReceiving,proxieMapping);
+	}
+	,sendScopeMessage: function(scopeName,type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,true));
+		mvcexpress.core.ModuleManager.sendScopeMessage(this.messenger.moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,false));
+	}
+	,sendMessage: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,true));
+		this.messenger.send(type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,false));
+	}
+	,__class__: mvcexpress.mvc.Command
+}
+integration.agenerictestobjects.controller = {}
+integration.agenerictestobjects.controller.GenericCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["integration.agenerictestobjects.controller.GenericCommand"] = integration.agenerictestobjects.controller.GenericCommand;
+integration.agenerictestobjects.controller.GenericCommand.__name__ = ["integration","agenerictestobjects","controller","GenericCommand"];
+integration.agenerictestobjects.controller.GenericCommand.__super__ = mvcexpress.mvc.Command;
+integration.agenerictestobjects.controller.GenericCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(blank) {
+	}
+	,__class__: integration.agenerictestobjects.controller.GenericCommand
+});
+mvcexpress.mvc.Proxy = function() {
+	this.proxyScopes = new Array();
+	this.dependantCommands = new haxe.ds.ObjectMap();
+};
+$hxClasses["mvcexpress.mvc.Proxy"] = mvcexpress.mvc.Proxy;
+mvcexpress.mvc.Proxy.__name__ = ["mvcexpress","mvc","Proxy"];
+mvcexpress.mvc.Proxy.prototype = {
+	getDependantCommands: function() {
+		return this.dependantCommands;
+	}
+	,registerDependantCommand: function(signatureClass) {
+		this.dependantCommands.set(signatureClass,signatureClass);
+	}
+	,removeScope: function(scopeName) {
+		var scopeCount = scopeName.length;
+		var _g = 0;
+		while(_g < scopeCount) {
+			var i = _g++;
+			if(this.proxyScopes[i] == scopeName) {
+				this.proxyScopes.splice(i,1);
+				break;
+			}
+		}
+	}
+	,addScope: function(scopeName) {
+		var messengerFound = false;
+		var scopeCount = this.proxyScopes.length;
+		var _g = 0;
+		while(_g < scopeCount) {
+			var i = _g++;
+			if(this.proxyScopes[i] == scopeName) {
+				messengerFound = true;
+				break;
+			}
+		}
+		if(!messengerFound) this.proxyScopes[this.proxyScopes.length] = scopeName;
+	}
+	,remove: function() {
+		this._isReady = false;
+		this.dependantCommands = null;
+		this.onRemove();
+	}
+	,register: function() {
+		if(!this._isReady) {
+			this._isReady = true;
+			this.onRegister();
+		}
+	}
+	,setProxyMap: function(iProxyMap) {
+		this.proxyMap = iProxyMap;
+	}
+	,sendScopeMessage: function(scopeName,type,params) {
+		var moduleName = this.messenger.moduleName;
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,true));
+		mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,false));
+	}
+	,sendMessage: function(type,params) {
+		var moduleName = this.messenger.moduleName;
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,true));
+		this.messenger.send(type,params);
+		var scopeCount = this.proxyScopes.length;
+		var _g = 0;
+		while(_g < scopeCount) {
+			var i = _g++;
+			mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,this.proxyScopes[i],type,params,false);
+		}
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,false));
+	}
+	,get_isReady: function() {
+		return this._isReady;
+	}
+	,onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: mvcexpress.mvc.Proxy
+	,__properties__: {get_isReady:"get_isReady"}
+}
+integration.agenerictestobjects.model = {}
+integration.agenerictestobjects.model.GenericTestProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["integration.agenerictestobjects.model.GenericTestProxy"] = integration.agenerictestobjects.model.GenericTestProxy;
+integration.agenerictestobjects.model.GenericTestProxy.__name__ = ["integration","agenerictestobjects","model","GenericTestProxy"];
+integration.agenerictestobjects.model.GenericTestProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.agenerictestobjects.model.GenericTestProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	sendMessageTest: function(type,params) {
+		mvcexpress.mvc.Proxy.prototype.sendMessage.call(this,type,params);
+	}
+	,onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.agenerictestobjects.model.GenericTestProxy
+});
+integration.agenerictestobjects.view = {}
+integration.agenerictestobjects.view.GenericViewObject = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObject"] = integration.agenerictestobjects.view.GenericViewObject;
+integration.agenerictestobjects.view.GenericViewObject.__name__ = ["integration","agenerictestobjects","view","GenericViewObject"];
+integration.agenerictestobjects.view.GenericViewObject.__super__ = flash.display.Sprite;
+integration.agenerictestobjects.view.GenericViewObject.prototype = $extend(flash.display.Sprite.prototype,{
+	dispatchTestTrigerMessagEvent: function() {
+		this.dispatchEvent(new integration.agenerictestobjects.view.event.ViewTestEvent(integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_SENDS_MESSAGE));
+	}
+	,dispatchTestBlankEvent: function() {
+		this.dispatchEvent(new integration.agenerictestobjects.view.event.ViewTestEvent(integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_BLANK));
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObject
+});
+mvcexpress.mvc.Mediator = function() {
+	this.handlerVoRegistry = new Array();
+	this.eventListenerRegistry = new haxe.ds.ObjectMap();
+	this.eventListenerCaptureRegistry = new haxe.ds.ObjectMap();
+	mvcexpress.mvc.Mediator.canConstruct = true;
+	if(!mvcexpress.mvc.Mediator.canConstruct) throw "Mediator:" + Std.string(this) + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.";
+};
+$hxClasses["mvcexpress.mvc.Mediator"] = mvcexpress.mvc.Mediator;
+mvcexpress.mvc.Mediator.__name__ = ["mvcexpress","mvc","Mediator"];
+mvcexpress.mvc.Mediator.canConstruct = null;
+mvcexpress.mvc.Mediator.prototype = {
+	remove: function() {
+		this.onRemove();
+		this.removeAllHandlers();
+		this.removeAllListeners();
+		this.handlerVoRegistry = null;
+		this.eventListenerRegistry = null;
+		this.messenger = null;
+		this.mediatorMap = null;
+	}
+	,register: function() {
+		this._isReady = true;
+		this.onRegister();
+	}
+	,removeAllListeners: function() {
+		var eventTypes;
+		var _g = 0, _g1 = Reflect.fields(this.eventListenerCaptureRegistry);
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
+			eventTypes = this.eventListenerCaptureRegistry.h[listener.__id__];
+			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
+			while(_g2 < _g3.length) {
+				var type = _g3[_g2];
+				++_g2;
+				var viewObject = eventTypes.get(type);
+				viewObject.removeEventListener(type,listener,true);
+			}
+		}
+		var _g = 0, _g1 = Reflect.fields(this.eventListenerRegistry);
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
+			eventTypes = this.eventListenerRegistry.h[listener.__id__];
+			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
+			while(_g2 < _g3.length) {
+				var type = _g3[_g2];
+				++_g2;
+				var viewObject = eventTypes.get(type);
+				viewObject.removeEventListener(type,listener,false);
+			}
+		}
+	}
+	,removeListener: function(viewObject,type,listener,useCapture) {
+		if(useCapture == null) useCapture = false;
+		viewObject.removeEventListener(type,listener,useCapture);
+		if(useCapture) {
+			if(this.eventListenerCaptureRegistry.exists(listener)) {
+				if(this.eventListenerCaptureRegistry.get(listener).exists(type)) {
+					if(this.eventListenerCaptureRegistry.get(listener).get(type) == viewObject) this.eventListenerCaptureRegistry.get(listener).remove(type);
+				}
+			}
+		} else if(this.eventListenerRegistry.exists(listener)) {
+			if(this.eventListenerRegistry.get(listener).exists(type)) {
+				if(this.eventListenerRegistry.get(listener).get(type) == viewObject) this.eventListenerRegistry.get(listener).remove(type);
+			}
+		}
+	}
+	,addListener: function(viewObject,type,listener,useCapture,priority,useWeakReference) {
+		if(useWeakReference == null) useWeakReference = false;
+		if(priority == null) priority = 0;
+		if(useCapture == null) useCapture = false;
+		if(useCapture) {
+			if(!this.eventListenerCaptureRegistry.exists(listener)) this.eventListenerCaptureRegistry.set(listener,new haxe.ds.StringMap());
+			if(!this.eventListenerCaptureRegistry.get(listener).exists(type)) {
+				this.eventListenerCaptureRegistry.get(listener).set(type,viewObject);
+				viewObject.addEventListener(type,listener,useCapture,priority,useWeakReference);
+			}
+		} else {
+			if(!this.eventListenerRegistry.exists(listener)) this.eventListenerRegistry.set(listener,new haxe.ds.StringMap());
+			if(!this.eventListenerRegistry.get(listener).exists(type)) {
+				this.eventListenerRegistry.get(listener).set(type,viewObject);
+				viewObject.addEventListener(type,listener,useCapture,priority,useWeakReference);
+			}
+		}
+	}
+	,removeScopeHandler: function(scopeName,type,handler) {
+		mvcexpress.core.ModuleManager.removeScopeHandler(scopeName,type,handler);
+	}
+	,addScopeHandler: function(scopeName,type,handler) {
+		this.handlerVoRegistry[this.handlerVoRegistry.length] = mvcexpress.core.ModuleManager.addScopeHandler(this.moduleName,scopeName,type,handler);
+	}
+	,removeAllHandlers: function() {
+		while(this.handlerVoRegistry.length != 0) {
+			var handler = this.handlerVoRegistry.pop();
+			handler.handler = null;
+		}
+	}
+	,removeHandler: function(type,handler) {
+		this.messenger.removeHandler(type,handler);
+	}
+	,addHandler: function(type,handler) {
+		if(handler.length < 1) throw "Every message handler function needs at least one parameter. You are trying to add handler function from " + Type.getClassName(Type.getClass(this)) + " for message type:" + type;
+		if(type == null || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler(this.moduleName,this,type,handler));
+		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler,Type.getClassName(Type.getClass(this)));
+		return;
+		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler);
+	}
+	,sendScopeMessage: function(scopeName,type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,true));
+		mvcexpress.core.ModuleManager.sendScopeMessage(this.moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,false));
+	}
+	,sendMessage: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,true));
+		this.messenger.send(type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,false));
+	}
+	,get_isReady: function() {
+		return this._isReady;
+	}
+	,onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: mvcexpress.mvc.Mediator
+	,__properties__: {get_isReady:"get_isReady"}
+}
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener"] = integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__name__ = ["integration","agenerictestobjects","view","GenericViewObjectMediator_handlingListener"];
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__super__ = mvcexpress.mvc.Mediator;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,handlTestSendMessageEvent: function(event) {
+		this.sendMessage(integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+	}
+	,handlTestBlankEvent: function(event) {
+	}
+	,onRegister: function() {
+		this.addListener(this.view,integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_BLANK,$bind(this,this.handlTestBlankEvent));
+		this.addListener(this.view,integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_SENDS_MESSAGE,$bind(this,this.handlTestSendMessageEvent));
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener
+});
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage"] = integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__name__ = ["integration","agenerictestobjects","view","GenericViewObjectMediator_handlingMessage"];
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__super__ = mvcexpress.mvc.Mediator;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,handleTestMessage: function(blank) {
+	}
+	,onRegister: function() {
+		this.addHandler(integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,$bind(this,this.handleTestMessage));
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage
+});
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage"] = integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__name__ = ["integration","agenerictestobjects","view","GenericViewObjectMediator_handlingScopeMessage"];
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__super__ = mvcexpress.mvc.Mediator;
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,handleTestMessage: function(blank) {
+	}
+	,onRegister: function() {
+		this.addScopeHandler(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,$bind(this,this.handleTestMessage));
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage
+});
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject"] = integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject;
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__name__ = ["integration","agenerictestobjects","view","GenericViewObjectMediator_withScopedInject"];
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__super__ = mvcexpress.mvc.Mediator;
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject.hx", lineNumber : 17, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject", methodName : "onRegister"});
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject
+});
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage"] = integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage;
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__name__ = ["integration","agenerictestobjects","view","GenericViewObjectMediator_withScopedInject_handlingScopeMessage"];
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__super__ = mvcexpress.mvc.Mediator;
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,handleTestMessage: function(blank) {
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject_handlingScopeMessage.handleTestMessage > blank : " + Std.string(blank),{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 25, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "handleTestMessage"});
+		this.genericTestProxy.testData = integration.agenerictestobjects.constants.GenericTestStrings.data1;
+	}
+	,onRegister: function() {
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 20, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "onRegister"});
+		this.addScopeHandler(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,$bind(this,this.handleTestMessage));
+	}
+	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage
+});
+integration.agenerictestobjects.view.event = {}
+integration.agenerictestobjects.view.event.ViewTestEvent = function(type,bubbles,cancelable) {
+	if(cancelable == null) cancelable = false;
+	if(bubbles == null) bubbles = false;
+	flash.events.Event.call(this,type,bubbles,cancelable);
+};
+$hxClasses["integration.agenerictestobjects.view.event.ViewTestEvent"] = integration.agenerictestobjects.view.event.ViewTestEvent;
+integration.agenerictestobjects.view.event.ViewTestEvent.__name__ = ["integration","agenerictestobjects","view","event","ViewTestEvent"];
+integration.agenerictestobjects.view.event.ViewTestEvent.__super__ = flash.events.Event;
+integration.agenerictestobjects.view.event.ViewTestEvent.prototype = $extend(flash.events.Event.prototype,{
+	toString: function() {
+		return "[ ViewTestEvent :: " + this.type + " - bubbles:" + Std.string(this.bubbles) + " cancelable:" + Std.string(this.cancelable) + " eventPhase:" + this.eventPhase + "]";
+	}
+	,clone: function() {
+		return new integration.agenerictestobjects.view.event.ViewTestEvent(this.type,this.bubbles,this.cancelable);
+	}
+	,__class__: integration.agenerictestobjects.view.event.ViewTestEvent
+});
+integration.commandpooling = {}
+integration.commandpooling.CommandPoolingTests = function() {
+	Tester.call(this);
+	this.testFunction("commandPooling_cashingCammandUsedTwice_constructedOnce");
+	this.testFunction("commandPooling_cashingCammandUsedTwice_executedTwice");
+	this.testFunction("commandPooling_clearCommandPoolUseTwice_commandCreatedTwice");
+	this.testFunction("commandPooling_useCommandWithLock_commandCreatedTwice");
+	this.testFunction("commandPooling_useCommandWithUnlockBeforeLock_fails");
+	this.testFunction("commandPooling_useCommandWithUnmapedDependency_fails");
+	this.testFunction("commandPooling_useCommandWithRemapedDependency_commandCreatedTwice");
+	this.testFunction("commandPooling_useCommandLockingWithRemovedDependery_secorndCommandUseFails");
+	this.testFunction("commandPooling_useCommandLockingWithChangedDependery_secorndCommandUseSecondDependercy");
+};
+$hxClasses["integration.commandpooling.CommandPoolingTests"] = integration.commandpooling.CommandPoolingTests;
+integration.commandpooling.CommandPoolingTests.__name__ = ["integration","commandpooling","CommandPoolingTests"];
+integration.commandpooling.CommandPoolingTests.__super__ = Tester;
+integration.commandpooling.CommandPoolingTests.prototype = $extend(Tester.prototype,{
+	commandPooling_useCommandLockingWithChangedDependery_secorndCommandUseSecondDependercy: function() {
+		integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames = "";
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy("proxy1"));
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK,integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand);
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_REMOVED_DEPENDENCY_COMMAND,integration.commandpooling.testobj.controller.CommPoolingDependencyRemove);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK);
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy("-proxy2"));
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK);
+		utils.Assert.assertEquals("Pooled comamnd dependency swap while command is locked should end in pooled command reinstantiation.","proxy1-proxy2",integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames);
+	}
+	,commandPooling_useCommandLockingWithRemovedDependery_secorndCommandUseFails: function() {
+		integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames = "";
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy("proxy1"));
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK,integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand);
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_REMOVED_DEPENDENCY_COMMAND,integration.commandpooling.testobj.controller.CommPoolingDependencyRemove);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK);
+	}
+	,commandPooling_useCommandWithRemapedDependency_commandCreatedTwice: function() {
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy());
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY,integration.commandpooling.testobj.controller.CommPoolingDependantCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY);
+		this.commandPoolModuleProxyMap.unmap(integration.commandpooling.testobj.CommPoolingDependencyProxy);
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy());
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY);
+		utils.Assert.assertEquals("Pooled command should be created twice.",2,integration.commandpooling.testobj.controller.CommPoolingDependantCommand.constructCount);
+	}
+	,commandPooling_useCommandWithUnmapedDependency_fails: function() {
+		this.commandPoolModuleProxyMap.map(new integration.commandpooling.testobj.CommPoolingDependencyProxy());
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY,integration.commandpooling.testobj.controller.CommPoolingDependantCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY);
+		this.commandPoolModuleProxyMap.unmap(integration.commandpooling.testobj.CommPoolingDependencyProxy);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY);
+	}
+	,commandPooling_useCommandWithUnlockBeforeLock_fails: function() {
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_UNLOCK_ONLY,integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_UNLOCK_ONLY);
+	}
+	,commandPooling_useCommandWithLock_commandCreatedTwice: function() {
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_LOCK,integration.commandpooling.testobj.controller.CommPoolingLockedCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_LOCK);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_LOCK);
+		utils.Assert.assertEquals("Pooled command with lock should be created twice.",2,integration.commandpooling.testobj.controller.CommPoolingLockedCommand.constructCount);
+	}
+	,commandPooling_clearCommandPoolUseTwice_commandCreatedTwice: function() {
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		this.commandPoolModuleCommandMap.clearCommandPool(integration.commandpooling.testobj.controller.CommPoolingSimpleCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		utils.Assert.assertEquals("Pooled command should be created twice after it is cleared.",2,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.constructCount);
+	}
+	,commandPooling_cashingCammandUsedTwice_executedTwice: function() {
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		utils.Assert.assertEquals("Pooled command should be executed twice.",2,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.executeCount);
+	}
+	,commandPooling_cashingCammandUsedTwice_constructedOnce: function() {
+		this.commandPoolModuleCommandMap.map(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		this.commandPoolingModule.sendLocalMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND);
+		utils.Assert.assertEquals("Pooled command should be instantiated only once.",1,integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.constructCount);
+	}
+	,runAfterEveryTest: function() {
+		this.commandPoolModuleCommandMap = null;
+		this.commandPoolingModule.disposeModule();
+		this.commandPoolingModule = null;
+		integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.constructCount = 0;
+		integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.executeCount = 0;
+		integration.commandpooling.testobj.controller.CommPoolingDependantCommand.constructCount = 0;
+		integration.commandpooling.testobj.controller.CommPoolingDependantCommand.executeCount = 0;
+	}
+	,runBeforeEveryTest: function() {
+		this.commandPoolingModule = new integration.commandpooling.testobj.CommandPoolingModule();
+		this.commandPoolModuleCommandMap = this.commandPoolingModule.getCommandMap();
+		this.commandPoolModuleProxyMap = this.commandPoolingModule.getProxyMap();
+	}
+	,__class__: integration.commandpooling.CommandPoolingTests
+});
+integration.commandpooling.testobj = {}
+integration.commandpooling.testobj.CommPoolingDependencyProxy = function(proxyName) {
+	if(proxyName == null) proxyName = "undefined";
+	mvcexpress.mvc.Proxy.call(this);
+	this._proxyName = proxyName;
+};
+$hxClasses["integration.commandpooling.testobj.CommPoolingDependencyProxy"] = integration.commandpooling.testobj.CommPoolingDependencyProxy;
+integration.commandpooling.testobj.CommPoolingDependencyProxy.__name__ = ["integration","commandpooling","testobj","CommPoolingDependencyProxy"];
+integration.commandpooling.testobj.CommPoolingDependencyProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.commandpooling.testobj.CommPoolingDependencyProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	get_proxyName: function() {
+		return this._proxyName;
+	}
+	,onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.commandpooling.testobj.CommPoolingDependencyProxy
+	,__properties__: $extend(mvcexpress.mvc.Proxy.prototype.__properties__,{get_proxyName:"get_proxyName"})
+});
+integration.commandpooling.testobj.CommandPoolingModule = function() {
+	mvcexpress.modules.ModuleCore.call(this,integration.commandpooling.testobj.CommandPoolingModule.NAME);
+};
+$hxClasses["integration.commandpooling.testobj.CommandPoolingModule"] = integration.commandpooling.testobj.CommandPoolingModule;
+integration.commandpooling.testobj.CommandPoolingModule.__name__ = ["integration","commandpooling","testobj","CommandPoolingModule"];
+integration.commandpooling.testobj.CommandPoolingModule.__super__ = mvcexpress.modules.ModuleCore;
+integration.commandpooling.testobj.CommandPoolingModule.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	sendLocalMessage: function(type) {
+		this.sendMessage(type);
+	}
+	,getProxyMap: function() {
+		return this.proxyMap;
+	}
+	,getCommandMap: function() {
+		return this.commandMap;
+	}
+	,__class__: integration.commandpooling.testobj.CommandPoolingModule
+});
+mvcexpress.mvc.PooledCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["mvcexpress.mvc.PooledCommand"] = mvcexpress.mvc.PooledCommand;
+mvcexpress.mvc.PooledCommand.__name__ = ["mvcexpress","mvc","PooledCommand"];
+mvcexpress.mvc.PooledCommand.__super__ = mvcexpress.mvc.Command;
+mvcexpress.mvc.PooledCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	unlock: function() {
+		if(this._isLocked) {
+			this._isLocked = false;
+			if(this.isExecuting) this.commandMap.poolCommand(this);
+		} else throw "You are trying to unlock PooledCommand that was never locked. lock() it first.";
+	}
+	,lock: function() {
+		this._isLocked = true;
+	}
+	,get_isLocked: function() {
+		return this._isLocked;
+	}
+	,__class__: mvcexpress.mvc.PooledCommand
+	,__properties__: {get_isLocked:"get_isLocked"}
+});
+integration.commandpooling.testobj.controller = {}
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand = function() {
+	integration.commandpooling.testobj.controller.CommPoolingDependantCommand.constructCount++;
+	mvcexpress.mvc.PooledCommand.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingDependantCommand"] = integration.commandpooling.testobj.controller.CommPoolingDependantCommand;
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingDependantCommand"];
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__super__ = mvcexpress.mvc.PooledCommand;
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.prototype = $extend(mvcexpress.mvc.PooledCommand.prototype,{
+	execute: function(blank) {
+		integration.commandpooling.testobj.controller.CommPoolingDependantCommand.executeCount++;
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingDependantCommand
+});
+integration.commandpooling.testobj.controller.CommPoolingDependencyRemove = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingDependencyRemove"] = integration.commandpooling.testobj.controller.CommPoolingDependencyRemove;
+integration.commandpooling.testobj.controller.CommPoolingDependencyRemove.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingDependencyRemove"];
+integration.commandpooling.testobj.controller.CommPoolingDependencyRemove.__super__ = mvcexpress.mvc.Command;
+integration.commandpooling.testobj.controller.CommPoolingDependencyRemove.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(proxyClass) {
+		this.proxyMap.unmap(proxyClass);
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingDependencyRemove
+});
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand = function() {
+	integration.commandpooling.testobj.controller.CommPoolingLockedCommand.constructCount++;
+	mvcexpress.mvc.PooledCommand.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingLockedCommand"] = integration.commandpooling.testobj.controller.CommPoolingLockedCommand;
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingLockedCommand"];
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.__super__ = mvcexpress.mvc.PooledCommand;
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.prototype = $extend(mvcexpress.mvc.PooledCommand.prototype,{
+	execute: function(blank) {
+		integration.commandpooling.testobj.controller.CommPoolingLockedCommand.executeCount++;
+		this.lock();
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingLockedCommand
+});
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand = function() {
+	mvcexpress.mvc.PooledCommand.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand"] = integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand;
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingLockedFailCommand"];
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__super__ = mvcexpress.mvc.PooledCommand;
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.prototype = $extend(mvcexpress.mvc.PooledCommand.prototype,{
+	execute: function(blank) {
+		this.lock();
+		integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames += this.dependency.get_proxyName();
+		this.sendMessage(integration.commandpooling.CommandPoolingTests.EXECUTE_REMOVED_DEPENDENCY_COMMAND,integration.commandpooling.testobj.CommPoolingDependencyProxy);
+		this.unlock();
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand
+});
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand = function() {
+	integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.constructCount++;
+	mvcexpress.mvc.PooledCommand.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingSimpleCommand"] = integration.commandpooling.testobj.controller.CommPoolingSimpleCommand;
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingSimpleCommand"];
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.__super__ = mvcexpress.mvc.PooledCommand;
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.prototype = $extend(mvcexpress.mvc.PooledCommand.prototype,{
+	execute: function(blank) {
+		integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.executeCount++;
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingSimpleCommand
+});
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand = function() {
+	integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.constructCount++;
+	mvcexpress.mvc.PooledCommand.call(this);
+};
+$hxClasses["integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand"] = integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand;
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.__name__ = ["integration","commandpooling","testobj","controller","CommPoolingUnlockedCommand"];
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.__super__ = mvcexpress.mvc.PooledCommand;
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.prototype = $extend(mvcexpress.mvc.PooledCommand.prototype,{
+	execute: function(blank) {
+		integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.executeCount++;
+		this.unlock();
+	}
+	,__class__: integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand
+});
+integration.lazyproxy = {}
+integration.lazyproxy.LazyProxyTests = function() {
+	Tester.call(this);
+	this.testFunction("lazyProxy_lazyMaping_proxyNotInstantiated");
+	this.testFunction("lazyProxy_lazyMapingThenInjectingToProxy_proxyInstantiatedOnce");
+	this.testFunction("lazyProxy_lazyAndNormalMaping_fails");
+	this.testFunction("lazyProxy_normalAndLazyMaping_fails");
+	this.testFunction("lazyProxy_lazyMapingTwice_fails");
+	this.testFunction("lazyProxy_lazyMapingNotProxy_fails");
+	this.testFunction("lazyProxy_lazyMaping1Param_ok");
+	this.testFunction("lazyProxy_lazyMaping10Params_ok");
+	this.testFunction("lazyProxy_lazyMaping11Params_fails");
+};
+$hxClasses["integration.lazyproxy.LazyProxyTests"] = integration.lazyproxy.LazyProxyTests;
+integration.lazyproxy.LazyProxyTests.__name__ = ["integration","lazyproxy","LazyProxyTests"];
+integration.lazyproxy.LazyProxyTests.__super__ = Tester;
+integration.lazyproxy.LazyProxyTests.prototype = $extend(Tester.prototype,{
+	lazyProxy_lazyMaping11Params_fails: function() {
+		this.lazyProxyModulA.mapWithParams([1,2,3,4,5,6,7,8,9,10,11,1,2,3,4,5,6,7,8,9,10,11,1,2,3,4,5,6,7,8,9,10,11,1,2,3,4,5,6,7,8,9,10,11,10,11,10,11,10,11,10,11,11,10,11,10,11,10,11,11,10,11]);
+		return;
+		throw "debug mode only.";
+	}
+	,lazyProxy_lazyMaping10Params_ok: function() {
+		this.lazyProxyModulA.mapWithParams([1,2,3,4,5,6,7,8,9,10]);
+	}
+	,lazyProxy_lazyMaping1Param_ok: function() {
+		this.lazyProxyModulA.mapWithParams([1]);
+	}
+	,lazyProxy_lazyMapingNotProxy_fails: function() {
+		this.lazyProxyModulA.mapNotProxy();
+		return;
+		throw "debug mode only.";
+	}
+	,lazyProxy_lazyMapingTwice_fails: function() {
+		this.lazyProxyModulA.lazyMap();
+		this.lazyProxyModulA.lazyMap();
+	}
+	,lazyProxy_normalAndLazyMaping_fails: function() {
+		this.lazyProxyModulA.normalMap();
+		this.lazyProxyModulA.lazyMap();
+	}
+	,lazyProxy_lazyAndNormalMaping_fails: function() {
+		this.lazyProxyModulA.lazyMap();
+		this.lazyProxyModulA.normalMap();
+	}
+	,lazyProxy_lazyMapingThenInjectingToProxy_proxyInstantiatedOnce: function() {
+		this.lazyProxyModulA.lazyMap();
+		this.lazyProxyModulA.createProxyWithLazyInject();
+		utils.Assert.assertEquals("Lazy proxy must be instantiated once.",integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount,1);
+	}
+	,lazyProxy_lazyMaping_proxyNotInstantiated: function() {
+		this.lazyProxyModulA.lazyMap();
+		utils.Assert.assertEquals("Lazy mapping should not instantiate proxy.",integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount,0);
+	}
+	,runAfterEveryTest: function() {
+		this.lazyProxyModulA.disposeModule();
+		integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount = 0;
+	}
+	,runBeforeEveryTest: function() {
+		this.lazyProxyModulA = new integration.lazyproxy.testobj.modulea.LazyProxyModuleA();
+	}
+	,__class__: integration.lazyproxy.LazyProxyTests
+});
+integration.lazyproxy.testobj = {}
+integration.lazyproxy.testobj.modulea = {}
+integration.lazyproxy.testobj.modulea.LazyNormalProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["integration.lazyproxy.testobj.modulea.LazyNormalProxy"] = integration.lazyproxy.testobj.modulea.LazyNormalProxy;
+integration.lazyproxy.testobj.modulea.LazyNormalProxy.__name__ = ["integration","lazyproxy","testobj","modulea","LazyNormalProxy"];
+integration.lazyproxy.testobj.modulea.LazyNormalProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.lazyproxy.testobj.modulea.LazyNormalProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.lazyproxy.testobj.modulea.LazyNormalProxy
+});
+integration.lazyproxy.testobj.modulea.LazyProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+	integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount++;
+};
+$hxClasses["integration.lazyproxy.testobj.modulea.LazyProxy"] = integration.lazyproxy.testobj.modulea.LazyProxy;
+integration.lazyproxy.testobj.modulea.LazyProxy.__name__ = ["integration","lazyproxy","testobj","modulea","LazyProxy"];
+integration.lazyproxy.testobj.modulea.LazyProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.lazyproxy.testobj.modulea.LazyProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.lazyproxy.testobj.modulea.LazyProxy
+});
+integration.lazyproxy.testobj.modulea.LazyProxyModuleA = function() {
+	mvcexpress.modules.ModuleCore.call(this,integration.lazyproxy.testobj.modulea.LazyProxyModuleA.NAME);
+};
+$hxClasses["integration.lazyproxy.testobj.modulea.LazyProxyModuleA"] = integration.lazyproxy.testobj.modulea.LazyProxyModuleA;
+integration.lazyproxy.testobj.modulea.LazyProxyModuleA.__name__ = ["integration","lazyproxy","testobj","modulea","LazyProxyModuleA"];
+integration.lazyproxy.testobj.modulea.LazyProxyModuleA.__super__ = mvcexpress.modules.ModuleCore;
+integration.lazyproxy.testobj.modulea.LazyProxyModuleA.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	mapWithParams: function(params) {
+		this.proxyMap.lazyMap(integration.lazyproxy.testobj.modulea.LazyProxy,null,"",params);
+	}
+	,mapNotProxy: function() {
+		this.proxyMap.lazyMap(flash.display.Sprite);
+	}
+	,createProxyWithLazyInject: function() {
+		this.proxyMap.map(new integration.lazyproxy.testobj.modulea.LazyNormalProxy());
+	}
+	,normalMap: function() {
+		this.proxyMap.map(new integration.lazyproxy.testobj.modulea.LazyProxy());
+	}
+	,lazyMap: function() {
+		this.proxyMap.lazyMap(integration.lazyproxy.testobj.modulea.LazyProxy);
+	}
+	,__class__: integration.lazyproxy.testobj.modulea.LazyProxyModuleA
+});
+integration.mediating = {}
+integration.mediating.MediatingTests = function() {
+	Tester.call(this);
+	this.testFunction("mediating_mediateWrongClass_fails");
+	this.testFunction("mediating_mediateWithWrongClass_fails");
+	this.testFunction("mediating_mediatingAsInterface_ok");
+	this.testFunction("mediating_mediateWrongClass_fails");
+	this.testFunction("mediating_mediatingAsSuperClass_ok");
+	this.testFunction("mediating_mediatingWithAsInterface_ok");
+	this.testFunction("mediating_mediatingWithAsSuperClass_ok");
+	this.testFunction("mediating_mediatingAsWrongClass_fails");
+	this.testFunction("mediating_mediatingWithAsWrongClass_fails");
+	this.testFunction("mediating_mediatingTwiceAfterListener_ok");
+};
+$hxClasses["integration.mediating.MediatingTests"] = integration.mediating.MediatingTests;
+integration.mediating.MediatingTests.__name__ = ["integration","mediating","MediatingTests"];
+integration.mediating.MediatingTests.__super__ = Tester;
+integration.mediating.MediatingTests.prototype = $extend(Tester.prototype,{
+	mediating_mediatingTwiceAfterListener_ok: function() {
+		var view = new integration.agenerictestobjects.view.GenericViewObject();
+		this.mediatorMap.map(integration.agenerictestobjects.view.GenericViewObject,integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener);
+		this.mediatorMap.mediate(view);
+		view.dispatchTestTrigerMessagEvent();
+		this.mediatorMap.unmediate(view);
+		this.mediatorMap.mediate(view);
+		view.dispatchTestTrigerMessagEvent();
+	}
+	,mediating_mediatingWithAsWrongClass_fails: function() {
+		var view = new integration.mediating.testobj.view.viewobj.MediatingWrongView();
+		this.mediatorMap.mediateWith(view,integration.mediating.testobj.view.MediatingInterfaceMediator,integration.mediating.testobj.view.viewobj.IMediatingIntefrace);
+	}
+	,mediating_mediatingAsWrongClass_fails: function() {
+		this.mediatorMap.map(integration.mediating.testobj.view.viewobj.MediatingWrongView,integration.mediating.testobj.view.MediatingInterfaceMediator,integration.mediating.testobj.view.viewobj.IMediatingIntefrace);
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediate(view);
+	}
+	,mediating_mediatingWithAsSuperClass_ok: function() {
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediateWith(view,integration.mediating.testobj.view.MediatingInterfaceMediator,integration.mediating.testobj.view.viewobj.IMediatingIntefrace);
+		utils.Assert.assertEquals("Mediator should be mediated and registered once.",1,integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered);
+	}
+	,mediating_mediatingWithAsInterface_ok: function() {
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediateWith(view,integration.mediating.testobj.view.MediatingSuperClassMediator,integration.mediating.testobj.view.viewobj.MediatingBaseView);
+		utils.Assert.assertEquals("Mediator should be mediated and registered once.",1,integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered);
+	}
+	,mediating_mediatingAsSuperClass_ok: function() {
+		this.mediatorMap.map(integration.mediating.testobj.view.viewobj.MediatingSubView,integration.mediating.testobj.view.MediatingInterfaceMediator,integration.mediating.testobj.view.viewobj.IMediatingIntefrace);
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediate(view);
+		utils.Assert.assertEquals("Mediator should be mediated and registered once.",1,integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered);
+	}
+	,mediating_mediatingAsInterface_ok: function() {
+		this.mediatorMap.map(integration.mediating.testobj.view.viewobj.MediatingSubView,integration.mediating.testobj.view.MediatingSuperClassMediator,integration.mediating.testobj.view.viewobj.MediatingBaseView);
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediate(view);
+		utils.Assert.assertEquals("Mediator should be mediated and registered once.",1,integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered);
+	}
+	,mediating_mediateWithWrongClass_fails: function() {
+		var view = new integration.mediating.testobj.view.viewobj.MediatingWrongView();
+		this.mediatorMap.mediateWith(view,integration.mediating.testobj.view.MediatingSuperClassMediator);
+	}
+	,mediating_mediateWrongClass_fails: function() {
+		this.mediatorMap.map(integration.mediating.testobj.view.viewobj.MediatingWrongView,integration.mediating.testobj.view.MediatingSuperClassMediator);
+		var view = new integration.mediating.testobj.view.viewobj.MediatingSubView();
+		this.mediatorMap.mediate(view);
+	}
+	,runAfterEveryTest: function() {
+		this.mediatorMap = null;
+		this.mediatingModule.disposeModule();
+		this.mediatingModule = null;
+		integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered = 0;
+	}
+	,runBeforeEveryTest: function() {
+		this.mediatingModule = new integration.mediating.testobj.MediatingModule();
+		this.mediatorMap = this.mediatingModule.getMediatorMap();
+	}
+	,__class__: integration.mediating.MediatingTests
+});
+integration.mediating.testobj = {}
+integration.mediating.testobj.MediatingModule = function() {
+	mvcexpress.modules.ModuleCore.call(this,integration.mediating.testobj.MediatingModule.NAME);
+};
+$hxClasses["integration.mediating.testobj.MediatingModule"] = integration.mediating.testobj.MediatingModule;
+integration.mediating.testobj.MediatingModule.__name__ = ["integration","mediating","testobj","MediatingModule"];
+integration.mediating.testobj.MediatingModule.__super__ = mvcexpress.modules.ModuleCore;
+integration.mediating.testobj.MediatingModule.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	getMediatorMap: function() {
+		return this.mediatorMap;
+	}
+	,__class__: integration.mediating.testobj.MediatingModule
+});
+integration.mediating.testobj.view = {}
+integration.mediating.testobj.view.MediatingInterfaceMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.mediating.testobj.view.MediatingInterfaceMediator"] = integration.mediating.testobj.view.MediatingInterfaceMediator;
+integration.mediating.testobj.view.MediatingInterfaceMediator.__name__ = ["integration","mediating","testobj","view","MediatingInterfaceMediator"];
+integration.mediating.testobj.view.MediatingInterfaceMediator.__super__ = mvcexpress.mvc.Mediator;
+integration.mediating.testobj.view.MediatingInterfaceMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+		integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered++;
+	}
+	,__class__: integration.mediating.testobj.view.MediatingInterfaceMediator
+});
+integration.mediating.testobj.view.MediatingSuperClassMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.mediating.testobj.view.MediatingSuperClassMediator"] = integration.mediating.testobj.view.MediatingSuperClassMediator;
+integration.mediating.testobj.view.MediatingSuperClassMediator.__name__ = ["integration","mediating","testobj","view","MediatingSuperClassMediator"];
+integration.mediating.testobj.view.MediatingSuperClassMediator.__super__ = mvcexpress.mvc.Mediator;
+integration.mediating.testobj.view.MediatingSuperClassMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+		integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered++;
+	}
+	,__class__: integration.mediating.testobj.view.MediatingSuperClassMediator
+});
+integration.mediating.testobj.view.viewobj = {}
+integration.mediating.testobj.view.viewobj.IMediatingIntefrace = function() { }
+$hxClasses["integration.mediating.testobj.view.viewobj.IMediatingIntefrace"] = integration.mediating.testobj.view.viewobj.IMediatingIntefrace;
+integration.mediating.testobj.view.viewobj.IMediatingIntefrace.__name__ = ["integration","mediating","testobj","view","viewobj","IMediatingIntefrace"];
+integration.mediating.testobj.view.viewobj.IMediatingIntefrace.prototype = {
+	__class__: integration.mediating.testobj.view.viewobj.IMediatingIntefrace
+}
+integration.mediating.testobj.view.viewobj.MediatingBaseView = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.mediating.testobj.view.viewobj.MediatingBaseView"] = integration.mediating.testobj.view.viewobj.MediatingBaseView;
+integration.mediating.testobj.view.viewobj.MediatingBaseView.__name__ = ["integration","mediating","testobj","view","viewobj","MediatingBaseView"];
+integration.mediating.testobj.view.viewobj.MediatingBaseView.__super__ = flash.display.Sprite;
+integration.mediating.testobj.view.viewobj.MediatingBaseView.prototype = $extend(flash.display.Sprite.prototype,{
+	__class__: integration.mediating.testobj.view.viewobj.MediatingBaseView
+});
+integration.mediating.testobj.view.viewobj.MediatingSubView = function() {
+	integration.mediating.testobj.view.viewobj.MediatingBaseView.call(this);
+};
+$hxClasses["integration.mediating.testobj.view.viewobj.MediatingSubView"] = integration.mediating.testobj.view.viewobj.MediatingSubView;
+integration.mediating.testobj.view.viewobj.MediatingSubView.__name__ = ["integration","mediating","testobj","view","viewobj","MediatingSubView"];
+integration.mediating.testobj.view.viewobj.MediatingSubView.__interfaces__ = [integration.mediating.testobj.view.viewobj.IMediatingIntefrace];
+integration.mediating.testobj.view.viewobj.MediatingSubView.__super__ = integration.mediating.testobj.view.viewobj.MediatingBaseView;
+integration.mediating.testobj.view.viewobj.MediatingSubView.prototype = $extend(integration.mediating.testobj.view.viewobj.MediatingBaseView.prototype,{
+	doStuff: function() {
+	}
+	,__class__: integration.mediating.testobj.view.viewobj.MediatingSubView
+});
+integration.mediating.testobj.view.viewobj.MediatingWrongView = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.mediating.testobj.view.viewobj.MediatingWrongView"] = integration.mediating.testobj.view.viewobj.MediatingWrongView;
+integration.mediating.testobj.view.viewobj.MediatingWrongView.__name__ = ["integration","mediating","testobj","view","viewobj","MediatingWrongView"];
+integration.mediating.testobj.view.viewobj.MediatingWrongView.__super__ = flash.display.Sprite;
+integration.mediating.testobj.view.viewobj.MediatingWrongView.prototype = $extend(flash.display.Sprite.prototype,{
+	__class__: integration.mediating.testobj.view.viewobj.MediatingWrongView
+});
 integration.moduleinittests = {}
 integration.moduleinittests.ModuleInitTests = function() {
 	Tester.call(this);
@@ -8401,69 +9457,6 @@ integration.moduleinittests.ModuleInitTests.prototype = $extend(Tester.prototype
 	}
 	,__class__: integration.moduleinittests.ModuleInitTests
 });
-var mvcexpress = {}
-mvcexpress.modules = {}
-mvcexpress.modules.ModuleCore = function(moduleName,autoInit) {
-	if(autoInit == null) autoInit = true;
-	this.moduleBase = mvcexpress.core.ModuleManager.createModule(moduleName,autoInit);
-	if(autoInit) {
-		this.proxyMap = this.moduleBase.proxyMap;
-		this.mediatorMap = this.moduleBase.mediatorMap;
-		this.commandMap = this.moduleBase.commandMap;
-		this.onInit();
-	}
-};
-$hxClasses["mvcexpress.modules.ModuleCore"] = mvcexpress.modules.ModuleCore;
-mvcexpress.modules.ModuleCore.__name__ = ["mvcexpress","modules","ModuleCore"];
-mvcexpress.modules.ModuleCore.prototype = {
-	listMappedCommands: function() {
-		return this.moduleBase.listMappedCommands();
-	}
-	,listMappedProxies: function() {
-		return this.moduleBase.listMappedProxies();
-	}
-	,listMappedMediators: function() {
-		return this.moduleBase.listMappedMediators();
-	}
-	,listMappedMessages: function() {
-		return this.moduleBase.listMappedMessages();
-	}
-	,unregisterScope: function(scopeName) {
-		this.moduleBase.unregisterScope(scopeName);
-	}
-	,registerScope: function(scopeName,messageSending,messageReceiving,proxieMapping) {
-		if(proxieMapping == null) proxieMapping = false;
-		if(messageReceiving == null) messageReceiving = true;
-		if(messageSending == null) messageSending = true;
-		this.moduleBase.registerScope(scopeName,messageSending,messageReceiving,proxieMapping);
-	}
-	,sendScopeMessage: function(scopeName,type,params) {
-		this.moduleBase.sendScopeMessage(scopeName,type,params);
-	}
-	,sendMessage: function(type,params) {
-		this.moduleBase.sendMessage(type,params);
-	}
-	,onDispose: function() {
-	}
-	,disposeModule: function() {
-		this.onDispose();
-		this.moduleBase.disposeModule();
-	}
-	,onInit: function() {
-	}
-	,initModule: function() {
-		this.moduleBase.initModule();
-		this.proxyMap = this.moduleBase.proxyMap;
-		this.mediatorMap = this.moduleBase.mediatorMap;
-		this.commandMap = this.moduleBase.commandMap;
-		this.onInit();
-	}
-	,get_moduleName: function() {
-		return this.moduleBase.get_moduleName();
-	}
-	,__class__: mvcexpress.modules.ModuleCore
-	,__properties__: {get_moduleName:"get_moduleName"}
-}
 integration.moduleinittests.testobj = {}
 integration.moduleinittests.testobj.InitTestModuleCore = function(autoInit) {
 	mvcexpress.modules.ModuleCore.call(this,integration.moduleinittests.testobj.InitTestModuleCore.NAME,autoInit);
@@ -8680,9 +9673,191 @@ integration.moduleinittests.testobj.InitTestModuleSprite.prototype = $extend(mvc
 	}
 	,__class__: integration.moduleinittests.testobj.InitTestModuleSprite
 });
+integration.proxymap = {}
+integration.proxymap.ProxyMapTests = function() {
+	Tester.call(this);
+	this.testFunction("proxyMap_injectIntoProxyConstNamedVariable_injectedOk");
+	this.testFunction("proxyMap_injectIntoMediatorConstNamedVariable_injectedOk");
+	this.testFunction("proxyMap_injectIntoCommandConstNamedVariable_injectedOk");
+};
+$hxClasses["integration.proxymap.ProxyMapTests"] = integration.proxymap.ProxyMapTests;
+integration.proxymap.ProxyMapTests.__name__ = ["integration","proxymap","ProxyMapTests"];
+integration.proxymap.ProxyMapTests.__super__ = Tester;
+integration.proxymap.ProxyMapTests.prototype = $extend(Tester.prototype,{
+	proxyMap_injectIntoCommandConstNamedVariable_injectedOk: function() {
+		var testProxy = new integration.agenerictestobjects.model.GenericTestProxy();
+		this.module.proxymap_map(testProxy,null,integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT);
+		this.module.commandMap_execute(integration.proxymap.testobj.CestConstCommand);
+	}
+	,proxyMap_injectIntoMediatorConstNamedVariable_injectedOk: function() {
+		var testProxy = new integration.agenerictestobjects.model.GenericTestProxy();
+		this.module.proxymap_map(testProxy,null,integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT);
+		this.module.mediatorMap_mediateWith(new integration.proxymap.testobj.TestContsView(),integration.proxymap.testobj.TestContsViewMediator);
+	}
+	,proxyMap_injectIntoProxyConstNamedVariable_injectedOk: function() {
+		var testProxy = new integration.agenerictestobjects.model.GenericTestProxy();
+		this.module.proxymap_map(testProxy,null,integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT);
+		this.module.proxymap_map(new integration.proxymap.testobj.TexsWithConstNameInjectProxy());
+	}
+	,runAfterEveryTest: function() {
+		this.module.disposeModule();
+	}
+	,runBeforeEveryTest: function() {
+		this.module = new integration.agenerictestobjects.GenericTestModule("ProxyMap_test");
+	}
+	,__class__: integration.proxymap.ProxyMapTests
+});
+integration.proxymap.testobj = {}
+integration.proxymap.testobj.CestConstCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["integration.proxymap.testobj.CestConstCommand"] = integration.proxymap.testobj.CestConstCommand;
+integration.proxymap.testobj.CestConstCommand.__name__ = ["integration","proxymap","testobj","CestConstCommand"];
+integration.proxymap.testobj.CestConstCommand.__super__ = mvcexpress.mvc.Command;
+integration.proxymap.testobj.CestConstCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(blank) {
+	}
+	,__class__: integration.proxymap.testobj.CestConstCommand
+});
+integration.proxymap.testobj.TestConstObject = function() { }
+$hxClasses["integration.proxymap.testobj.TestConstObject"] = integration.proxymap.testobj.TestConstObject;
+integration.proxymap.testobj.TestConstObject.__name__ = ["integration","proxymap","testobj","TestConstObject"];
+integration.proxymap.testobj.TestContsView = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.proxymap.testobj.TestContsView"] = integration.proxymap.testobj.TestContsView;
+integration.proxymap.testobj.TestContsView.__name__ = ["integration","proxymap","testobj","TestContsView"];
+integration.proxymap.testobj.TestContsView.__super__ = flash.display.Sprite;
+integration.proxymap.testobj.TestContsView.prototype = $extend(flash.display.Sprite.prototype,{
+	__class__: integration.proxymap.testobj.TestContsView
+});
+integration.proxymap.testobj.TestContsViewMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.proxymap.testobj.TestContsViewMediator"] = integration.proxymap.testobj.TestContsViewMediator;
+integration.proxymap.testobj.TestContsViewMediator.__name__ = ["integration","proxymap","testobj","TestContsViewMediator"];
+integration.proxymap.testobj.TestContsViewMediator.__super__ = mvcexpress.mvc.Mediator;
+integration.proxymap.testobj.TestContsViewMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.proxymap.testobj.TestContsViewMediator
+});
+integration.proxymap.testobj.TexsWithConstNameInjectProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["integration.proxymap.testobj.TexsWithConstNameInjectProxy"] = integration.proxymap.testobj.TexsWithConstNameInjectProxy;
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__name__ = ["integration","proxymap","testobj","TexsWithConstNameInjectProxy"];
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.proxymap.testobj.TexsWithConstNameInjectProxy
+});
+integration.scopecontrol = {}
+integration.scopecontrol.ScopeControlTests = function() {
+	Tester.call(this);
+	this.testFunction("scopeControl_messageOutWithoutScopeRegister_fails");
+	this.testFunction("scopeControl_messageInHandleWithoutScopeRegister_fails");
+	this.testFunction("scopeControl_messageInCommandMapWithoutScopeRegister_fails");
+	this.testFunction("scopeControl_scopedInjectWithoutScopeRegister_fails");
+	this.testFunction("scopeControl_messageOutWithScopeRegister_ok");
+	this.testFunction("scopeControl_messageInHandleWithScopeRegister_ok");
+	this.testFunction("scopeControl_messageInCommandMapWithScopeRegister_ok");
+	this.testFunction("scopeControl_scopedInjectWithScopeRegister_ok");
+	this.testFunction("scopeControl_messageOutWithScopeRegisterWithModuleRecreate_fails");
+	this.testFunction("scopeControl_messageInHandleWithScopeRegisterWithModuleRecreate_fails");
+	this.testFunction("scopeControl_messageInCommandMapWithScopeRegisterWithModuleRecreate_fails");
+	this.testFunction("scopeControl_scopedInjectWithScopeRegisterWithModuleRecreate_fails");
+	this.testFunction("scopeControl_messageOutAndInWithScopeRegister_ok");
+	this.testFunction("scopeControl_injectedProxyChangeShouldBeHandled_ok");
+};
+$hxClasses["integration.scopecontrol.ScopeControlTests"] = integration.scopecontrol.ScopeControlTests;
+integration.scopecontrol.ScopeControlTests.__name__ = ["integration","scopecontrol","ScopeControlTests"];
+integration.scopecontrol.ScopeControlTests.__super__ = Tester;
+integration.scopecontrol.ScopeControlTests.prototype = $extend(Tester.prototype,{
+	scopeControl_injectedProxyChangeShouldBeHandled_ok: function() {
+		var testProxy = new integration.agenerictestobjects.model.GenericTestProxy();
+		this.moduleOut.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,false,true);
+		this.moduleOut.proxymap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,testProxy);
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,true,false);
+		this.moduleIn.mediatorMap_mediateWith(new integration.agenerictestobjects.view.GenericViewObject(),integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage);
+		testProxy.sendMessageTest(integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+		utils.Assert.assertEquals("remote proxy should react to message and set data.",testProxy.testData,integration.agenerictestobjects.constants.GenericTestStrings.data1);
+	}
+	,scopeControl_messageOutAndInWithScopeRegister_ok: function() {
+		this.moduleOut.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,true,true,false);
+		this.moduleOut.sendScopeMessageTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+		this.moduleOut.mediatorMap_mediateWith(new integration.agenerictestobjects.view.GenericViewObject(),integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage);
+	}
+	,scopeControl_scopedInjectWithScopeRegisterWithModuleRecreate_fails: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,false,true);
+		this.moduleIn.disposeModule();
+		this.moduleIn = new integration.agenerictestobjects.GenericTestModule("moduleIn");
+		this.moduleIn.proxymap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,new integration.agenerictestobjects.model.GenericTestProxy());
+	}
+	,scopeControl_messageInCommandMapWithScopeRegisterWithModuleRecreate_fails: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,true,false);
+		this.moduleIn.disposeModule();
+		this.moduleIn = new integration.agenerictestobjects.GenericTestModule("moduleIn");
+		this.moduleIn.commandMap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,integration.agenerictestobjects.controller.GenericCommand);
+	}
+	,scopeControl_messageInHandleWithScopeRegisterWithModuleRecreate_fails: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,true,false);
+		this.moduleIn.disposeModule();
+		this.moduleIn = new integration.agenerictestobjects.GenericTestModule("moduleIn");
+		this.moduleIn.mediatorMap_mediateWith(new integration.agenerictestobjects.view.GenericViewObject(),integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage);
+	}
+	,scopeControl_messageOutWithScopeRegisterWithModuleRecreate_fails: function() {
+		this.moduleOut.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,true,false,false);
+		this.moduleOut.disposeModule();
+		this.moduleOut = new integration.agenerictestobjects.GenericTestModule("moduleOut");
+		this.moduleOut.sendScopeMessageTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+	}
+	,scopeControl_scopedInjectWithScopeRegister_ok: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,false,true);
+		this.moduleIn.proxymap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,new integration.agenerictestobjects.model.GenericTestProxy());
+	}
+	,scopeControl_messageInCommandMapWithScopeRegister_ok: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,true,false);
+		this.moduleIn.commandMap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,integration.agenerictestobjects.controller.GenericCommand);
+	}
+	,scopeControl_messageInHandleWithScopeRegister_ok: function() {
+		this.moduleIn.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,false,true,false);
+		this.moduleIn.mediatorMap_mediateWith(new integration.agenerictestobjects.view.GenericViewObject(),integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage);
+	}
+	,scopeControl_messageOutWithScopeRegister_ok: function() {
+		this.moduleOut.registerScopeTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,true,false,false);
+		this.moduleOut.sendScopeMessageTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+	}
+	,scopeControl_scopedInjectWithoutScopeRegister_fails: function() {
+		this.moduleIn.proxymap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,new integration.agenerictestobjects.model.GenericTestProxy());
+	}
+	,scopeControl_messageInCommandMapWithoutScopeRegister_fails: function() {
+		this.moduleIn.commandMap_scopeMap(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,integration.agenerictestobjects.controller.GenericCommand);
+	}
+	,scopeControl_messageInHandleWithoutScopeRegister_fails: function() {
+		this.moduleIn.mediatorMap_mediateWith(new integration.agenerictestobjects.view.GenericViewObject(),integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage);
+	}
+	,scopeControl_messageOutWithoutScopeRegister_fails: function() {
+		this.moduleOut.sendScopeMessageTest(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE);
+	}
+	,runAfterEveryTest: function() {
+		this.moduleOut.disposeModule();
+		this.moduleIn.disposeModule();
+	}
+	,runBeforeEveryTest: function() {
+		this.moduleOut = new integration.agenerictestobjects.GenericTestModule("moduleOut");
+		this.moduleIn = new integration.agenerictestobjects.GenericTestModule("moduleIn");
+	}
+	,__class__: integration.scopecontrol.ScopeControlTests
+});
 integration.scopedmessaging = {}
 integration.scopedmessaging.ChannelingTests = function() {
-	this._currentTest = 0;
+	Tester.call(this);
 	this.testFunction("channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage");
 	this.testFunction("channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing");
 	this.testFunction("channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");
@@ -8693,7 +9868,8 @@ integration.scopedmessaging.ChannelingTests = function() {
 };
 $hxClasses["integration.scopedmessaging.ChannelingTests"] = integration.scopedmessaging.ChannelingTests;
 integration.scopedmessaging.ChannelingTests.__name__ = ["integration","scopedmessaging","ChannelingTests"];
-integration.scopedmessaging.ChannelingTests.prototype = {
+integration.scopedmessaging.ChannelingTests.__super__ = Tester;
+integration.scopedmessaging.ChannelingTests.prototype = $extend(Tester.prototype,{
 	channeling_messegeToCommandChanneling_addAndRemoveChannelCommand_commandsHandlesNothing: function() {
 		utils.Assert.assertFalse("Cammand test1 executed flag mast be false",this.channelModulB.command1executed);
 		this.channelModulA.mapCommand_ComTest1();
@@ -8784,150 +9960,8 @@ integration.scopedmessaging.ChannelingTests.prototype = {
 		this.channelModulA = new integration.scopedmessaging.testobj.modulea.ChannelModuleA();
 		this.channelModulB = new integration.scopedmessaging.testobj.moduleb.ChannelModuleB();
 	}
-	,testFunction: function(funcName) {
-		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + ": " + funcName + "\n*-------------------------*",{ fileName : "ChannelingTests.hx", lineNumber : 32, className : "integration.scopedmessaging.ChannelingTests", methodName : "testFunction"});
-		this.runBeforeEveryTest();
-		try {
-			Reflect.field(this,funcName).apply(this,[]);
-		} catch( e ) {
-			haxe.Log.trace(e,{ fileName : "ChannelingTests.hx", lineNumber : 38, className : "integration.scopedmessaging.ChannelingTests", methodName : "testFunction"});
-		}
-		this.runAfterEveryTest();
-	}
 	,__class__: integration.scopedmessaging.ChannelingTests
-}
-mvcexpress.mvc = {}
-mvcexpress.mvc.Mediator = function() {
-	this.handlerVoRegistry = new Array();
-	this.eventListenerRegistry = new haxe.ds.ObjectMap();
-	this.eventListenerCaptureRegistry = new haxe.ds.ObjectMap();
-	mvcexpress.mvc.Mediator.canConstruct = true;
-	if(!mvcexpress.mvc.Mediator.canConstruct) throw "Mediator:" + Std.string(this) + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.";
-};
-$hxClasses["mvcexpress.mvc.Mediator"] = mvcexpress.mvc.Mediator;
-mvcexpress.mvc.Mediator.__name__ = ["mvcexpress","mvc","Mediator"];
-mvcexpress.mvc.Mediator.canConstruct = null;
-mvcexpress.mvc.Mediator.prototype = {
-	remove: function() {
-		this.onRemove();
-		this.removeAllHandlers();
-		this.removeAllListeners();
-		this.handlerVoRegistry = null;
-		this.eventListenerRegistry = null;
-		this.messenger = null;
-		this.mediatorMap = null;
-	}
-	,register: function() {
-		this._isReady = true;
-		this.onRegister();
-	}
-	,removeAllListeners: function() {
-		var eventTypes;
-		var _g = 0, _g1 = Reflect.fields(this.eventListenerCaptureRegistry);
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
-			eventTypes = this.eventListenerCaptureRegistry.h[listener.__id__];
-			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
-			while(_g2 < _g3.length) {
-				var type = _g3[_g2];
-				++_g2;
-				var viewObject = eventTypes.get(type);
-				viewObject.removeEventListener(type,listener,true);
-			}
-		}
-		var _g = 0, _g1 = Reflect.fields(this.eventListenerRegistry);
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
-			eventTypes = this.eventListenerRegistry.h[listener.__id__];
-			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
-			while(_g2 < _g3.length) {
-				var type = _g3[_g2];
-				++_g2;
-				var viewObject = eventTypes.get(type);
-				viewObject.removeEventListener(type,listener,false);
-			}
-		}
-	}
-	,removeListener: function(viewObject,type,listener,useCapture) {
-		if(useCapture == null) useCapture = false;
-		viewObject.removeEventListener(type,listener,useCapture);
-		if(useCapture) {
-			if(this.eventListenerCaptureRegistry.exists(listener)) {
-				if(this.eventListenerCaptureRegistry.get(listener).exists(type)) {
-					if(this.eventListenerCaptureRegistry.get(listener).get(type) == viewObject) this.eventListenerCaptureRegistry.get(listener).remove(type);
-				}
-			}
-		} else if(this.eventListenerRegistry.exists(listener)) {
-			if(this.eventListenerRegistry.get(listener).exists(type)) {
-				if(this.eventListenerRegistry.get(listener).get(type) == viewObject) this.eventListenerRegistry.get(listener).remove(type);
-			}
-		}
-	}
-	,addListener: function(viewObject,type,listener,useCapture,priority,useWeakReference) {
-		if(useWeakReference == null) useWeakReference = false;
-		if(priority == null) priority = 0;
-		if(useCapture == null) useCapture = false;
-		if(useCapture) {
-			if(!this.eventListenerCaptureRegistry.exists(listener)) this.eventListenerCaptureRegistry.set(listener,new haxe.ds.StringMap());
-			if(!this.eventListenerCaptureRegistry.get(listener).exists(type)) {
-				this.eventListenerCaptureRegistry.get(listener).set(type,viewObject);
-				viewObject.addEventListener(type,listener,useCapture,priority,useWeakReference);
-			}
-		} else {
-			if(!this.eventListenerRegistry.exists(listener)) this.eventListenerRegistry.set(listener,new haxe.ds.StringMap());
-			if(!this.eventListenerRegistry.get(listener).exists(type)) {
-				this.eventListenerRegistry.get(listener).set(type,viewObject);
-				viewObject.addEventListener(type,listener,useCapture,priority,useWeakReference);
-			}
-		}
-	}
-	,removeScopeHandler: function(scopeName,type,handler) {
-		mvcexpress.core.ModuleManager.removeScopeHandler(scopeName,type,handler);
-	}
-	,addScopeHandler: function(scopeName,type,handler) {
-		this.handlerVoRegistry[this.handlerVoRegistry.length] = mvcexpress.core.ModuleManager.addScopeHandler(this.moduleName,scopeName,type,handler);
-	}
-	,removeAllHandlers: function() {
-		while(this.handlerVoRegistry.length != 0) {
-			var handler = this.handlerVoRegistry.pop();
-			handler.handler = null;
-		}
-	}
-	,removeHandler: function(type,handler) {
-		this.messenger.removeHandler(type,handler);
-	}
-	,addHandler: function(type,handler) {
-		if(handler.length < 1) throw "Every message handler function needs at least one parameter. You are trying to add handler function from " + Type.getClassName(Type.getClass(Type["typeof"](this))) + " for message type:" + type;
-		if(type == null || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler(this.moduleName,this,type,handler));
-		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler,Type.getClassName(Type.getClass(Type["typeof"](this))));
-		return;
-		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler);
-	}
-	,sendScopeMessage: function(scopeName,type,params) {
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,true));
-		mvcexpress.core.ModuleManager.sendScopeMessage(this.moduleName,scopeName,type,params);
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,false));
-	}
-	,sendMessage: function(type,params) {
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,true));
-		this.messenger.send(type,params);
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,false));
-	}
-	,get_isReady: function() {
-		return this._isReady;
-	}
-	,onRemove: function() {
-	}
-	,onRegister: function() {
-	}
-	,__class__: mvcexpress.mvc.Mediator
-	,__properties__: {get_isReady:"get_isReady"}
-}
+});
 integration.scopedmessaging.testobj = {}
 integration.scopedmessaging.testobj.modulea = {}
 integration.scopedmessaging.testobj.modulea.ChannelAMediator = function() {
@@ -9030,37 +10064,6 @@ integration.scopedmessaging.testobj.modulea.ChannelViewA.__super__ = flash.displ
 integration.scopedmessaging.testobj.modulea.ChannelViewA.prototype = $extend(flash.display.Sprite.prototype,{
 	__class__: integration.scopedmessaging.testobj.modulea.ChannelViewA
 });
-mvcexpress.mvc.Command = function() {
-	if(!mvcexpress.mvc.Command.canConstruct) throw "Command:" + Std.string(this) + " can be constructed only by framework. If you want to execute it - map it to message with commandMap.map() and send a message, or execute it directly with commandMap.execute()";
-};
-$hxClasses["mvcexpress.mvc.Command"] = mvcexpress.mvc.Command;
-mvcexpress.mvc.Command.__name__ = ["mvcexpress","mvc","Command"];
-mvcexpress.mvc.Command.canConstruct = null;
-mvcexpress.mvc.Command.prototype = {
-	getMessageType: function() {
-		return this.messageType;
-	}
-	,unregisterScope: function(scopeName) {
-		mvcexpress.core.ModuleManager.unregisterScope(this.messenger.moduleName,scopeName);
-	}
-	,registerScope: function(scopeName,messageSending,messageReceiving,proxieMapping) {
-		if(proxieMapping == null) proxieMapping = false;
-		if(messageReceiving == null) messageReceiving = true;
-		if(messageSending == null) messageSending = true;
-		mvcexpress.core.ModuleManager.registerScope(this.messenger.moduleName,scopeName,messageSending,messageReceiving,proxieMapping);
-	}
-	,sendScopeMessage: function(scopeName,type,params) {
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,true));
-		mvcexpress.core.ModuleManager.sendScopeMessage(this.messenger.moduleName,scopeName,type,params);
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,false));
-	}
-	,sendMessage: function(type,params) {
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,true));
-		this.messenger.send(type,params);
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,false));
-	}
-	,__class__: mvcexpress.mvc.Command
-}
 integration.scopedmessaging.testobj.modulea.ComTest1Command = function() {
 	mvcexpress.mvc.Command.call(this);
 };
@@ -9138,6 +10141,371 @@ integration.scopedmessaging.testobj.moduleb.ChannelModuleB.prototype = $extend(m
 		this.mediatorMap.mediate(this.view);
 	}
 	,__class__: integration.scopedmessaging.testobj.moduleb.ChannelModuleB
+});
+integration.scopedproxy = {}
+integration.scopedproxy.ScopedProxyTests = function() {
+	Tester.call(this);
+	this.testFunction("scopedProxy_hostAndInjectHostedToMediator_injectOk");
+	this.testFunction("scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk");
+	this.testFunction("scopedProxy_hostAndInjectHostedToProxy_injectOk");
+	this.testFunction("scopedProxy_unmapScopedProxyTwice_ok");
+	this.testFunction("scopedProxy_injectPendingProxyToCommandThenHost_injectFails");
+	this.testFunction("scopedProxy_injectPendingProxyToProxyThenHost_injectOk");
+	this.testFunction("scopedProxy_injectPendingProxyToMediatorThenHost_injectOk");
+	this.testFunction("scopedProxy_hostAndInjectThenMessage_communicatinOk");
+	this.testFunction("scopedProxy_HostAndMapThenMessageLocaly_communicatinOk");
+	this.testFunction("scopedProxy_MapAndHostThenMessageLocaly_communicatinOk");
+	this.testFunction("scopedProxy_hostThenUnhostAndInjectHosted_injectFails");
+	this.testFunction("scopedProxy_injectHostedToCommand_injectFails");
+	this.testFunction("scopedProxy_injectHostedToProxy_injectFails");
+	this.testFunction("scopedProxy_injectHostedToMediator_injectFails");
+	this.testFunction("scopedProxy_hostAndInjectHostedToCommand_injectOk");
+	this.testFunction("scopedProxy_hostAndInjectHostedToProxyTwice_injectOk");
+};
+$hxClasses["integration.scopedproxy.ScopedProxyTests"] = integration.scopedproxy.ScopedProxyTests;
+integration.scopedproxy.ScopedProxyTests.__name__ = ["integration","scopedproxy","ScopedProxyTests"];
+integration.scopedproxy.ScopedProxyTests.__super__ = Tester;
+integration.scopedproxy.ScopedProxyTests.prototype = $extend(Tester.prototype,{
+	scopedProxy_unmapScopedProxyTwice_ok: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.unhostTestProxy(integration.scopedproxy.testobj.modulea.ScopedTestProxy);
+		this.scopedProxyModuleA.unhostTestProxy(integration.scopedproxy.testobj.modulea.ScopedTestProxy);
+	}
+	,scopedProxy_injectPendingProxyToCommandThenHost_injectFails: function() {
+		mvcexpress.MvcExpress.pendingInjectsTimeOut = 1000;
+		this.scopedProxyModuleB.storeStuffToCommand("storedTestContent");
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		utils.Assert.assertEquals(" Command should be able to inject hosted proxy, and manipulate it.","storedTestContent",this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_injectPendingProxyToProxyThenHost_injectOk: function() {
+		mvcexpress.MvcExpress.pendingInjectsTimeOut = 1000;
+		this.scopedProxyModuleB.createProxyWithItject();
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.storeStuffToProxy("storedTestContent");
+		utils.Assert.assertEquals(" Proxy should be able to inject hosted proxy, and manipulate it.","storedTestContent",this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_injectPendingProxyToMediatorThenHost_injectOk: function() {
+		mvcexpress.MvcExpress.pendingInjectsTimeOut = 1000;
+		this.scopedProxyModuleB.createMediatorWithItject();
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.storeStuffToMediator("storedTestContent");
+		utils.Assert.assertEquals(" Mediator should be able to inject hosted proxy, and manipulate it.","storedTestContent",this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_hostAndInjectThenMessage_communicatinOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.createMediatorWithItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedTestProxy.trigerMessage(this.randomData);
+		utils.Assert.assertEquals(" Mediator should be able to inject hosted proxy, and manipulate it.",this.randomData,this.scopedProxyModuleB.getMediatorProxyTestData());
+	}
+	,scopedProxy_HostAndMapThenMessageLocaly_communicatinOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.mapTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.createMediatorWithLocalItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedTestProxy.trigerMessage(this.randomData);
+		utils.Assert.assertEquals(" Mediator should be able host, map, inject local proxy, and send message to manipulate it.",this.randomData,this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_MapAndHostThenMessageLocaly_communicatinOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.mapTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.createMediatorWithLocalItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedTestProxy.trigerMessage(this.randomData);
+		utils.Assert.assertEquals(" Mediator should be able to map, host, inject local proxy, and send message to manipulate it.",this.randomData,this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_hostThenUnhostAndInjectHosted_injectFails: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.unhostTestProxy(integration.scopedproxy.testobj.modulea.ScopedTestProxy);
+		this.scopedProxyModuleB.createProxyWithItject();
+	}
+	,scopedProxy_injectHostedToCommand_injectFails: function() {
+		this.scopedProxyModuleB.storeStuffToCommand("storedTestContent");
+	}
+	,scopedProxy_injectHostedToProxy_injectFails: function() {
+		this.scopedProxyModuleB.createProxyWithItject();
+	}
+	,scopedProxy_injectHostedToMediator_injectFails: function() {
+		this.scopedProxyModuleB.createMediatorWithItject();
+	}
+	,scopedProxy_hostAndInjectHostedToCommand_injectOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.storeStuffToCommand("storedTestContent");
+		utils.Assert.assertEquals(" Command should be able to inject hosted proxy, and manipulate it.","storedTestContent",this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_hostAndInjectHostedToProxyTwice_injectOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.createProxyWithItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedProxyModuleB.storeStuffToProxy(this.randomData);
+		this.scopedProxyModuleA.disposeModule();
+		this.scopedProxyModuleB.disposeModule();
+		this.scopedProxyModuleA = new integration.scopedproxy.testobj.modulea.ScopedProxyModuleA();
+		this.scopedProxyModuleB = new integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB();
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.createProxyWithItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedProxyModuleB.storeStuffToProxy(this.randomData);
+		utils.Assert.assertEquals(" Proxy should be able to inject hosted proxy, and manipulate it.",this.randomData,this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_hostAndInjectHostedToProxy_injectOk: function() {
+		var scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(scopedTestProxy);
+		this.scopedProxyModuleB.createProxyWithItject();
+		this.randomData = "storedTestContent" + Math.floor(Math.random() * 10000000);
+		this.scopedProxyModuleB.storeStuffToProxy(this.randomData);
+		utils.Assert.assertEquals(" Proxy should be able to inject hosted proxy, and manipulate it.",this.randomData,scopedTestProxy.storedData);
+	}
+	,checkMediator2: function(obj) {
+		this.scopedProxyModuleB.storeStuffToMediator("storedTestContent 2");
+		utils.Assert.assertEquals(" Mediator should be able to inject hosted proxy, and manipulate it.","storedTestContent 2",this.scopedTestProxy.storedData);
+	}
+	,scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = utils.AsyncUtil.asyncHandler(this,$bind(this,this.checkMediator2),null,2000,$bind(this,this.failMediatorCheck));
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleA.disposeModule();
+		this.scopedProxyModuleB.disposeModule();
+		this.scopedProxyModuleA = new integration.scopedproxy.testobj.modulea.ScopedProxyModuleA();
+		this.scopedProxyModuleB = new integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB();
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.createMediatorWithItject();
+	}
+	,checkMediator: function(obj) {
+		this.scopedProxyModuleB.storeStuffToMediator("storedTestContent");
+		utils.Assert.assertEquals(" Mediator should be able to inject hosted proxy, and manipulate it.","storedTestContent",this.scopedTestProxy.storedData);
+	}
+	,failMediatorCheck: function(obj) {
+		utils.Assert.fail("MediatorCheck timed out.");
+	}
+	,scopedProxy_hostAndInjectHostedToMediator_injectOk: function() {
+		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
+		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = utils.AsyncUtil.asyncHandler(this,$bind(this,this.checkMediator),null,2000,$bind(this,this.failMediatorCheck));
+		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
+		this.scopedProxyModuleB.createMediatorWithItject();
+	}
+	,runAfterEveryTest: function() {
+		this.scopedTestProxy = null;
+		this.scopedProxyModuleA.disposeModule();
+		this.scopedProxyModuleB.disposeModule();
+		mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
+	}
+	,runBeforeEveryTest: function() {
+		this.scopedProxyModuleA = new integration.scopedproxy.testobj.modulea.ScopedProxyModuleA();
+		this.scopedProxyModuleB = new integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB();
+	}
+	,__class__: integration.scopedproxy.ScopedProxyTests
+});
+integration.scopedproxy.testobj = {}
+integration.scopedproxy.testobj.modulea = {}
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator"] = integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator;
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__name__ = ["integration","scopedproxy","testobj","modulea","ScopedProxyLocalInjectMediator"];
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__super__ = mvcexpress.mvc.Mediator;
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	sendDataToProxy: function(testData) {
+		this.myProxy.storedData = testData;
+	}
+	,onRemove: function() {
+	}
+	,handleScopedMessage: function(testdata) {
+		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 26, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "handleScopedMessage"});
+		this.myProxy.storedData = testdata;
+	}
+	,onRegister: function() {
+		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 19, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "onRegister"});
+		this.view.pushMediatorIn(this);
+		this.addHandler(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME,$bind(this,this.handleScopedMessage));
+	}
+	,__class__: integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator
+});
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView"] = integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView;
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView.__name__ = ["integration","scopedproxy","testobj","modulea","ScopedProxyLocalInjectView"];
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView.__super__ = flash.display.Sprite;
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView.prototype = $extend(flash.display.Sprite.prototype,{
+	sendDataToProxy: function(testData) {
+		this.scopedProxyLocalInjectMediator.sendDataToProxy(testData);
+	}
+	,pushMediatorIn: function(scopedProxyLocalInjectMediator) {
+		this.scopedProxyLocalInjectMediator = scopedProxyLocalInjectMediator;
+	}
+	,__class__: integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView
+});
+integration.scopedproxy.testobj.modulea.ScopedProxyModuleA = function() {
+	mvcexpress.modules.ModuleCore.call(this,integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.NAME);
+};
+$hxClasses["integration.scopedproxy.testobj.modulea.ScopedProxyModuleA"] = integration.scopedproxy.testobj.modulea.ScopedProxyModuleA;
+integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.__name__ = ["integration","scopedproxy","testobj","modulea","ScopedProxyModuleA"];
+integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.__super__ = mvcexpress.modules.ModuleCore;
+integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	onDispose: function() {
+	}
+	,onInit: function() {
+		this.registerScope(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,true,true,true);
+	}
+	,getMediatorProxyTestData: function() {
+	}
+	,createMediatorWithLocalItject: function() {
+		this.testViewObject = new integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView();
+		this.mediatorMap.map(integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView,integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator);
+		this.mediatorMap.mediate(this.testViewObject);
+	}
+	,mapTestProxy: function(scopedTestProxy) {
+		this.proxyMap.map(scopedTestProxy);
+	}
+	,trigerMediatorMessage: function(testData) {
+	}
+	,unhostTestProxy: function(injectClass) {
+		this.proxyMap.scopeUnmap(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,injectClass);
+	}
+	,hostTestProxy: function(scopedTestProxy) {
+		this.registerScope(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,true,true,true);
+		this.proxyMap.scopeMap(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,scopedTestProxy);
+	}
+	,__class__: integration.scopedproxy.testobj.modulea.ScopedProxyModuleA
+});
+integration.scopedproxy.testobj.modulea.ScopedTestProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.modulea.ScopedTestProxy"] = integration.scopedproxy.testobj.modulea.ScopedTestProxy;
+integration.scopedproxy.testobj.modulea.ScopedTestProxy.__name__ = ["integration","scopedproxy","testobj","modulea","ScopedTestProxy"];
+integration.scopedproxy.testobj.modulea.ScopedTestProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.scopedproxy.testobj.modulea.ScopedTestProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	trigerMessage: function(messagedata) {
+		this.sendMessage(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME,messagedata);
+	}
+	,onRemove: function() {
+	}
+	,onRegister: function() {
+	}
+	,__class__: integration.scopedproxy.testobj.modulea.ScopedTestProxy
+});
+integration.scopedproxy.testobj.moduleb = {}
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand"] = integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand;
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__name__ = ["integration","scopedproxy","testobj","moduleb","ScopedProxpyTestCommand"];
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__super__ = mvcexpress.mvc.Command;
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(testData) {
+		this.myProxy.storedData = testData;
+	}
+	,__class__: integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand
+});
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator = function() {
+	mvcexpress.mvc.Mediator.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator"] = integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__name__ = ["integration","scopedproxy","testobj","moduleb","ScopedProxyInjectMediator"];
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__super__ = mvcexpress.mvc.Mediator;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.prototype = $extend(mvcexpress.mvc.Mediator.prototype,{
+	sendDataToProxy: function(testData) {
+		this.myProxy.storedData = testData;
+	}
+	,onRemove: function() {
+	}
+	,handleScopedMessage: function(testdata) {
+		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 26, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "handleScopedMessage"});
+		this.myProxy.storedData = testdata;
+		this.view.testData = testdata;
+	}
+	,onRegister: function() {
+		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 19, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "onRegister"});
+		this.view.pushMediatorIn(this);
+		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION(null);
+		this.addScopeHandler(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME,$bind(this,this.handleScopedMessage));
+	}
+	,__class__: integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator
+});
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy = function() {
+	mvcexpress.mvc.Proxy.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy"] = integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__name__ = ["integration","scopedproxy","testobj","moduleb","ScopedProxyInjectProxy"];
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__super__ = mvcexpress.mvc.Proxy;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.prototype = $extend(mvcexpress.mvc.Proxy.prototype,{
+	onRemove: function() {
+	}
+	,onRegister: function() {
+		haxe.Log.trace("ScopedProxyInjectProxy.onRegister",{ fileName : "ScopedProxyInjectProxy.hx", lineNumber : 23, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy", methodName : "onRegister"});
+	}
+	,storeTestData: function(testData) {
+		this.myProxy.storedData = testData;
+	}
+	,__class__: integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy
+});
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView = function() {
+	flash.display.Sprite.call(this);
+};
+$hxClasses["integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView"] = integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView.__name__ = ["integration","scopedproxy","testobj","moduleb","ScopedProxyInjectView"];
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView.__super__ = flash.display.Sprite;
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView.prototype = $extend(flash.display.Sprite.prototype,{
+	sendDataToProxy: function(testData) {
+		haxe.Log.trace("ScopedProxyInjectView.sendDataToProxy > testData : " + testData,{ fileName : "ScopedProxyInjectView.hx", lineNumber : 18, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView", methodName : "sendDataToProxy"});
+		haxe.Log.trace("scopedProxyInjectMediator : " + Std.string(this.scopedProxyInjectMediator),{ fileName : "ScopedProxyInjectView.hx", lineNumber : 19, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView", methodName : "sendDataToProxy"});
+		this.scopedProxyInjectMediator.sendDataToProxy(testData);
+	}
+	,pushMediatorIn: function(scopedProxyInjectMediator) {
+		haxe.Log.trace("ScopedProxyInjectView.pushMediatorIn > scopedProxyInjectMediator : " + Std.string(scopedProxyInjectMediator),{ fileName : "ScopedProxyInjectView.hx", lineNumber : 13, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView", methodName : "pushMediatorIn"});
+		this.scopedProxyInjectMediator = scopedProxyInjectMediator;
+	}
+	,__class__: integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView
+});
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB = function() {
+	mvcexpress.modules.ModuleCore.call(this,integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.NAME);
+};
+$hxClasses["integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB"] = integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB;
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.__name__ = ["integration","scopedproxy","testobj","moduleb","ScopedProxyModuleB"];
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = function(msg) {
+}
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.__super__ = mvcexpress.modules.ModuleCore;
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.prototype = $extend(mvcexpress.modules.ModuleCore.prototype,{
+	onDispose: function() {
+	}
+	,onInit: function() {
+		this.registerScope(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,true,true,true);
+	}
+	,getMediatorProxyTestData: function() {
+		return this.testViewObject.testData;
+	}
+	,storeStuffToCommand: function(testData) {
+		this.commandMap.execute(integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand,testData);
+	}
+	,storeStuffToProxy: function(testData) {
+		this.testProxy.storeTestData(testData);
+	}
+	,createProxyWithItject: function() {
+		this.testProxy = new integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy();
+		this.proxyMap.map(this.testProxy);
+	}
+	,storeStuffToMediator: function(testData) {
+		this.testViewObject.sendDataToProxy(testData);
+	}
+	,createMediatorWithItject: function() {
+		this.testViewObject = new integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView();
+		this.mediatorMap.map(integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView,integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator);
+		this.mediatorMap.mediate(this.testViewObject);
+	}
+	,__class__: integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB
 });
 var js = {}
 js.Boot = function() { }
@@ -9267,9 +10635,6 @@ js.Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-}
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
 }
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
@@ -9541,11 +10906,7 @@ mvcexpress.core.MediatorMap.__name__ = ["mvcexpress","core","MediatorMap"];
 mvcexpress.core.MediatorMap.__interfaces__ = [mvcexpress.core.interfaces.IMediatorMap];
 mvcexpress.core.MediatorMap.prototype = {
 	dispose: function() {
-		var $it0 = ((function(_e) {
-			return function() {
-				return _e.iterator();
-			};
-		})(this.mediatorRegistry))();
+		var $it0 = this.mediatorRegistry.iterator();
 		while( $it0.hasNext() ) {
 			var viewObject = $it0.next();
 			this.unmediate(viewObject);
@@ -9569,12 +10930,7 @@ mvcexpress.core.MediatorMap.prototype = {
 		return retVal;
 	}
 	,isMediated: function(viewObject) {
-		return (function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.exists(key);
-			return $r;
-		}(this));
+		return this.mediatorRegistry.exists(viewObject);
 	}
 	,isViewMapped: function(viewObject) {
 		var retVal = false;
@@ -9587,59 +10943,27 @@ mvcexpress.core.MediatorMap.prototype = {
 	}
 	,unmediate: function(viewObject) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate(this.moduleName,viewObject));
-		if((function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.exists(key);
-			return $r;
-		}(this))) {
-			var mediator = (function($this) {
-				var $r;
-				var key = viewObject;
-				$r = $this.mediatorRegistry.get(key);
-				return $r;
-			}(this));
+		if(this.mediatorRegistry.get(viewObject) != null) {
+			var mediator = this.mediatorRegistry.get(viewObject);
 			mediator.remove();
-			var key = viewObject;
-			this.mediatorRegistry.remove(key);
+			this.mediatorRegistry.remove(viewObject);
 		} else throw "View object:" + Std.string(viewObject) + " has no mediator created for it.";
 	}
 	,mediateWith: function(viewObject,mediatorClass,injectClass) {
-		if((function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.exists(key);
-			return $r;
-		}(this))) throw "This view object is already mediated by " + Std.string((function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.get(key);
-			return $r;
-		}(this)));
+		if(this.mediatorRegistry.exists(viewObject)) throw "This view object is already mediated by " + Std.string(this.mediatorRegistry.get(viewObject));
 		var mediator = Type.createInstance(mediatorClass,[]);
-		var viewClass = Type.getClass(viewObject.constructor);
+		var viewClass = Type.getClass(viewObject);
 		if(injectClass == null) injectClass = viewClass;
 		mediator.moduleName = this.moduleName;
 		mediator.messenger = this.messenger;
 		mediator.proxyMap = this.proxyMap;
 		mediator.mediatorMap = this;
 		var isAllInjected = this.proxyMap.injectStuff(mediator,mediatorClass,viewObject,injectClass);
-		var key = viewObject;
-		this.mediatorRegistry.set(key,mediator);
+		this.mediatorRegistry.set(viewObject,mediator);
 		if(isAllInjected) mediator.register();
 	}
 	,mediate: function(viewObject) {
-		if((function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.exists(key);
-			return $r;
-		}(this))) throw "This view object is already mediated by " + Std.string((function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.get(key);
-			return $r;
-		}(this)));
+		if(this.mediatorRegistry.exists(viewObject)) throw "This view object is already mediated by " + Std.string(this.mediatorRegistry.get(viewObject));
 		var viewClass = Type.getClass(viewObject);
 		var injectClass = this.mediatorInjectRegistry.h[viewClass.__id__];
 		var mediatorClass = this.mediatorClassRegistry.h[viewClass.__id__];
@@ -9653,8 +10977,7 @@ mvcexpress.core.MediatorMap.prototype = {
 			mediator.proxyMap = this.proxyMap;
 			mediator.mediatorMap = this;
 			var isAllInjected = this.proxyMap.injectStuff(mediator,mediatorClass,viewObject,injectClass);
-			var key = viewObject;
-			this.mediatorRegistry.set(key,mediator);
+			this.mediatorRegistry.set(viewObject,mediator);
 			if(isAllInjected) mediator.register();
 		} else throw "View object" + Std.string(viewObject) + " class is not mapped with any mediator class. use mediatorMap.map()";
 	}
@@ -9682,12 +11005,7 @@ mvcexpress.core.FlexMediatorMap.__name__ = ["mvcexpress","core","FlexMediatorMap
 mvcexpress.core.FlexMediatorMap.__super__ = mvcexpress.core.MediatorMap;
 mvcexpress.core.FlexMediatorMap.prototype = $extend(mvcexpress.core.MediatorMap.prototype,{
 	unmediate: function(viewObject) {
-		var mediator = (function($this) {
-			var $r;
-			var key = viewObject;
-			$r = $this.mediatorRegistry.get(key);
-			return $r;
-		}(this));
+		var mediator = this.mediatorRegistry.get(viewObject);
 		if(mediator != null) mvcexpress.core.MediatorMap.prototype.unmediate.call(this,viewObject); else if((js.Boot.__cast(viewObject , flash.events.IEventDispatcher)).hasEventListener("creationComplete")) (js.Boot.__cast(viewObject , flash.events.IEventDispatcher)).removeEventListener("creationComplete",$bind(this,this.handleOnCreationComplete));
 	}
 	,handleOnCreationComplete: function(event) {
@@ -10151,11 +11469,10 @@ mvcexpress.core.ProxyMap.prototype = {
 		if(tempValue != null) {
 			if(tempClass != null) {
 				tempClassName = mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.h[tempClass.__id__];
-				if(tempClassName != null) {
+				if(tempClassName == null) {
 					tempClassName = Type.getClassName(tempClass);
 					mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(tempClass,tempClassName);
 				}
-				haxe.Log.trace("injectionClassName:",{ fileName : "ProxyMap.hx", lineNumber : 386, className : "mvcexpress.core.ProxyMap", methodName : "injectStuff", customParams : [tempClassName,"already exists : ",this.injectObjectRegistry.h.hasOwnProperty(tempClassName.__id__)]});
 				if(!this.injectObjectRegistry.h.hasOwnProperty(tempClassName.__id__)) this.injectObjectRegistry.set(tempClassName,tempValue); else throw "Temp object should not be mapped already... it was meant to be used by framework for mediator view object only.";
 			}
 		}
@@ -10492,9 +11809,9 @@ mvcexpress.core.messenger.Messenger.prototype = {
 	,removeHandler: function(type,handler) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler(this.moduleName,type,handler));
 		if(this.handlerRegistry.get(type) != null) {
-			if(this.handlerRegistry.get(type)[handler]) {
-				(js.Boot.__cast(this.handlerRegistry.get(type)[handler] , mvcexpress.core.messenger.HandlerVO)).handler = null;
-				Reflect.deleteField(this.handlerRegistry.get(type),handler);
+			if(this.handlerRegistry.get(type).get(handler) != null) {
+				(js.Boot.__cast(this.handlerRegistry.get(type).get(handler) , mvcexpress.core.messenger.HandlerVO)).handler = null;
+				this.handlerRegistry.get(type).remove(handler);
 			}
 		}
 	}
@@ -10505,18 +11822,18 @@ mvcexpress.core.messenger.Messenger.prototype = {
 			messageList = new Array();
 			this.messageRegistry.set(type,messageList);
 			messageList;
-			var v = new Array();
+			var v = new haxe.ds.ObjectMap();
 			this.handlerRegistry.set(type,v);
 			v;
 		}
-		var msgData = this.handlerRegistry.get(type)[handler];
+		var msgData = this.handlerRegistry.get(type).get(handler);
 		if(msgData != null) throw "This handler function is already mapped to message type :" + type;
 		if(msgData == null) {
 			msgData = new mvcexpress.core.messenger.HandlerVO();
 			msgData.handlerClassName = handlerClassName;
 			msgData.handler = handler;
 			messageList[messageList.length] = msgData;
-			this.handlerRegistry.get(type)[handler] = msgData;
+			this.handlerRegistry.get(type).set(handler,msgData);
 		}
 		return msgData;
 	}
@@ -11021,107 +12338,6 @@ mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap.prototype = $extend(mv
 	}
 	,__class__: mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap
 });
-mvcexpress.mvc.PooledCommand = function() {
-	mvcexpress.mvc.Command.call(this);
-};
-$hxClasses["mvcexpress.mvc.PooledCommand"] = mvcexpress.mvc.PooledCommand;
-mvcexpress.mvc.PooledCommand.__name__ = ["mvcexpress","mvc","PooledCommand"];
-mvcexpress.mvc.PooledCommand.__super__ = mvcexpress.mvc.Command;
-mvcexpress.mvc.PooledCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
-	unlock: function() {
-		if(this._isLocked) {
-			this._isLocked = false;
-			if(this.isExecuting) this.commandMap.poolCommand(this);
-		} else throw "You are trying to unlock PooledCommand that was never locked. lock() it first.";
-	}
-	,lock: function() {
-		this._isLocked = true;
-	}
-	,get_isLocked: function() {
-		return this._isLocked;
-	}
-	,__class__: mvcexpress.mvc.PooledCommand
-	,__properties__: {get_isLocked:"get_isLocked"}
-});
-mvcexpress.mvc.Proxy = function() {
-	this.proxyScopes = new Array();
-	this.dependantCommands = new haxe.ds.ObjectMap();
-};
-$hxClasses["mvcexpress.mvc.Proxy"] = mvcexpress.mvc.Proxy;
-mvcexpress.mvc.Proxy.__name__ = ["mvcexpress","mvc","Proxy"];
-mvcexpress.mvc.Proxy.prototype = {
-	getDependantCommands: function() {
-		return this.dependantCommands;
-	}
-	,registerDependantCommand: function(signatureClass) {
-		this.dependantCommands.set(signatureClass,signatureClass);
-	}
-	,removeScope: function(scopeName) {
-		var scopeCount = scopeName.length;
-		var _g = 0;
-		while(_g < scopeCount) {
-			var i = _g++;
-			if(this.proxyScopes[i] == scopeName) {
-				this.proxyScopes.splice(i,1);
-				break;
-			}
-		}
-	}
-	,addScope: function(scopeName) {
-		var messengerFound = false;
-		var scopeCount = this.proxyScopes.length;
-		var _g = 0;
-		while(_g < scopeCount) {
-			var i = _g++;
-			if(this.proxyScopes[i] == scopeName) {
-				messengerFound = true;
-				break;
-			}
-		}
-		if(!messengerFound) this.proxyScopes[this.proxyScopes.length] = scopeName;
-	}
-	,remove: function() {
-		this._isReady = false;
-		this.dependantCommands = null;
-		this.onRemove();
-	}
-	,register: function() {
-		if(!this._isReady) {
-			this._isReady = true;
-			this.onRegister();
-		}
-	}
-	,setProxyMap: function(iProxyMap) {
-		this.proxyMap = iProxyMap;
-	}
-	,sendScopeMessage: function(scopeName,type,params) {
-		var moduleName = this.messenger.moduleName;
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,true));
-		mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,scopeName,type,params);
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,false));
-	}
-	,sendMessage: function(type,params) {
-		var moduleName = this.messenger.moduleName;
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,true));
-		this.messenger.send(type,params);
-		var scopeCount = this.proxyScopes.length;
-		var _g = 0;
-		while(_g < scopeCount) {
-			var i = _g++;
-			mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,this.proxyScopes[i],type,params,false);
-		}
-		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,false));
-	}
-	,get_isReady: function() {
-		return this._isReady;
-	}
-	,onRemove: function() {
-	}
-	,onRegister: function() {
-	}
-	,__class__: mvcexpress.mvc.Proxy
-	,__properties__: {get_isReady:"get_isReady"}
-}
 mvcexpress.utils = {}
 mvcexpress.utils.MvcExpressTools = function() { }
 $hxClasses["mvcexpress.utils.MvcExpressTools"] = mvcexpress.utils.MvcExpressTools;
@@ -11141,7 +12357,6 @@ mvcexpress.utils.MvcExpressTools.checkClassStringConstants = function(args) {
 		var i = _g1++;
 		var constantClass = args[i];
 		if(constantClass != null) {
-			haxe.Log.trace("register class ?",{ fileName : "MvcExpressTools.hx", lineNumber : 44, className : "mvcexpress.utils.MvcExpressTools", methodName : "checkClassStringConstants", customParams : [mvcexpress.utils.StringConstantRegistry.registeredClasses.h[constantClass.__id__] == true]});
 			if(mvcexpress.utils.StringConstantRegistry.registeredClasses.h[constantClass.__id__] != true) {
 				var _g2 = 0, _g3 = Type.getClassFields(constantClass);
 				while(_g2 < _g3.length) {
@@ -11149,7 +12364,7 @@ mvcexpress.utils.MvcExpressTools.checkClassStringConstants = function(args) {
 					++_g2;
 					var value = Reflect.field(constantClass,j);
 					if(js.Boot.__instanceof(value,String)) {
-						if(mvcexpress.utils.StringConstantRegistry.stringRegistry.exists(value)) throw "Class " + Std.string(constantClass) + " and " + Std.string(Reflect.field(mvcexpress.utils.StringConstantRegistry.stringRegistry,value)) + " have same string constant value : " + value; else mvcexpress.utils.StringConstantRegistry.stringRegistry.set(value,constantClass);
+						if(mvcexpress.utils.StringConstantRegistry.stringRegistry.exists(value)) throw "Class " + Std.string(constantClass) + " and " + Std.string(mvcexpress.utils.StringConstantRegistry.stringRegistry.get(value)) + " have same string constant value : " + value; else mvcexpress.utils.StringConstantRegistry.stringRegistry.set(value,constantClass);
 					}
 				}
 				mvcexpress.utils.StringConstantRegistry.registeredClasses.set(constantClass,true);
@@ -11243,9 +12458,249 @@ suites.TestViewEvent.__super__ = flash.events.Event;
 suites.TestViewEvent.prototype = $extend(flash.events.Event.prototype,{
 	__class__: suites.TestViewEvent
 });
+suites.commandmap = {}
+suites.commandmap.CommandMapTests = function() {
+	Tester.call(this);
+	this.testFunction("test_command_execute");
+	this.testFunction("test_command_execute");
+	this.testFunction("test_two_command_execute");
+	this.testFunction("test_two_add_one_remove_command_execute");
+	this.testFunction("test_cammandMap_command_execute");
+	this.testFunction("test_no_execute_command_map");
+	this.testFunction("test_no_params_command_map");
+	this.testFunction("execute_command_with_no_param");
+	this.testFunction("execute_command_with_extended_object_param");
+	this.testFunction("execute_command_with_intefrace_of_extended_object_param");
+	this.testFunction("execute_command_with_superclass_object_param");
+	this.testFunction("execute_command_with_intefrace_of_superclass_object_param");
+	this.testFunction("execute_command_with_bad_typed_object_param");
+	this.testFunction("debug_map_not_command_fails");
+	this.testFunction("debug_test_isMapped_false_wrong_message");
+	this.testFunction("debug_test_isMapped_false_wrong_class");
+	this.testFunction("debug_test_isMapped_true");
+};
+$hxClasses["suites.commandmap.CommandMapTests"] = suites.commandmap.CommandMapTests;
+suites.commandmap.CommandMapTests.__name__ = ["suites","commandmap","CommandMapTests"];
+suites.commandmap.CommandMapTests.__super__ = Tester;
+suites.commandmap.CommandMapTests.prototype = $extend(Tester.prototype,{
+	callBackIncrease: function(obj) {
+		this.callCaunter++;
+	}
+	,callBackCheck: function(obj) {
+		if(this.callCaunter != this.callsExpected) utils.Assert.fail("Expected " + this.callsExpected + " calls, but " + this.callCaunter + " was received...");
+	}
+	,callBackSuccess: function(obj) {
+	}
+	,callBackFail: function(obj) {
+		utils.Assert.fail("CallBack should not be called...");
+	}
+	,debug_test_isMapped_true: function() {
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		utils.Assert.assertTrue("isMapped() should retturn true with mapped proxy.",this.commandMap.isMapped("test",suites.commandmap.commands.TestCommand1));
+	}
+	,debug_test_isMapped_false_wrong_class: function() {
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped command class to message.",this.commandMap.isMapped("test",suites.commandmap.commands.TestCommand2));
+	}
+	,debug_test_isMapped_false_wrong_message: function() {
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped message.",this.commandMap.isMapped("test1",suites.commandmap.commands.TestCommand1));
+	}
+	,debug_map_not_command_fails: function() {
+		var errorChecked = false;
+		errorChecked = true;
+		this.commandMap.map("test",flash.display.Sprite);
+		if(!errorChecked) utils.Assert.fail("fake error");
+	}
+	,execute_command_with_bad_typed_object_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.SuperInterfaceParamCommand,new flash.display.Sprite());
+	}
+	,execute_command_with_intefrace_of_superclass_object_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.SuperInterfaceParamCommand,this.testParamObject);
+	}
+	,execute_command_with_superclass_object_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.SuperParamCommand,this.testParamObject);
+	}
+	,execute_command_with_intefrace_of_extended_object_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand,this.testParamObject);
+	}
+	,execute_command_with_extended_object_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.ExtendedSuperParamCommand,this.testParamObject);
+	}
+	,execute_command_with_no_param: function() {
+		this.commandMap.execute(suites.commandmap.commands.ExtendedSuperParamCommand);
+	}
+	,test_no_params_command_map: function() {
+		this.commandMap.map("test",suites.commandmap.commands.NoParamsCommand);
+		return;
+		throw "Debug mode is needed for this test.";
+	}
+	,test_no_execute_command_map: function() {
+		this.commandMap.map("test",suites.commandmap.commands.NoExecuteCommand);
+		return;
+		throw "Debug mode is needed for this test.";
+	}
+	,test_cammandMap_command_execute: function() {
+		this.callsExpected = 1;
+		suites.commandmap.commands.TestCommand1.TEST_FUNCTION = $bind(this,this.callBackIncrease);
+		this.commandMap.execute(suites.commandmap.commands.TestCommand1);
+	}
+	,test_two_add_one_remove_command_execute: function() {
+		this.callsExpected = 1;
+		suites.commandmap.commands.TestCommand1.TEST_FUNCTION = $bind(this,this.callBackIncrease);
+		suites.commandmap.commands.TestCommand2.TEST_FUNCTION = $bind(this,this.callBackIncrease);
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand2);
+		this.commandMap.unmap("test",suites.commandmap.commands.TestCommand2);
+		this.messenger.send("test");
+	}
+	,test_two_command_execute: function() {
+		this.callsExpected = 2;
+		suites.commandmap.commands.TestCommand1.TEST_FUNCTION = $bind(this,this.callBackIncrease);
+		suites.commandmap.commands.TestCommand2.TEST_FUNCTION = $bind(this,this.callBackIncrease);
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand2);
+		this.messenger.send("test");
+	}
+	,test_command_execute: function() {
+		suites.commandmap.commands.TestCommand1.TEST_FUNCTION = $bind(this,this.callBackSuccess);
+		this.commandMap.map("test",suites.commandmap.commands.TestCommand1);
+		this.messenger.send("test");
+	}
+	,runAfterEveryTest: function() {
+		this.messenger = null;
+		this.proxyMap = null;
+		this.commandMap = null;
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+		this.testParamObject = null;
+	}
+	,runBeforeEveryTest: function() {
+		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
+		this.messenger = new mvcexpress.core.messenger.Messenger("test");
+		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
+		this.proxyMap = new mvcexpress.core.ProxyMap("test",this.messenger);
+		this.mediatorMap = new mvcexpress.core.MediatorMap("test",this.messenger,this.proxyMap);
+		this.commandMap = new mvcexpress.core.CommandMap("test",this.messenger,this.proxyMap,this.mediatorMap);
+		this.callCaunter = 0;
+		this.callsExpected = 0;
+		this.testParamObject = new suites.testobjects.ExtendedTestObject();
+	}
+	,__class__: suites.commandmap.CommandMapTests
+});
+suites.commandmap.commands = {}
+suites.commandmap.commands.ExtendedSuperParamCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.ExtendedSuperParamCommand"] = suites.commandmap.commands.ExtendedSuperParamCommand;
+suites.commandmap.commands.ExtendedSuperParamCommand.__name__ = ["suites","commandmap","commands","ExtendedSuperParamCommand"];
+suites.commandmap.commands.ExtendedSuperParamCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.ExtendedSuperParamCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+	}
+	,__class__: suites.commandmap.commands.ExtendedSuperParamCommand
+});
+suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand"] = suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand;
+suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand.__name__ = ["suites","commandmap","commands","ExtendedeSuperInterfaceParamsCommand"];
+suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+	}
+	,__class__: suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand
+});
+suites.commandmap.commands.NoExecuteCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.NoExecuteCommand"] = suites.commandmap.commands.NoExecuteCommand;
+suites.commandmap.commands.NoExecuteCommand.__name__ = ["suites","commandmap","commands","NoExecuteCommand"];
+suites.commandmap.commands.NoExecuteCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.NoExecuteCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	__class__: suites.commandmap.commands.NoExecuteCommand
+});
+suites.commandmap.commands.NoParamsCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.NoParamsCommand"] = suites.commandmap.commands.NoParamsCommand;
+suites.commandmap.commands.NoParamsCommand.__name__ = ["suites","commandmap","commands","NoParamsCommand"];
+suites.commandmap.commands.NoParamsCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.NoParamsCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function() {
+	}
+	,__class__: suites.commandmap.commands.NoParamsCommand
+});
+suites.commandmap.commands.SuperInterfaceParamCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.SuperInterfaceParamCommand"] = suites.commandmap.commands.SuperInterfaceParamCommand;
+suites.commandmap.commands.SuperInterfaceParamCommand.__name__ = ["suites","commandmap","commands","SuperInterfaceParamCommand"];
+suites.commandmap.commands.SuperInterfaceParamCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.SuperInterfaceParamCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+	}
+	,__class__: suites.commandmap.commands.SuperInterfaceParamCommand
+});
+suites.commandmap.commands.SuperParamCommand = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.SuperParamCommand"] = suites.commandmap.commands.SuperParamCommand;
+suites.commandmap.commands.SuperParamCommand.__name__ = ["suites","commandmap","commands","SuperParamCommand"];
+suites.commandmap.commands.SuperParamCommand.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.SuperParamCommand.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+	}
+	,__class__: suites.commandmap.commands.SuperParamCommand
+});
+suites.commandmap.commands.TestCommand1 = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.TestCommand1"] = suites.commandmap.commands.TestCommand1;
+suites.commandmap.commands.TestCommand1.__name__ = ["suites","commandmap","commands","TestCommand1"];
+suites.commandmap.commands.TestCommand1.TEST_FUNCTION = function(msg) {
+}
+suites.commandmap.commands.TestCommand1.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.TestCommand1.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+		suites.commandmap.commands.TestCommand1.TEST_FUNCTION(params);
+	}
+	,__class__: suites.commandmap.commands.TestCommand1
+});
+suites.commandmap.commands.TestCommand2 = function() {
+	mvcexpress.mvc.Command.call(this);
+};
+$hxClasses["suites.commandmap.commands.TestCommand2"] = suites.commandmap.commands.TestCommand2;
+suites.commandmap.commands.TestCommand2.__name__ = ["suites","commandmap","commands","TestCommand2"];
+suites.commandmap.commands.TestCommand2.TEST_FUNCTION = function(msg) {
+}
+suites.commandmap.commands.TestCommand2.__super__ = mvcexpress.mvc.Command;
+suites.commandmap.commands.TestCommand2.prototype = $extend(mvcexpress.mvc.Command.prototype,{
+	execute: function(params) {
+		suites.commandmap.commands.TestCommand2.TEST_FUNCTION(params);
+	}
+	,__class__: suites.commandmap.commands.TestCommand2
+});
+suites.commands = {}
+suites.commands.CommandsTests = function() { }
+$hxClasses["suites.commands.CommandsTests"] = suites.commands.CommandsTests;
+suites.commands.CommandsTests.__name__ = ["suites","commands","CommandsTests"];
+suites.commands.CommandsTests.prototype = {
+	mediator_send_message_to_all: function() {
+	}
+	,mediator_send_message: function() {
+	}
+	,mediator_instantiate: function() {
+	}
+	,runAfterEveryTest: function() {
+	}
+	,runBeforeEveryTest: function() {
+	}
+	,__class__: suites.commands.CommandsTests
+}
 suites.faturegetproxy = {}
 suites.faturegetproxy.FeatureGetProxyTests = function() {
-	this._currentTest = 0;
+	Tester.call(this);
 	this.testFunction("featureGetProxy_get_proxy_in_proxy");
 	this.testFunction("featureGetProxy_get_proxy_in_mediator");
 	this.testFunction("featureGetProxy_get_proxy_in_command");
@@ -11261,7 +12716,8 @@ suites.faturegetproxy.FeatureGetProxyTests = function() {
 };
 $hxClasses["suites.faturegetproxy.FeatureGetProxyTests"] = suites.faturegetproxy.FeatureGetProxyTests;
 suites.faturegetproxy.FeatureGetProxyTests.__name__ = ["suites","faturegetproxy","FeatureGetProxyTests"];
-suites.faturegetproxy.FeatureGetProxyTests.prototype = {
+suites.faturegetproxy.FeatureGetProxyTests.__super__ = Tester;
+suites.faturegetproxy.FeatureGetProxyTests.prototype = $extend(Tester.prototype,{
 	featureGetProxy_get_proxy_interfaced_named_in_module: function() {
 		var testProxy = new suites.testobjects.model.SimpleTestProxy();
 		this.mainModule.mapTestProxy(testProxy,suites.testobjects.model.ISimpleTestProxy,"testName");
@@ -11340,14 +12796,8 @@ suites.faturegetproxy.FeatureGetProxyTests.prototype = {
 	,runBeforeEveryTest: function() {
 		this.mainModule = new suites.testobjects.modulemain.MainModule();
 	}
-	,testFunction: function(funcName) {
-		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + " \n*-------------------------*",{ fileName : "FeatureGetProxyTests.hx", lineNumber : 37, className : "suites.faturegetproxy.FeatureGetProxyTests", methodName : "testFunction"});
-		this.runBeforeEveryTest();
-		Reflect.field(this,funcName).apply(this,[]);
-		this.runAfterEveryTest();
-	}
 	,__class__: suites.faturegetproxy.FeatureGetProxyTests
-}
+});
 suites.general = {}
 suites.general.GeneralTests = function() {
 	this.general_framework_version();
@@ -11418,17 +12868,13 @@ suites.mediatormap.MediatorMapTests.prototype = $extend(Tester.prototype,{
 		utils.Assert.assertFalse("isMapped() should retturn false with NOT mapped view class.",this.mediatorMap.isMapped(suites.testobjects.view.MediatorSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator));
 	}
 	,mediatorMap_doubleMediateWith_fails: function() {
-		mvcexpress.mvc.Mediator.canConstruct = true;
 		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
 		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
 		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
-		mvcexpress.mvc.Mediator.canConstruct = false;
 	}
 	,mediatorMap_mediateWith_notFails: function() {
-		mvcexpress.mvc.Mediator.canConstruct = true;
 		var view = new suites.mediatormap.medatormaptestobj.MediatorMapTestSprite();
 		this.mediatorMap.mediateWith(view,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
-		mvcexpress.mvc.Mediator.canConstruct = false;
 	}
 	,mediatorMap_doubleMediate_fails: function() {
 		this.mediatorMap.map(suites.mediatormap.medatormaptestobj.MediatorMapTestSprite,suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator);
@@ -11514,10 +12960,13 @@ suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.prototype = $
 suites.mediators = {}
 suites.mediators.MediatorTests = function() {
 	Tester.call(this);
+	this.testFunction("mediator_constructor_fails");
+	this.testFunction("mediator_isReady");
+	this.testFunction("mediator_empty_handler");
+	this.testFunction("mediator_handler_object_params");
 	this.testFunction("mediator_handler_bad_params");
 	this.testFunction("mediator_handler_two_params");
 	this.testFunction("mediator_handler_two_params_one_optional");
-	this.testFunction("mediator_same_handler_added_twice_fails");
 };
 $hxClasses["suites.mediators.MediatorTests"] = suites.mediators.MediatorTests;
 suites.mediators.MediatorTests.__name__ = ["suites","mediators","MediatorTests"];
@@ -11534,7 +12983,7 @@ suites.mediators.MediatorTests.prototype = $extend(Tester.prototype,{
 		this.messenger.send("test_handler_two_params");
 	}
 	,mediator_handler_bad_params: function() {
-		this.messenger.send("test_handler_bad_params");
+		this.messenger.send("test_handler_bad_params",234);
 	}
 	,mediator_handler_object_params: function() {
 		this.messenger.send("test_handler_object_params");
@@ -11623,13 +13072,15 @@ suites.messenger.MessengerTests.prototype = $extend(Tester.prototype,{
 });
 suites.modules = {}
 suites.modules.ModularTests = function() {
-	this.modules_construct_core_module();
-	this.modules_construct_sprite_module();
-	this.modules_construct_movieclip_module();
+	Tester.call(this);
+	this.testFunction("modules_construct_core_module");
+	this.testFunction("modules_construct_sprite_module");
+	this.testFunction("modules_construct_movieclip_module");
 };
 $hxClasses["suites.modules.ModularTests"] = suites.modules.ModularTests;
 suites.modules.ModularTests.__name__ = ["suites","modules","ModularTests"];
-suites.modules.ModularTests.prototype = {
+suites.modules.ModularTests.__super__ = Tester;
+suites.modules.ModularTests.prototype = $extend(Tester.prototype,{
 	modules_construct_movieclip_module: function() {
 		new suites.modules.objects.MovieClipModuleTester();
 	}
@@ -11640,7 +13091,7 @@ suites.modules.ModularTests.prototype = {
 		new suites.modules.objects.CoreModuleTester();
 	}
 	,__class__: suites.modules.ModularTests
-}
+});
 suites.modules.objects = {}
 suites.modules.objects.CoreModuleTester = function() {
 	mvcexpress.modules.ModuleCore.call(this);
@@ -11669,6 +13120,23 @@ suites.modules.objects.SpriteModuleTester.__super__ = mvcexpress.modules.ModuleS
 suites.modules.objects.SpriteModuleTester.prototype = $extend(mvcexpress.modules.ModuleSprite.prototype,{
 	__class__: suites.modules.objects.SpriteModuleTester
 });
+suites.proxies = {}
+suites.proxies.ProxyTests = function() { }
+$hxClasses["suites.proxies.ProxyTests"] = suites.proxies.ProxyTests;
+suites.proxies.ProxyTests.__name__ = ["suites","proxies","ProxyTests"];
+suites.proxies.ProxyTests.prototype = {
+	proxy_send_message_to_all: function() {
+	}
+	,proxy_send_message: function() {
+	}
+	,proxy_is_ready: function() {
+	}
+	,runAfterEveryTest: function() {
+	}
+	,runBeforeEveryTest: function() {
+	}
+	,__class__: suites.proxies.ProxyTests
+}
 suites.proxymap = {}
 suites.proxymap.NamedInterfacedProxyMapTests = function() {
 	Tester.call(this);
@@ -11857,6 +13325,19 @@ suites.testobjects.TestObject.__interfaces__ = [suites.testobjects.ITestObject];
 suites.testobjects.TestObject.prototype = {
 	__class__: suites.testobjects.TestObject
 }
+suites.testobjects.IExtendedTestObject = function() { }
+$hxClasses["suites.testobjects.IExtendedTestObject"] = suites.testobjects.IExtendedTestObject;
+suites.testobjects.IExtendedTestObject.__name__ = ["suites","testobjects","IExtendedTestObject"];
+suites.testobjects.ExtendedTestObject = function() {
+	suites.testobjects.TestObject.call(this);
+};
+$hxClasses["suites.testobjects.ExtendedTestObject"] = suites.testobjects.ExtendedTestObject;
+suites.testobjects.ExtendedTestObject.__name__ = ["suites","testobjects","ExtendedTestObject"];
+suites.testobjects.ExtendedTestObject.__interfaces__ = [suites.testobjects.IExtendedTestObject];
+suites.testobjects.ExtendedTestObject.__super__ = suites.testobjects.TestObject;
+suites.testobjects.ExtendedTestObject.prototype = $extend(suites.testobjects.TestObject.prototype,{
+	__class__: suites.testobjects.ExtendedTestObject
+});
 suites.testobjects.controller = {}
 suites.testobjects.controller.GetProxyTestCommand = function() {
 	mvcexpress.mvc.Command.call(this);
@@ -12112,7 +13593,7 @@ suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mv
 		this.addHandler("test_empty_handler",$bind(this,this.handleTestEmpty));
 	}
 	,addTestHandler: function(event) {
-		this.addHandler("test",$bind(this,this.handleTestEmptyHandler));
+		this.addHandler("test_handler_two_params_one_optional",$bind(this,this.handleTestWithTwoParamsOneOptional));
 	}
 	,onRemove: function() {
 		suites.testobjects.view.MediatorSpriteMediator.instance = null;
@@ -12130,14 +13611,16 @@ suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mv
 });
 suites.utils = {}
 suites.utils.UtilsTests = function() {
-	this.utils_checkClassSuperclass_tests();
-	this.utils_two_class_check();
-	this.utils_one_class_check();
-	this.utils_two_class_with_duplicated_constants_fails();
+	Tester.call(this);
+	this.testFunction("utils_checkClassSuperclass_tests");
+	this.testFunction("utils_two_class_check");
+	this.testFunction("utils_one_class_check");
+	this.testFunction("utils_two_class_with_duplicated_constants_fails");
 };
 $hxClasses["suites.utils.UtilsTests"] = suites.utils.UtilsTests;
 suites.utils.UtilsTests.__name__ = ["suites","utils","UtilsTests"];
-suites.utils.UtilsTests.prototype = {
+suites.utils.UtilsTests.__super__ = Tester;
+suites.utils.UtilsTests.prototype = $extend(Tester.prototype,{
 	utils_checkClassSuperclass_tests: function() {
 		utils.Assert.assertFalse("superclass of another class sould return false",mvcexpress.utils.MvcExpressTools.checkClassSuperClass(suites.utils.objects.ClassBSubclass,suites.utils.objects.ClassA));
 		utils.Assert.assertFalse("Two diferent classes sould return false",mvcexpress.utils.MvcExpressTools.checkClassSuperClass(suites.utils.objects.ClassB,suites.utils.objects.ClassA));
@@ -12155,7 +13638,7 @@ suites.utils.UtilsTests.prototype = {
 		mvcexpress.utils.MvcExpressTools.checkClassStringConstants([suites.utils.objects.ConstantsA]);
 	}
 	,__class__: suites.utils.UtilsTests
-}
+});
 suites.utils.objects = {}
 suites.utils.objects.ClassA = function() {
 };
@@ -12784,21 +14267,90 @@ haxe.xml.Parser.escapes = (function($this) {
 	$r = h;
 	return $r;
 }(this));
+integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE = "GenericScopeIds_testScope";
+integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE = "GenericTestMessage_testMessage";
+integration.agenerictestobjects.constants.GenericTestStrings.data1 = "GenericTestStrings_testData_1";
+mvcexpress.mvc.Command.__rtti = "<class path=\"mvcexpress.mvc.Command\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<commandMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.CommandMap\"/>\n\t\t<haxe_doc>Handles application Commands.</haxe_doc>\n\t</commandMap>\n\t<proxyMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.ProxyMap\"/>\n\t\t<haxe_doc>Handles application Proxies.</haxe_doc>\n\t</proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.MediatorMap\"/>\n\t\t<haxe_doc>Handles application Mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\">\n\t\t<c path=\"mvcexpress.core.messenger.Messenger\"/>\n\t\t<haxe_doc>used internally for communication</haxe_doc>\n\t</messenger>\n\t<messageType public=\"1\"><c path=\"String\"/></messageType>\n\t<isExecuting public=\"1\"><x path=\"Bool\"/></isExecuting>\n\t<sendMessage set=\"method\" line=\"66\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"87\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<registerScope set=\"method\" line=\"113\">\n\t\t<f a=\"scopeName:?messageSending:?messageReceiving:?proxieMapping\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers scope name.\n\t * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.\n\t * What features module can use with that scope is defined by parameters.\n\t * \n\t * \n\t * \n\t *</haxe_doc>\n\t</registerScope>\n\t<unregisterScope set=\"method\" line=\"122\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Unregisters scope name.\n\t * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.</haxe_doc>\n\t</unregisterScope>\n\t<getMessageType public=\"1\" set=\"method\" line=\"134\">\n\t\t<f a=\"\"><c path=\"String\"/></f>\n\t\t<haxe_doc>* Type of message that executed this command. (If command is not executed by message it set to null.) \n\t *</haxe_doc>\n\t</getMessageType>\n\t<new public=\"1\" set=\"method\" line=\"51\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+integration.agenerictestobjects.controller.GenericCommand.__rtti = "<class path=\"integration.agenerictestobjects.controller.GenericCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"7\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"5\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+mvcexpress.mvc.Proxy.__rtti = "<class path=\"mvcexpress.mvc.Proxy\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<proxyMap>\n\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t<haxe_doc>* Interface to work with proxies.</haxe_doc>\n\t</proxyMap>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<proxyScopes><c path=\"Array\"><c path=\"String\"/></c></proxyScopes>\n\t<dependantCommands public=\"1\"><c path=\"haxe.ds.ObjectMap\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</c></dependantCommands>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<onRegister set=\"method\" line=\"52\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is mapped with proxyMap this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is unmapped with proxyMap this function is called.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"66\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if proxy is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"78\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"105\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<setProxyMap public=\"1\" set=\"method\" line=\"129\">\n\t\t<f a=\"iProxyMap\">\n\t\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* sets proxyMap interface.\n\t * \n\t *</haxe_doc>\n\t</setProxyMap>\n\t<register public=\"1\" set=\"method\" line=\"138\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"150\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as not ready and calls onRemove().\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</remove>\n\t<addScope public=\"1\" set=\"method\" line=\"164\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Add scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</addScope>\n\t<removeScope public=\"1\" set=\"method\" line=\"184\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Remove scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</removeScope>\n\t<registerDependantCommand public=\"1\" set=\"method\" line=\"198\"><f a=\"signatureClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></registerDependantCommand>\n\t<getDependantCommands public=\"1\" set=\"method\" line=\"203\"><f a=\"\"><x path=\"Map\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</x></f></getDependantCommands>\n\t<new public=\"1\" set=\"method\" line=\"41\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+integration.agenerictestobjects.model.GenericTestProxy.__rtti = "<class path=\"integration.agenerictestobjects.model.GenericTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<testData public=\"1\"><c path=\"String\"/></testData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendMessageTest public=\"1\" set=\"method\" line=\"23\"><f a=\"type:?params\">\n\t<c path=\"String\"/>\n\t<d/>\n\t<x path=\"Void\"/>\n</f></sendMessageTest>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"80\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"87\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"94\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"106\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"127\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"151\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"175\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"185\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"203\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"214\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"236\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"261\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"289\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"321\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"335\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handlTestBlankEvent set=\"method\" line=\"20\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestBlankEvent>\n\t<handlTestSendMessageEvent set=\"method\" line=\"23\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestSendMessageEvent>\n\t<onRemove public=\"1\" set=\"method\" line=\"27\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"14\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"18\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"19\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<genericTestProxy public=\"1\"><c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/></genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<genericTestProxy public=\"1\"><c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/></genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"24\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"29\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_BLANK = "ViewTest_BLANK";
+integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_SENDS_MESSAGE = "ViewTest_SENDS_MESSAGE";
+integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND = "executeSimplePooledCommand";
+integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY = "executePooledCommandWithDependency";
+integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_LOCK = "executePooledCommandWithLock";
+integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_UNLOCK_ONLY = "executePooledCommandWithUnlockOnly";
+integration.commandpooling.CommandPoolingTests.EXECUTE_POOLED_COMMAND_WITH_FAILING_LOCK = "executePooledCommandWithFailingLock";
+integration.commandpooling.CommandPoolingTests.EXECUTE_REMOVED_DEPENDENCY_COMMAND = "executeRemovedDependencyCommand";
+integration.commandpooling.testobj.CommPoolingDependencyProxy.__rtti = "<class path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<proxyName public=\"1\" get=\"accessor\" set=\"null\"><c path=\"String\"/></proxyName>\n\t<_proxyName><c path=\"String\"/></_proxyName>\n\t<onRegister set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<get_proxyName public=\"1\" set=\"method\" line=\"25\"><f a=\"\"><c path=\"String\"/></f></get_proxyName>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"?proxyName\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></new>\n</class>";
+integration.commandpooling.testobj.CommandPoolingModule.NAME = "CommandPoolingModule";
+mvcexpress.mvc.PooledCommand.__rtti = "<class path=\"mvcexpress.mvc.PooledCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<isLocked public=\"1\" get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isLocked>\n\t<_isLocked>\n\t\t<x path=\"Bool\"/>\n\t\t<haxe_doc>* Stores information if command is locked from automatic pooling by user.</haxe_doc>\n\t</_isLocked>\n\t<get_isLocked public=\"1\" set=\"method\" line=\"23\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Shows if command is locked, and will not be automatically pooling after execution, or not.\n\t * Asynchronous PooledCommand must be locked then used, and unlocked then they are done with there work.</haxe_doc>\n\t</get_isLocked>\n\t<lock public=\"1\" set=\"method\" line=\"31\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Locks PooledCommand to avoid automatic pooling after execution.\n\t * Command lock(), unlock() functions are used with asynchronous commands.</haxe_doc>\n\t</lock>\n\t<unlock public=\"1\" set=\"method\" line=\"40\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Unlock and pool PooledCommand.\n\t * Only previously locked commands can be unlocked, or error will be thrown.\n\t * Command lock(), unlock() functions are used with asynchronous commands.</haxe_doc>\n\t</unlock>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingDependantCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"12\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"14\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<dependency public=\"1\"><c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/></dependency>\n\t<execute public=\"1\" set=\"method\" line=\"22\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.test = "aoeuaoeu";
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.constructCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.executeCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingDependencyRemove.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingDependencyRemove\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"7\"><f a=\"proxyClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"5\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingLockedCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"12\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<execute public=\"1\" set=\"method\" line=\"19\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.test = "aoeuaoeu";
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.constructCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingLockedCommand.executeCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"13\" static=\"1\"><c path=\"String\"/></test>\n\t<executedProxyNames public=\"1\" line=\"14\" static=\"1\"><c path=\"String\"/></executedProxyNames>\n\t<dependency public=\"1\"><c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/></dependency>\n\t<execute public=\"1\" set=\"method\" line=\"21\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.test = "aoeuaoeu";
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames = "";
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingSimpleCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"12\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<execute public=\"1\" set=\"method\" line=\"21\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"16\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.test = "aoeuaoeu";
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.constructCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.executeCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"12\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<execute public=\"1\" set=\"method\" line=\"19\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.test = "aoeuaoeu";
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.constructCount = 0;
+integration.commandpooling.testobj.controller.CommPoolingUnlockedCommand.executeCount = 0;
+integration.lazyproxy.testobj.modulea.LazyNormalProxy.__meta__ = { fields : { lazyProxy : { inject : null}}};
+integration.lazyproxy.testobj.modulea.LazyNormalProxy.__rtti = "<class path=\"integration.lazyproxy.testobj.modulea.LazyNormalProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<lazyProxy public=\"1\">\n\t\t<c path=\"integration.lazyproxy.testobj.modulea.LazyProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</lazyProxy>\n\t<onRegister set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.lazyproxy.testobj.modulea.LazyProxy.__rtti = "<class path=\"integration.lazyproxy.testobj.modulea.LazyProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<instantiateCount public=\"1\" line=\"11\" static=\"1\"><x path=\"Int\"/></instantiateCount>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount = 0;
+integration.lazyproxy.testobj.modulea.LazyProxyModuleA.NAME = "LazyProxyModuleA";
+integration.mediating.testobj.MediatingModule.NAME = "MediatingModule";
+integration.mediating.testobj.view.MediatingInterfaceMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingInterfaceMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.mediating.testobj.view.viewobj.IMediatingIntefrace\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"13\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"7\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.mediating.testobj.view.MediatingSuperClassMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingSuperClassMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.mediating.testobj.view.viewobj.MediatingBaseView\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"12\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"6\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered = 0;
 integration.moduleinittests.testobj.InitTestModuleCore.NAME = "InitTestModuleCore";
 integration.moduleinittests.testobj.InitTestModuleMovieClip.NAME = "InitTestModuleMovieClip";
 integration.moduleinittests.testobj.InitTestModuleSprite.NAME = "InitTestModuleSprite";
-mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"80\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"87\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"94\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"106\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"127\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"151\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"175\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"185\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"203\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"214\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"236\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"261\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"289\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"321\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"335\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+integration.proxymap.testobj.CestConstCommand.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
+integration.proxymap.testobj.CestConstCommand.__rtti = "<class path=\"integration.proxymap.testobj.CestConstCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT = "testConstForProxyInject";
+integration.proxymap.testobj.TestContsViewMediator.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}, view : { inject : null}}};
+integration.proxymap.testobj.TestContsViewMediator.__rtti = "<class path=\"integration.proxymap.testobj.TestContsViewMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.proxymap.testobj.TestContsView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__rtti = "<class path=\"integration.proxymap.testobj.TexsWithConstNameInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"23\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"16\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.modulea.ChannelAMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.modulea.ChannelAMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedmessaging.testobj.modulea.ChannelViewA\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<addChannelHandler1 set=\"method\" line=\"26\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler1>\n\t<addChannelHandler2 set=\"method\" line=\"30\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler2>\n\t<addChannelHandler3 set=\"method\" line=\"34\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler3>\n\t<addChannelHandler4 set=\"method\" line=\"38\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler4>\n\t<removeChannelHandler1 set=\"method\" line=\"42\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></removeChannelHandler1>\n\t<handleTest1Channelmessage set=\"method\" line=\"46\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest1Channelmessage>\n\t<handleTest2Channelmessage set=\"method\" line=\"51\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest2Channelmessage>\n\t<handleTest3Channelmessage set=\"method\" line=\"56\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest3Channelmessage>\n\t<handleTest4Channelmessage set=\"method\" line=\"61\"><f a=\"testParams\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTest4Channelmessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"67\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.modulea.ChannelModuleA.NAME = "ChannelModuleA";
+integration.scopedmessaging.testobj.modulea.ComTest1Command.__rtti = "<class path=\"integration.scopedmessaging.testobj.modulea.ComTest1Command\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"14\"><f a=\"moduleB\">\n\t<c path=\"integration.scopedmessaging.testobj.moduleb.ChannelModuleB\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.moduleb.ChannelBMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.moduleb.ChannelBMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"flash.display.Sprite\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<sendChannelMessage1 set=\"method\" line=\"25\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage1>\n\t<sendChannelMessage2 set=\"method\" line=\"29\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage2>\n\t<sendChannelMessage3 set=\"method\" line=\"33\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage3>\n\t<sendChannelMessage4 set=\"method\" line=\"37\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage4>\n\t<onRemove public=\"1\" set=\"method\" line=\"41\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.moduleb.ChannelModuleB.NAME = "ChannelModuleB";
+integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME = "scopedProxyMessageName";
+integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME = "proxyScope";
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView\"/></view>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"25\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"30\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"33\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.NAME = "ScopedProxyModuleA";
+integration.scopedproxy.testobj.modulea.ScopedTestProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<storedData public=\"1\"><c path=\"String\"/></storedData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<trigerMessage public=\"1\" set=\"method\" line=\"23\"><f a=\"messagedata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></trigerMessage>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<execute public=\"1\" set=\"method\" line=\"14\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView\"/></view>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"25\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"34\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<storeTestData public=\"1\" set=\"method\" line=\"18\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></storeTestData>\n\t<onRegister set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"26\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.NAME = "ScopedProxyModuleB";
 js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 5;
+mvcexpress.MvcExpress.REVISION = 6;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.MvcExpress.debugFunction = null;
 mvcexpress.MvcExpress.loggerFunction = null;
@@ -12853,7 +14405,6 @@ mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDMESSAGE = "Proxy.sendMess
 mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDMESSAGE_CLEAN = "Proxy.sendMessage.CLEAN";
 mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE = "Proxy.sendScopeMessage";
 mvcexpress.core.traceobjects.MvcTraceActions.PROXY_SENDSCOPEMESSAGE_CLEAN = "Proxy.sendScopeMessage.CLEAN";
-mvcexpress.mvc.Proxy.__rtti = "<class path=\"mvcexpress.mvc.Proxy\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<proxyMap>\n\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t<haxe_doc>* Interface to work with proxies.</haxe_doc>\n\t</proxyMap>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<proxyScopes><c path=\"Array\"><c path=\"String\"/></c></proxyScopes>\n\t<dependantCommands public=\"1\"><c path=\"haxe.ds.ObjectMap\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</c></dependantCommands>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<onRegister set=\"method\" line=\"52\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is mapped with proxyMap this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is unmapped with proxyMap this function is called.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"66\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if proxy is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"78\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"105\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<setProxyMap public=\"1\" set=\"method\" line=\"129\">\n\t\t<f a=\"iProxyMap\">\n\t\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* sets proxyMap interface.\n\t * \n\t *</haxe_doc>\n\t</setProxyMap>\n\t<register public=\"1\" set=\"method\" line=\"138\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"150\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as not ready and calls onRemove().\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</remove>\n\t<addScope public=\"1\" set=\"method\" line=\"164\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Add scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</addScope>\n\t<removeScope public=\"1\" set=\"method\" line=\"184\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Remove scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</removeScope>\n\t<registerDependantCommand public=\"1\" set=\"method\" line=\"198\"><f a=\"signatureClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></registerDependantCommand>\n\t<getDependantCommands public=\"1\" set=\"method\" line=\"203\"><f a=\"\"><x path=\"Map\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</x></f></getDependantCommands>\n\t<new public=\"1\" set=\"method\" line=\"41\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 mvcexpress.utils.StringConstantRegistry.registeredClasses = new haxe.ds.ObjectMap();
 mvcexpress.utils.StringConstantRegistry.stringRegistry = new haxe.ds.StringMap();
 openfl.display.Tilesheet.TILE_SCALE = 1;
@@ -12873,21 +14424,32 @@ suites.TestViewEvent.TRIGER_ADD_HANDLER = "trigerAddHandler";
 suites.TestViewEvent.REMOVE_LOCAL_HANDLER = "removeLocalHandler";
 suites.TestViewEvent.REMOVE_REMOTE_HANDLER = "removeRemoteHandler";
 suites.TestViewEvent.TEST_GET_PROXY_CLASS = "testGetProxyClass";
+suites.commandmap.commands.ExtendedSuperParamCommand.__rtti = "<class path=\"suites.commandmap.commands.ExtendedSuperParamCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"10\"><f a=\"params\">\n\t<c path=\"suites.testobjects.ExtendedTestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"8\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand.__rtti = "<class path=\"suites.commandmap.commands.ExtendedeSuperInterfaceParamsCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"10\"><f a=\"params\">\n\t<c path=\"suites.testobjects.IExtendedTestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"8\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.NoExecuteCommand.__rtti = "<class path=\"suites.commandmap.commands.NoExecuteCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.NoParamsCommand.__rtti = "<class path=\"suites.commandmap.commands.NoParamsCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.SuperInterfaceParamCommand.__rtti = "<class path=\"suites.commandmap.commands.SuperInterfaceParamCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"11\"><f a=\"params\">\n\t<c path=\"suites.testobjects.ITestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.SuperParamCommand.__rtti = "<class path=\"suites.commandmap.commands.SuperParamCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"10\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"8\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.TestCommand1.__rtti = "<class path=\"suites.commandmap.commands.TestCommand1\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<TEST_FUNCTION public=\"1\" line=\"12\" static=\"1\"><d/></TEST_FUNCTION>\n\t<execute public=\"1\" set=\"method\" line=\"16\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.TestCommand2.__rtti = "<class path=\"suites.commandmap.commands.TestCommand2\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<TEST_FUNCTION public=\"1\" line=\"11\" static=\"1\"><d/></TEST_FUNCTION>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.__rtti = "<class path=\"suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<TEST_MESSAGE_TYPE public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></TEST_MESSAGE_TYPE>\n\t<REGISTER_TEST_FUNCTION public=\"1\" line=\"12\" static=\"1\"><d/></REGISTER_TEST_FUNCTION>\n\t<REMOVE_TEST_FUNCTION public=\"1\" line=\"15\" static=\"1\"><d/></REMOVE_TEST_FUNCTION>\n\t<CALLBACK_TEST_FUNCTION public=\"1\" line=\"18\" static=\"1\"><d/></CALLBACK_TEST_FUNCTION>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"26\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<handleTestCallBack set=\"method\" line=\"30\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestCallBack>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE = "mediatorMapTestType";
-suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__rtti = "<class path=\"suites.proxymap.namedproxytestobj.NamedProxyTestingProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<proxy public=\"1\"><c path=\"suites.proxymap.proxytestobj.TestProxy\"/></proxy>\n\t<proxyInterface public=\"1\"><c path=\"suites.proxymap.proxytestobj.ITestProxy\"/></proxyInterface>\n\t<proxyNamedInterface public=\"1\"><c path=\"suites.proxymap.proxytestobj.ITestProxy\"/></proxyNamedInterface>\n\t<proxyNamed public=\"1\"><c path=\"suites.proxymap.proxytestobj.TestProxy\"/></proxyNamed>\n\t<proxyNamedNotNullClass public=\"1\"><c path=\"suites.proxymap.proxytestobj.TestProxy\"/></proxyNamedNotNullClass>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__meta__ = { fields : { proxyNamedNotNullClass : { inject : [{ name : "namedProxyNotNullClass"}]}, proxyNamed : { inject : [{ name : "namedProxy"}]}, proxyNamedInterface : { inject : [{ name : "namedProxyInterface"}]}, proxyInterface : { inject : null}, proxy : { inject : null}}};
+suites.proxymap.namedproxytestobj.NamedProxyTestingProxy.__rtti = "<class path=\"suites.proxymap.namedproxytestobj.NamedProxyTestingProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<proxy public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.TestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</proxy>\n\t<proxyInterface public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.ITestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</proxyInterface>\n\t<proxyNamedInterface public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.ITestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{name:\"namedProxyInterface\"}</e></m></meta>\n\t</proxyNamedInterface>\n\t<proxyNamed public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.TestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{name:\"namedProxy\"}</e></m></meta>\n\t</proxyNamed>\n\t<proxyNamedNotNullClass public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.TestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{name:\"namedProxyNotNullClass\"}</e></m></meta>\n\t</proxyNamedNotNullClass>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.proxymap.proxytestobj.ProxyTestObj.__meta__ = { fields : { testProxy : { inject : null}}};
 suites.proxymap.proxytestobj.ProxyTestObj.__rtti = "<class path=\"suites.proxymap.proxytestobj.ProxyTestObj\" params=\"\">\n\t<testProxy public=\"1\">\n\t\t<c path=\"suites.proxymap.proxytestobj.TestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</testProxy>\n\t<testProxy1112 public=\"1\"><c path=\"suites.proxymap.proxytestobj.TestProxy\"/></testProxy1112>\n\t<new public=\"1\" set=\"method\" line=\"25\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 suites.proxymap.proxytestobj.TestProxy.__rtti = "<class path=\"suites.proxymap.proxytestobj.TestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<implements path=\"suites.proxymap.proxytestobj.ITestProxy\"/>\n\t<new public=\"1\" set=\"method\" line=\"15\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.controller.GetProxyTestCommand.__meta__ = { fields : { dataProxy : { inject : null}}};
+suites.testobjects.controller.GetProxyTestCommand.__rtti = "<class path=\"suites.testobjects.controller.GetProxyTestCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<dataProxy public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainDataProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dataProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"proxyData\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.model.SimpleTestProxy.__rtti = "<class path=\"suites.testobjects.model.SimpleTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<implements path=\"suites.testobjects.model.ISimpleTestProxy\"/>\n\t<onRegister set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.modulemain.MainDataProxy.__rtti = "<class path=\"suites.testobjects.modulemain.MainDataProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<localCommandCount public=\"1\"><x path=\"Int\"/></localCommandCount>\n\t<localHandlerCount public=\"1\"><x path=\"Int\"/></localHandlerCount>\n\t<remoteCommandCount public=\"1\"><x path=\"Int\"/></remoteCommandCount>\n\t<remoteHandlerCount public=\"1\"><x path=\"Int\"/></remoteHandlerCount>\n\t<testProxy public=\"1\"><c path=\"mvcexpress.mvc.Proxy\"/></testProxy>\n\t<onRegister set=\"method\" line=\"28\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<getTestProxy public=\"1\" set=\"method\" line=\"34\"><f a=\"proxyClass:name\">\n\t<x path=\"Class\"><d/></x>\n\t<c path=\"String\"/>\n\t<c path=\"mvcexpress.mvc.Proxy\"/>\n</f></getTestProxy>\n\t<new public=\"1\" set=\"method\" line=\"19\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.modulemain.MainLocalCommand.__meta__ = { fields : { dataProxy : { inject : null}}};
+suites.testobjects.modulemain.MainLocalCommand.__rtti = "<class path=\"suites.testobjects.modulemain.MainLocalCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<dataProxy public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainDataProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dataProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.modulemain.MainModule.NAME = suites.SuiteModuleNames.MAIN_MODULE;
 suites.testobjects.modulemain.MainViewMediator.__meta__ = { fields : { dataProxy : { inject : null}, view : { inject : null}}};
 suites.testobjects.modulemain.MainViewMediator.__rtti = "<class path=\"suites.testobjects.modulemain.MainViewMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<dataProxy public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainDataProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dataProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"29\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<handleAddLocalHandler set=\"method\" line=\"37\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleAddLocalHandler>\n\t<handleRemoveLocalHandler set=\"method\" line=\"44\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleRemoveLocalHandler>\n\t<handleTestProxyGetHandler set=\"method\" line=\"51\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleTestProxyGetHandler>\n\t<trigerLocalHandler set=\"method\" line=\"59\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></trigerLocalHandler>\n\t<trigerRemoteHandler set=\"method\" line=\"63\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></trigerRemoteHandler>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-suites.testobjects.view.MediatorSpriteMediator.__meta__ = { fields : { view : { inject : null}, test : { inject : null}}};
-suites.testobjects.view.MediatorSpriteMediator.__rtti = "<class path=\"suites.testobjects.view.MediatorSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<instance public=\"1\" static=\"1\"><c path=\"suites.testobjects.view.MediatorSpriteMediator\"/></instance>\n\t<test public=\"1\">\n\t\t<c path=\"suites.testobjects.TestObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</test>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.view.MediatorSprite\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"34\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<addTestHandler set=\"method\" line=\"38\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addTestHandler>\n\t<handleTestEmptyHandler public=\"1\" set=\"method\" line=\"42\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestEmptyHandler>\n\t<handleTestEmpty public=\"1\" set=\"method\" line=\"46\"><f a=\"\"><x path=\"Void\"/></f></handleTestEmpty>\n\t<handleTestWithObjectParams public=\"1\" set=\"method\" line=\"49\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestWithObjectParams>\n\t<handleTestWithBadParams public=\"1\" set=\"method\" line=\"52\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithBadParams>\n\t<handleTestWithTwoParams public=\"1\" set=\"method\" line=\"55\"><f a=\"params:extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParams>\n\t<handleTestWithTwoParamsOneOptional public=\"1\" set=\"method\" line=\"58\"><f a=\"params:?extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParamsOneOptional>\n\t<getIsReady public=\"1\" set=\"method\" line=\"61\"><f a=\"\"><x path=\"Bool\"/></f></getIsReady>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.testobjects.view.MediatorSpriteMediator.__meta__ = { fields : { view : { inject : null}}};
+suites.testobjects.view.MediatorSpriteMediator.__rtti = "<class path=\"suites.testobjects.view.MediatorSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<instance public=\"1\" static=\"1\"><c path=\"suites.testobjects.view.MediatorSpriteMediator\"/></instance>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.view.MediatorSprite\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"32\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<addTestHandler set=\"method\" line=\"36\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addTestHandler>\n\t<handleTestEmptyHandler public=\"1\" set=\"method\" line=\"40\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestEmptyHandler>\n\t<handleTestEmpty public=\"1\" set=\"method\" line=\"44\"><f a=\"\"><x path=\"Void\"/></f></handleTestEmpty>\n\t<handleTestWithObjectParams public=\"1\" set=\"method\" line=\"47\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestWithObjectParams>\n\t<handleTestWithBadParams public=\"1\" set=\"method\" line=\"50\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithBadParams>\n\t<handleTestWithTwoParams public=\"1\" set=\"method\" line=\"53\"><f a=\"params:extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParams>\n\t<handleTestWithTwoParamsOneOptional public=\"1\" set=\"method\" line=\"56\"><f a=\"params:?extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParamsOneOptional>\n\t<getIsReady public=\"1\" set=\"method\" line=\"59\"><f a=\"\"><x path=\"Bool\"/></f></getIsReady>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.utils.objects.ConstantsA.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";

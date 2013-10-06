@@ -14,7 +14,7 @@ import integration.mediating.testobj.view.*;
 import integration.mediating.testobj.view.viewobj.*;
 import mvcexpress.core.*;
 
-class CommandPoolingTests {
+class CommandPoolingTests extends Tester {
 
 	static var EXECUTE_SIMPLE_POOLED_COMMAND : String = "executeSimplePooledCommand";
 	static var EXECUTE_POOLED_COMMAND_WITH_DEPENDENCY : String = "executePooledCommandWithDependency";
@@ -26,14 +26,28 @@ class CommandPoolingTests {
 	var commandPoolModuleCommandMap : CommandMap;
 	var commandPoolModuleProxyMap : ProxyMap;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new (){
+		super();
+		testFunction("commandPooling_cashingCammandUsedTwice_constructedOnce");
+		testFunction("commandPooling_cashingCammandUsedTwice_executedTwice");
+		testFunction("commandPooling_clearCommandPoolUseTwice_commandCreatedTwice");
+		testFunction("commandPooling_useCommandWithLock_commandCreatedTwice");
+		testFunction("commandPooling_useCommandWithUnlockBeforeLock_fails");
+		testFunction("commandPooling_useCommandWithUnmapedDependency_fails");
+		testFunction("commandPooling_useCommandWithRemapedDependency_commandCreatedTwice");
+		testFunction("commandPooling_useCommandLockingWithRemovedDependery_secorndCommandUseFails");
+		testFunction("commandPooling_useCommandLockingWithChangedDependery_secorndCommandUseSecondDependercy");
+	}
+	
+	
+	override public function runBeforeEveryTest() : Void {
 		commandPoolingModule = new CommandPoolingModule();
 		commandPoolModuleCommandMap = commandPoolingModule.getCommandMap();
 		commandPoolModuleProxyMap = commandPoolingModule.getProxyMap();
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		commandPoolModuleCommandMap = null;
 		commandPoolingModule.disposeModule();
 		commandPoolingModule = null;
@@ -51,7 +65,6 @@ class CommandPoolingTests {
 		commandPoolingModule.sendLocalMessage(EXECUTE_SIMPLE_POOLED_COMMAND);
 		Assert.assertEquals("Pooled command should be instantiated only once.", 1, CommPoolingSimpleCommand.constructCount);
 	}
-
 	
 	public function commandPooling_cashingCammandUsedTwice_executedTwice() : Void {
 		commandPoolModuleCommandMap.map(EXECUTE_SIMPLE_POOLED_COMMAND, CommPoolingSimpleCommand);

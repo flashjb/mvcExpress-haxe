@@ -8,7 +8,7 @@ import integration.scopedmessaging.testobj.modulea.ChannelModuleA;
 import integration.scopedmessaging.testobj.moduleb.ChannelModuleB;
 import utils.Assert;
 
-class ChannelingTests {
+class ChannelingTests extends Tester {
 
 	var channelModulA : ChannelModuleA;
 	var channelModulB : ChannelModuleB;
@@ -16,6 +16,7 @@ class ChannelingTests {
 	
 	public function new() 
 	{
+		super();
 		testFunction( "channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage" );
 		testFunction( "channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing" );
 		testFunction( "channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");
@@ -26,27 +27,14 @@ class ChannelingTests {
 
 	}
 	
-	var _currentTest : Int = 0;
-	public function testFunction( funcName : String ) : Void
-	{
-		trace("\n*-------------------------*\n* current Test = "+ cast(++_currentTest) +": "+funcName+"\n*-------------------------*");
-		runBeforeEveryTest();
-		try
-		{
-			Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		}catch( e:Dynamic ){
-			trace( e );
-		}
-		runAfterEveryTest();
-	}
 	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		channelModulA = new ChannelModuleA();
 		channelModulB = new ChannelModuleB();
 	}
 
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		channelModulA.disposeModule();
 		channelModulB.disposeModule();
 	}

@@ -41,8 +41,6 @@ class MvcExpressTools
 			if( constantClass != null )  
 			{
 				// check if class is already analyzed.
-				trace( "register class ?", StringConstantRegistry.registeredClasses.get(constantClass) == true);
-				
 				if( StringConstantRegistry.registeredClasses.get(constantClass) != true )  
 				{
 					for ( j in Type.getClassFields(constantClass) ) 
@@ -51,7 +49,7 @@ class MvcExpressTools
 						if( Std.is( value, String) )  
 						{
 							if(  StringConstantRegistry.stringRegistry.exists(value) )  {
-								throw ("Class " + constantClass + " and " + Reflect.field(StringConstantRegistry.stringRegistry, value) + " have same string constant value : " + value);
+								throw ("Class " + constantClass + " and " + StringConstantRegistry.stringRegistry.get(value) + " have same string constant value : " + value);
 							} else {
 								StringConstantRegistry.stringRegistry.set(value, cast constantClass);
 							}

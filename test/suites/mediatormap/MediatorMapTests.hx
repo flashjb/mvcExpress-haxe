@@ -107,31 +107,16 @@ class MediatorMapTests extends Tester {
 	}
 	
 	public function mediatorMap_mediateWith_notFails() : Void {
-		
-		#if debug
-			Mediator.canConstruct = true;
-		#end
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
-		#if debug
-			Mediator.canConstruct = false;
-		#end
 	}
 
 	
 	public function mediatorMap_doubleMediateWith_fails() : Void 
 	{
-		#if debug
-			Mediator.canConstruct = true;
-		#end
-		
 		var view : MediatorMapTestSprite = new MediatorMapTestSprite();
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
 		mediatorMap.mediateWith(view, MediatorMapTestSpriteMediator);
-		
-		#if debug
-			Mediator.canConstruct = false;
-		#end
 	}
 
 	//----------------------------------

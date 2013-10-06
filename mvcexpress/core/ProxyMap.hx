@@ -376,16 +376,16 @@ class ProxyMap implements IProxyMap
 			{
 				tempClassName = qualifiedClassNameRegistry.get(tempClass);
 				
-				if( tempClassName != null )  {
+				if( tempClassName == null )  {
 					tempClassName = Type.getClassName(tempClass);
 					qualifiedClassNameRegistry.set(tempClass, tempClassName);
 				}
 				
-				//TODO::INJECTION
+			/*
 				#if debug
 					trace( "injectionClassName:", tempClassName, "already exists : ", injectObjectRegistry.exists(tempClassName) );
 				#end
-				
+			*/
 				if(!injectObjectRegistry.exists(tempClassName))  {
 					injectObjectRegistry.set(tempClassName, tempValue);
 				} else  {

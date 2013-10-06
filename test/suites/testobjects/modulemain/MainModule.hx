@@ -30,7 +30,9 @@ class MainModule extends ModuleSprite
 		mediatorMap.map(MainView, MainViewMediator);
 	}
 
-	override function onDispose() : Void {
+	override function onDispose() : Void 
+	{
+		//TODO : unmap by Class
 		proxyMap.unmap(MainDataProxy);
 		dataProxy = null;
 	}

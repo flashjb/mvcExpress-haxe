@@ -6,6 +6,8 @@
  */
 package mvcexpress.core.messenger;
 
+import haxe.ds.ObjectMap;
+
 import mvcexpress.MvcExpress;
 import mvcexpress.core.CommandMap;
 ////import mvcexpress.core.namespace.PureLegsCore;
@@ -26,7 +28,7 @@ class Messenger
 	var messageRegistry : Map<String, Array<HandlerVO>>;
 	/* of Vector.<HandlerVO> by String */
 	// keeps ALL HandlerVO's in Dictionaries by message type, mapped by handlers for fast disabling and duplicated handler checks.
-	var handlerRegistry : Map<String, Array<Dynamic>>;
+	var handlerRegistry : Map<String, ObjectMap<Dynamic, HandlerVO>>;
 	/* of Dictionary by String */
 	/**
 	 * CONSTRUCTOR - internal class. Not available for use.
@@ -34,7 +36,7 @@ class Messenger
 	public function new( moduleName : String ) 
 	{
 		messageRegistry = new Map();
-		handlerRegistry = new Map();
+		handlerRegistry = new Map<String, ObjectMap<Dynamic, HandlerVO>>();
 		//use namespace pureLegsCore;
 		if(!allowInstantiation)  {
 			throw ("Messenger is a framework class, you can't instantiate it.");
@@ -61,9 +63,11 @@ class Messenger
 		if( messageList == null )  {
 			messageList = new Array<HandlerVO>();
 			messageRegistry[type] = messageList;
-			handlerRegistry[type] = new Array();
+			handlerRegistry[type] = new ObjectMap<Dynamic, HandlerVO>();
 		}
-		var msgData : HandlerVO = handlerRegistry[type][handler];
+		
+		var msgData : HandlerVO = handlerRegistry.get(type).get(handler);
+
 		// check if this handler already exists for this type. (this check can be skipped in release mode.)
 		#if debug
 			if( msgData != null ) {
@@ -80,7 +84,8 @@ class Messenger
 			
 			msgData.handler = handler;
 			messageList[messageList.length] = msgData;
-			handlerRegistry[type][handler] = msgData;
+			handlerRegistry[type].set(handler, msgData);
+
 		}
 		return msgData;
 	}
@@ -99,10 +104,10 @@ class Messenger
 		#end
 		
 		if( handlerRegistry[type] != null )  {
-			if(handlerRegistry[type][handler])  
+			if(handlerRegistry[type].get(handler) != null )  
 			{
-				cast(handlerRegistry[type][handler], HandlerVO).handler = null;
-				Reflect.deleteField(handlerRegistry[type],handler);
+				cast(handlerRegistry[type].get(handler), HandlerVO).handler = null;
+				handlerRegistry[type].remove(handler);
 			}
 		}
 	}

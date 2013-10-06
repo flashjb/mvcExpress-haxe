@@ -19,7 +19,8 @@ class ViewTestEvent extends Event {
 	}
 
 	override public function toString() : String {
-		return formatToString("ViewTestEvent", "type", "bubbles", "cancelable", "eventPhase");
+//		return formatToString("ViewTestEvent", "type", "bubbles", "cancelable", "eventPhase");
+		return "[ ViewTestEvent :: "+type+" - bubbles:"+bubbles+" cancelable:"+cancelable+" eventPhase:"+eventPhase+"]";
 	}
 
 }

@@ -6,6 +6,7 @@ import integration.agenerictestobjects.view.event.ViewTestEvent;
 class GenericViewObject extends Sprite {
 
 	public function new() {
+		super();
 	}
 
 	public function dispatchTestBlankEvent() : Void {

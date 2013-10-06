@@ -9,14 +9,14 @@ import suites.testobjects.model.ISimpleTestProxy;
 import suites.testobjects.model.SimpleTestProxy;
 import suites.testobjects.modulemain.MainModule;
 
-class FeatureGetProxyTests {
+class FeatureGetProxyTests extends Tester {
 
 	var mainModule : MainModule;
-	var _currentTest : Int = 0;
 	//private var externalModule:ExternalModule;
 	
 	public function new() 
 	{
+		super();
 		testFunction("featureGetProxy_get_proxy_in_proxy");
 		testFunction("featureGetProxy_get_proxy_in_mediator");
 		testFunction("featureGetProxy_get_proxy_in_command");
@@ -32,20 +32,12 @@ class FeatureGetProxyTests {
 	
 	}
 
-	public function testFunction( funcName : String ) : Void
-	{
-		trace("\n*-------------------------*\n* current Test = "+ cast(++_currentTest) +" \n*-------------------------*");
-		runBeforeEveryTest();
-		Reflect.callMethod(this, Reflect.field(this, funcName), []);
-		runAfterEveryTest();
-	}
-	
-	public function runBeforeEveryTest() : Void {
+	override public function runBeforeEveryTest() : Void {
 		mainModule = new MainModule();
 		//externalModule = new ExternalModule();
 	}
 	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		mainModule.disposeModule();
 		//externalModule.disposeModule();
 	}

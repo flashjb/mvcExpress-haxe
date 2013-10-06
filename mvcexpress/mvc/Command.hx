@@ -24,6 +24,7 @@ import mvcexpress.core.messenger.Messenger;
 import mvcexpress.core.traceobjects.command.TraceCommand_sendMessage;
 import mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage;
 
+@:rtti
 class Command 
 {
 

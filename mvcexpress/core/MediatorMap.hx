@@ -33,7 +33,7 @@ class MediatorMap implements IMediatorMap {
 	var mediatorInjectRegistry : ObjectMap<Dynamic, Class<Dynamic>>;
 	/* of Class by Class */
 	// stores all mediators using use view object(mediator is mediating) as a key.
-	var mediatorRegistry : Map<Dynamic, Mediator>;
+	var mediatorRegistry : ObjectMap<Dynamic, Mediator>;
 	/* of Mediator by Object */
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap) 
@@ -147,6 +147,7 @@ class MediatorMap implements IMediatorMap {
 			
 			var isAllInjected : Bool = proxyMap.injectStuff(mediator, mediatorClass, viewObject, injectClass);
 			mediatorRegistry.set(viewObject, mediator);
+			
 			if(isAllInjected)  {
 				mediator.register();
 			}
@@ -171,7 +172,7 @@ class MediatorMap implements IMediatorMap {
 		}
 		
 		var mediator : Mediator = Type.createInstance( mediatorClass, [] );
-		var viewClass : Class<Dynamic> = Type.getClass(viewObject.constructor);
+		var viewClass : Class<Dynamic> = Type.getClass(viewObject);
 		if( injectClass == null )  {
 			injectClass = viewClass;
 		}
@@ -204,12 +205,12 @@ class MediatorMap implements IMediatorMap {
 		#end
 		
 		// get object mediator
-		if( mediatorRegistry.exists(viewObject) ) {
+		if( mediatorRegistry.get(viewObject) != null ) {
 			var mediator : Mediator = mediatorRegistry.get(viewObject);
 				mediator.remove();
 				mediatorRegistry.remove(viewObject);
 		} else {
-			throw ("View object:" + viewObject + " has no mediator created for it.");
+			throw "View object:" + viewObject + " has no mediator created for it.";
 		}
 
 	}

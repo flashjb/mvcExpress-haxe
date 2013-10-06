@@ -9,18 +9,33 @@ import integration.mediating.testobj.view.*;
 import integration.mediating.testobj.view.viewobj.*;
 import mvcexpress.core.*;
 
-class MediatingTests {
+class MediatingTests  extends Tester {
 
 	var mediatingModule : MediatingModule;
 	var mediatorMap : MediatorMap;
 	
-	public function runBeforeEveryTest() : Void {
+	public function new ()
+	{
+		super();
+		testFunction("mediating_mediateWrongClass_fails");
+		testFunction("mediating_mediateWithWrongClass_fails");
+		testFunction("mediating_mediatingAsInterface_ok");
+		testFunction("mediating_mediateWrongClass_fails");
+		testFunction("mediating_mediatingAsSuperClass_ok");
+		testFunction("mediating_mediatingWithAsInterface_ok");
+		testFunction("mediating_mediatingWithAsSuperClass_ok");
+		testFunction("mediating_mediatingAsWrongClass_fails");
+		testFunction("mediating_mediatingWithAsWrongClass_fails");
+		testFunction("mediating_mediatingTwiceAfterListener_ok");
+	
+	}
+	
+	override public function runBeforeEveryTest() : Void {
 		mediatingModule = new MediatingModule();
 		mediatorMap = mediatingModule.getMediatorMap();
 	}
 
-	
-	public function runAfterEveryTest() : Void {
+	override public function runAfterEveryTest() : Void {
 		mediatorMap = null;
 		mediatingModule.disposeModule();
 		mediatingModule = null;
@@ -60,7 +75,6 @@ class MediatingTests {
 		mediatorMap.mediate(view);
 		Assert.assertEquals("Mediator should be mediated and registered once.", 1, MediatingBaseView.timesRegistered);
 	}
-
 	
 	public function mediating_mediatingWithAsInterface_ok() : Void {
 		var view : MediatingSubView = new MediatingSubView();
@@ -82,7 +96,6 @@ class MediatingTests {
 		mediatorMap.mediate(view);
 	}
 
-	
 	public function mediating_mediatingWithAsWrongClass_fails() : Void {
 		var view : MediatingWrongView = new MediatingWrongView();
 		mediatorMap.mediateWith(view, MediatingInterfaceMediator, IMediatingIntefrace);
