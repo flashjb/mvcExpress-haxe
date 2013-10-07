@@ -30,8 +30,8 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="57" static="1"><f a=""><x path="Void"/></f></main>
-		<new public="1" set="method" line="29"><f a=""><x path="Void"/></f></new>
+		<main public="1" set="method" line="59" static="1"><f a=""><x path="Void"/></f></main>
+		<new public="1" set="method" line="27"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/html5/haxe/ApplicationMain.hx" module="ApplicationMain">
 		<extends path="Main"/>
@@ -7049,12 +7049,15 @@
 		<test public="1" line="12" static="1"><c path="String"/></test>
 		<constructCount public="1" line="13" static="1"><x path="Int"/></constructCount>
 		<executeCount public="1" line="14" static="1"><x path="Int"/></executeCount>
-		<execute public="1" set="method" line="22"><f a="blank">
+		<execute public="1" set="method" line="25"><f a="blank">
 	<d/>
 	<x path="Void"/>
 </f></execute>
-		<dependency public="1"><c path="integration.commandpooling.testobj.CommPoolingDependencyProxy"/></dependency>
-		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
+		<dependency public="1">
+			<c path="integration.commandpooling.testobj.CommPoolingDependencyProxy"/>
+			<meta><m n="inject"/></meta>
+		</dependency>
+		<new public="1" set="method" line="20"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.commandpooling.testobj.controller.CommPoolingDependencyRemove" params="" file="test/integration/commandpooling/testobj/controller/CommPoolingDependencyRemove.hx">
 		<extends path="mvcexpress.mvc.Command"/>
@@ -7082,12 +7085,15 @@
 		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
 		<test public="1" line="13" static="1"><c path="String"/></test>
 		<executedProxyNames public="1" line="14" static="1"><c path="String"/></executedProxyNames>
-		<execute public="1" set="method" line="21"><f a="blank">
+		<execute public="1" set="method" line="23"><f a="blank">
 	<d/>
 	<x path="Void"/>
 </f></execute>
-		<dependency public="1"><c path="integration.commandpooling.testobj.CommPoolingDependencyProxy"/></dependency>
-		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
+		<dependency public="1">
+			<c path="integration.commandpooling.testobj.CommPoolingDependencyProxy"/>
+			<meta><m n="inject"/></meta>
+		</dependency>
+		<new public="1" set="method" line="19"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.commandpooling.testobj.controller.CommPoolingSimpleCommand" params="" file="test/integration/commandpooling/testobj/controller/CommPoolingSimpleCommand.hx">
 		<extends path="mvcexpress.mvc.PooledCommand"/>
@@ -7978,6 +7984,14 @@
 			</f>
 			<meta><m n=":ifFeature"><e>"typed_catch"</e></m></meta>
 		</__instanceof>
+		<__cast set="method" line="198" static="1">
+			<f a="o:t">
+				<d/>
+				<d/>
+				<unknown/>
+			</f>
+			<meta><m n=":ifFeature"><e>"typed_cast"</e></m></meta>
+		</__cast>
 		<meta><m n=":keep"/></meta>
 	</class>
 	<class path="js.Browser" params="" file="/usr/lib/haxe/std/js/Browser.hx">
@@ -20013,17 +20027,17 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	</class>
 	<class path="mvcexpress.core.MediatorMap" params="" file="mvcexpress/core/MediatorMap.hx">
 		<implements path="mvcexpress.core.interfaces.IMediatorMap"/>
-		<dispose public="1" set="method" line="280">
+		<dispose public="1" set="method" line="285">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose mediatorMap - unmediate all mediated view objects and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<listMappings public="1" set="method" line="262">
+		<listMappings public="1" set="method" line="267">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns String of all view classes that are mapped to mediator classes. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMediated public="1" set="method" line="254">
+		<isMediated public="1" set="method" line="259">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -20031,7 +20045,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Checks if view object is mediated.
 	 *</haxe_doc>
 		</isMediated>
-		<isViewMapped public="1" set="method" line="240">
+		<isViewMapped public="1" set="method" line="245">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -20039,7 +20053,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Check if class of view object is mapped to any mediator.
 	 *</haxe_doc>
 		</isViewMapped>
-		<isMapped public="1" set="method" line="228">
+		<isMapped public="1" set="method" line="233">
 			<f a="viewClass:?mediatorClass">
 				<x path="Class"><d/></x>
 				<x path="Class"><d/></x>
@@ -20050,7 +20064,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</isMapped>
-		<unmediate public="1" set="method" line="199">
+		<unmediate public="1" set="method" line="202">
 			<f a="viewObject">
 				<d/>
 				<x path="Void"/>
@@ -20059,7 +20073,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * If any mediator is mediating viewObject - it calls onRemove on that mediator, automatically removes all message handlers, all event listeners and disposes it.
 	 *</haxe_doc>
 		</unmediate>
-		<mediateWith public="1" set="method" line="168">
+		<mediateWith public="1" set="method" line="171">
 			<f a="viewObject:mediatorClass:?injectClass">
 				<d/>
 				<x path="Class"><d/></x>
@@ -20327,7 +20341,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Creates new module for given name.
 	 *</haxe_doc>
 		</createModule>
-		<getMessenger public="1" set="method" line="93" static="1">
+		<getMessenger public="1" set="method" line="95" static="1">
 			<f a="moduleName">
 				<c path="String"/>
 				<c path="mvcexpress.core.messenger.Messenger"/>
@@ -20337,7 +20351,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</getMessenger>
-		<disposeModule public="1" set="method" line="103" static="1">
+		<disposeModule public="1" set="method" line="105" static="1">
 			<f a="moduleName">
 				<c path="String"/>
 				<x path="Void"/>
@@ -20346,7 +20360,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</disposeModule>
-		<sendScopeMessage public="1" set="method" line="150" static="1">
+		<sendScopeMessage public="1" set="method" line="152" static="1">
 			<f a="moduleName:scopeName:type:params:?checkPermisions">
 				<c path="String"/>
 				<c path="String"/>
@@ -20357,7 +20371,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>sends scoped message</haxe_doc>
 		</sendScopeMessage>
-		<addScopeHandler public="1" set="method" line="169" static="1">
+		<addScopeHandler public="1" set="method" line="171" static="1">
 			<f a="moduleName:scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -20367,7 +20381,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>add scoped handler</haxe_doc>
 		</addScopeHandler>
-		<removeScopeHandler public="1" set="method" line="190" static="1">
+		<removeScopeHandler public="1" set="method" line="192" static="1">
 			<f a="scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -20376,7 +20390,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>remove scoped handler</haxe_doc>
 		</removeScopeHandler>
-		<scopedCommandMap public="1" set="method" line="205" static="1">
+		<scopedCommandMap public="1" set="method" line="207" static="1">
 			<f a="moduleName:handleCommandExecute:scopeName:type:commandClass">
 				<c path="String"/>
 				<d/>
@@ -20389,7 +20403,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * Map command to scoped message.
 	 *</haxe_doc>
 		</scopedCommandMap>
-		<scopeMap public="1" set="method" line="237" static="1">
+		<scopeMap public="1" set="method" line="239" static="1">
 			<f a="moduleName:scopeName:proxyObject:injectClass:name">
 				<c path="String"/>
 				<c path="String"/>
@@ -20406,7 +20420,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeMap>
-		<scopeUnmap public="1" set="method" line="287" static="1">
+		<scopeUnmap public="1" set="method" line="289" static="1">
 			<f a="moduleName:scopeName:injectClass:name">
 				<c path="String"/>
 				<c path="String"/>
@@ -20421,7 +20435,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<injectScopedProxy public="1" set="method" line="308" static="1">
+		<injectScopedProxy public="1" set="method" line="310" static="1">
 			<f a="recipientObject:injectRule">
 				<d/>
 				<c path="mvcexpress.core.inject.InjectRuleVO"/>
@@ -20430,7 +20444,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Inject Scoped proxy.
 	 *</haxe_doc>
 		</injectScopedProxy>
-		<addPendingScopedInjection public="1" set="method" line="326" static="1">
+		<addPendingScopedInjection public="1" set="method" line="328" static="1">
 			<f a="scopeName:injectClassAndName:pendingInject">
 				<c path="String"/>
 				<c path="String"/>
@@ -20440,7 +20454,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Adds pending scoped injection.
 	 *</haxe_doc>
 		</addPendingScopedInjection>
-		<initScopedProxyMap public="1" set="method" line="340" static="1">
+		<initScopedProxyMap public="1" set="method" line="342" static="1">
 			<f a="scopeName">
 				<c path="String"/>
 				<x path="Void"/>
@@ -20448,7 +20462,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Initiates scoped proxy map.
 	 *</haxe_doc>
 		</initScopedProxyMap>
-		<registerScope public="1" set="method" line="356" static="1"><f a="moduleName:scopeName:messageSending:messageReceiving:proxieMapping">
+		<registerScope public="1" set="method" line="358" static="1"><f a="moduleName:scopeName:messageSending:messageReceiving:proxieMapping">
 	<c path="String"/>
 	<c path="String"/>
 	<x path="Bool"/>
@@ -20456,33 +20470,33 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<x path="Bool"/>
 	<x path="Void"/>
 </f></registerScope>
-		<unregisterScope public="1" set="method" line="377" static="1"><f a="moduleName:scopeName">
+		<unregisterScope public="1" set="method" line="379" static="1"><f a="moduleName:scopeName">
 	<c path="String"/>
 	<c path="String"/>
 	<x path="Void"/>
 </f></unregisterScope>
-		<listModules public="1" set="method" line="399" static="1">
+		<listModules public="1" set="method" line="401" static="1">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns string with all module names.
 	 *</haxe_doc>
 		</listModules>
-		<listMappedMessages public="1" set="method" line="411" static="1"><f a="moduleName">
+		<listMappedMessages public="1" set="method" line="413" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedMessages>
-		<listMappedMediators public="1" set="method" line="418" static="1"><f a="moduleName">
+		<listMappedMediators public="1" set="method" line="420" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedMediators>
-		<listMappedProxies public="1" set="method" line="426" static="1"><f a="moduleName">
+		<listMappedProxies public="1" set="method" line="428" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedProxies>
-		<listMappedCommands public="1" set="method" line="434" static="1"><f a="moduleName">
+		<listMappedCommands public="1" set="method" line="436" static="1"><f a="moduleName">
 	<c path="String"/>
 	<c path="String"/>
 </f></listMappedCommands>
-		<listModuleMessageCommands public="1" set="method" line="442" static="1"><f a="moduleName:key">
+		<listModuleMessageCommands public="1" set="method" line="444" static="1"><f a="moduleName:key">
 	<c path="String"/>
 	<c path="String"/>
 	<c path="String"/>
@@ -20498,13 +20512,13 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 		<injectClass public="1"><x path="Class"><d/></x></injectClass>
 		<scopeName public="1"><c path="String"/></scopeName>
 		<scopedProxy public="1"><c path="mvcexpress.mvc.Proxy"/></scopedProxy>
-		<new public="1" set="method" line="455"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="457"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.ScopePermissionData" params="" file="mvcexpress/core/ModuleManager.hx" module="mvcexpress.core.ModuleManager">
 		<proxieMapping public="1"><x path="Bool"/></proxieMapping>
 		<messageReceiving public="1"><x path="Bool"/></messageReceiving>
 		<messageSending public="1"><x path="Bool"/></messageSending>
-		<new public="1" set="method" line="466"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="468"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.interfaces.IProxyMap" params="" file="mvcexpress/core/interfaces/IProxyMap.hx" interface="1"><getProxy public="1" set="method"><f a="injectClass:?name">
 	<x path="Class"><d/></x>
@@ -20527,22 +20541,22 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</c>
 			<haxe_doc>dictionary of (Vector of InjectRuleVO), stored by class names.</haxe_doc>
 		</classInjectRules>
-		<getProxyById public="1" set="method" line="675"><f a="injectClassAndName">
+		<getProxyById public="1" set="method" line="681"><f a="injectClassAndName">
 	<c path="String"/>
 	<c path="mvcexpress.mvc.Proxy"/>
 </f></getProxyById>
-		<getInjectByConstName set="method" line="637"><f a="constName">
+		<getInjectByConstName set="method" line="643"><f a="constName">
 	<c path="String"/>
 	<c path="String"/>
 </f></getInjectByConstName>
-		<getInjectRules set="method" line="589">
+		<getInjectRules set="method" line="595">
 			<f a="signatureClass">
 				<x path="Class"><d/></x>
 				<c path="Array"><c path="mvcexpress.core.inject.InjectRuleVO"/></c>
 			</f>
 			<haxe_doc>* Finds and cashes class injection point rules.</haxe_doc>
 		</getInjectRules>
-		<injectPendingStuff set="method" line="541">
+		<injectPendingStuff set="method" line="547">
 			<f a="injectClassAndName:injectee">
 				<c path="String"/>
 				<d/>
@@ -20550,7 +20564,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			</f>
 			<haxe_doc>* Handle all pending injections for specified key.</haxe_doc>
 		</injectPendingStuff>
-		<addPendingInjection public="1" set="method" line="529">
+		<addPendingInjection public="1" set="method" line="535">
 			<f a="injectClassAndName:pendingInjection">
 				<c path="String"/>
 				<c path="mvcexpress.core.inject.PendingInject"/>
@@ -20561,7 +20575,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</addPendingInjection>
-		<injectStuff public="1" set="method" line="374">
+		<injectStuff public="1" set="method" line="380">
 			<f a="object:signatureClass:?tempValue:?tempClass">
 				<d/>
 				<x path="Class"><d/></x>
@@ -20573,12 +20587,12 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * tempValue and tempClass defines injection that will be done for current object only.
 	 *</haxe_doc>
 		</injectStuff>
-		<dispose public="1" set="method" line="348">
+		<dispose public="1" set="method" line="354">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose of proxyMap. Remove all registered proxies and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<initProxy public="1" set="method" line="332">
+		<initProxy public="1" set="method" line="338">
 			<f a="proxyObject:proxyClass:injectId">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -20589,16 +20603,16 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</initProxy>
-		<setCommandMap public="1" set="method" line="323"><f a="value">
+		<setCommandMap public="1" set="method" line="329"><f a="value">
 	<c path="mvcexpress.core.CommandMap"/>
 	<x path="Void"/>
 </f></setCommandMap>
-		<listMappings public="1" set="method" line="309">
+		<listMappings public="1" set="method" line="315">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns text of all mapped proxy objects, and keys they are mapped to. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMapped public="1" set="method" line="287">
+		<isMapped public="1" set="method" line="293">
 			<f a="proxyObject:?injectClass:?name">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -20608,7 +20622,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Checks if proxy object is already mapped.
 	 *</haxe_doc>
 		</isMapped>
-		<scopeUnmap public="1" set="method" line="269">
+		<scopeUnmap public="1" set="method" line="275">
 			<f a="scopeName:injectClass:?name">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -20621,7 +20635,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<scopeMap public="1" set="method" line="233">
+		<scopeMap public="1" set="method" line="239">
 			<f a="scopeName:proxyObject:?injectClass:?name">
 				<c path="String"/>
 				<c path="mvcexpress.mvc.Proxy"/>
@@ -20632,7 +20646,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<haxe_doc>* Maps proxy object to the scape with injectClass and name.
 	 *</haxe_doc>
 		</scopeMap>
-		<getProxy public="1" set="method" line="209">
+		<getProxy public="1" set="method" line="215">
 			<f a="injectClass:?name">
 				<x path="Class"><d/></x>
 				<c path="String"/>
@@ -20645,7 +20659,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	 * 
 	 *]]></haxe_doc>
 		</getProxy>
-		<lazyMap public="1" set="method" line="164">
+		<lazyMap public="1" set="method" line="170">
 			<f a="proxyClass:?injectClass:?name:?proxyParams">
 				<x path="Class"><d/></x>
 				<x path="Class"><d/></x>
@@ -20725,7 +20739,7 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 			<x path="Class"><d/></x>
 			<haxe_doc>* private class to store lazy proxy data.</haxe_doc>
 		</proxyClass>
-		<new public="1" set="method" line="692"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="698"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.inject.InjectRuleVO" params="" file="mvcexpress/core/inject/InjectRuleVO.hx">
 		<toString public="1" set="method" line="19"><f a=""><c path="String"/></f></toString>
@@ -21594,13 +21608,6 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 </f></execute>
 		<new public="1" set="method" line="9"><f a=""><x path="Void"/></f></new>
 	</class>
-	<class path="suites.commands.CommandsTests" params="" file="test/suites/commands/CommandsTests.hx">
-		<mediator_send_message_to_all public="1" set="method" line="31"><f a=""><x path="Void"/></f></mediator_send_message_to_all>
-		<mediator_send_message public="1" set="method" line="26"><f a=""><x path="Void"/></f></mediator_send_message>
-		<mediator_instantiate public="1" set="method" line="21"><f a=""><x path="Void"/></f></mediator_instantiate>
-		<runAfterEveryTest public="1" set="method" line="16"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="12"><f a=""><x path="Void"/></f></runBeforeEveryTest>
-	</class>
 	<class path="suites.faturegetproxy.FeatureGetProxyTests" params="" file="test/suites/faturegetproxy/FeatureGetProxyTests.hx">
 		<extends path="Tester"/>
 		<featureGetProxy_get_proxy_interfaced_named_in_module public="1" set="method" line="142"><f a=""><x path="Void"/></f></featureGetProxy_get_proxy_interfaced_named_in_module>
@@ -21740,13 +21747,6 @@ Documentation for this class was provided by <a href="https://developer.mozilla.
 	<class path="suites.modules.objects.SpriteModuleTester" params="" file="test/suites/modules/objects/SpriteModuleTester.hx">
 		<extends path="mvcexpress.modules.ModuleSprite"/>
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
-	</class>
-	<class path="suites.proxies.ProxyTests" params="" file="test/suites/proxies/ProxyTests.hx">
-		<proxy_send_message_to_all public="1" set="method" line="31"><f a=""><x path="Void"/></f></proxy_send_message_to_all>
-		<proxy_send_message public="1" set="method" line="26"><f a=""><x path="Void"/></f></proxy_send_message>
-		<proxy_is_ready public="1" set="method" line="21"><f a=""><x path="Void"/></f></proxy_is_ready>
-		<runAfterEveryTest public="1" set="method" line="16"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="12"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 	</class>
 	<class path="suites.proxymap.NamedInterfacedProxyMapTests" params="" file="test/suites/proxymap/NamedInterfacedProxyMapTests.hx">
 		<extends path="Tester"/>

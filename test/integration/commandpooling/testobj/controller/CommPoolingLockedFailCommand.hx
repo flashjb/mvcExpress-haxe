@@ -13,7 +13,9 @@ class CommPoolingLockedFailCommand extends PooledCommand {
 	static public var test : String = "aoeuaoeu";
 	static public var executedProxyNames : String = "";
 	
+	@inject
 	public var dependency : CommPoolingDependencyProxy;
+	
 	public function new() {
 		super();
 	}

@@ -16,7 +16,7 @@ class ModuleInitTests extends Tester {
 	
 	public function new() : Void 
 	{
-		super();
+		super( true );
 		testFunction("moduleInit_coreAutoInit_notNull");
 		testFunction("moduleInit_coreNoAutoInit_null");
 		testFunction("moduleInit_corePostAutoInit_notNull");

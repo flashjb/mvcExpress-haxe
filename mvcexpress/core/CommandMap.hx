@@ -329,7 +329,7 @@ class CommandMap
 	public function poolCommand(command : PooledCommand) : Void {
 		var commandClass : Class<Dynamic> = Type.getClass( command );
 		var pooledCommands : Array<PooledCommand> = commandPools.get(commandClass);
-		if( pooledCommands == null  ) {
+		if( pooledCommands != null  ) {
 			pooledCommands[pooledCommands.length] = command;
 		}
 	}

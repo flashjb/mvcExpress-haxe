@@ -53,6 +53,7 @@ class ModuleManager
 	 */
 	static public function createModule(moduleName : String, autoInit : Bool) : ModuleBase {
 		// tests if framework can read 'Inject' metadata tag.
+		/*
 		if( needMetadataTest )  {
 			needMetadataTest = false;
 			var injectTest : TestInject = new TestInject();
@@ -60,6 +61,7 @@ class ModuleManager
 				throw  "mvcExpress framework failed to use 'Inject' metadata. Please add '-keep-as3-metadata+=Inject' to compile arguments.";
 			}
 		}
+		*/
 		var retVal : ModuleBase;
 		// debug this action
 		#if debug

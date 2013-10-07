@@ -84,6 +84,8 @@ ApplicationMain.preloader_onComplete = function(event) {
 }
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
+	new suites.general.GeneralTests();
+	new integration.proxymap.ProxyMapTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -9386,7 +9388,7 @@ integration.mediating.testobj.view.viewobj.MediatingWrongView.prototype = $exten
 });
 integration.moduleinittests = {}
 integration.moduleinittests.ModuleInitTests = function() {
-	Tester.call(this);
+	Tester.call(this,true);
 	this.testFunction("moduleInit_coreAutoInit_notNull");
 	this.testFunction("moduleInit_coreNoAutoInit_null");
 	this.testFunction("moduleInit_corePostAutoInit_notNull");
@@ -9690,7 +9692,7 @@ integration.moduleinittests.testobj.InitTestModuleSprite.prototype = $extend(mvc
 });
 integration.proxymap = {}
 integration.proxymap.ProxyMapTests = function() {
-	Tester.call(this,true);
+	Tester.call(this);
 	this.testFunction("proxyMap_injectIntoProxyConstNamedVariable_injectedOk");
 	this.testFunction("proxyMap_injectIntoMediatorConstNamedVariable_injectedOk");
 	this.testFunction("proxyMap_injectIntoCommandConstNamedVariable_injectedOk");
@@ -10651,6 +10653,9 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -10788,7 +10793,7 @@ mvcexpress.core.CommandMap.prototype = {
 	,poolCommand: function(command) {
 		var commandClass = Type.getClass(command);
 		var pooledCommands = this.commandPools.h[commandClass.__id__];
-		if(pooledCommands == null) pooledCommands[pooledCommands.length] = command;
+		if(pooledCommands != null) pooledCommands[pooledCommands.length] = command;
 	}
 	,listMappings: function() {
 		var retVal = "";
@@ -10934,10 +10939,9 @@ mvcexpress.core.MediatorMap.__name__ = ["mvcexpress","core","MediatorMap"];
 mvcexpress.core.MediatorMap.__interfaces__ = [mvcexpress.core.interfaces.IMediatorMap];
 mvcexpress.core.MediatorMap.prototype = {
 	dispose: function() {
-		var _g = 0, _g1 = Reflect.fields(this.mediatorRegistry);
-		while(_g < _g1.length) {
-			var viewObject = _g1[_g];
-			++_g;
+		var $it0 = this.mediatorRegistry.iterator();
+		while( $it0.hasNext() ) {
+			var viewObject = $it0.next();
 			this.unmediate(viewObject);
 		}
 		this.proxyMap = null;
@@ -10972,6 +10976,7 @@ mvcexpress.core.MediatorMap.prototype = {
 	}
 	,unmediate: function(viewObject) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate(this.moduleName,viewObject));
+		haxe.Log.trace(viewObject,{ fileName : "MediatorMap.hx", lineNumber : 211, className : "mvcexpress.core.MediatorMap", methodName : "unmediate"});
 		var mediator = this.mediatorRegistry.get(viewObject);
 		if(mediator != null) {
 			mediator.remove();
@@ -11139,11 +11144,6 @@ $hxClasses["mvcexpress.core.ModuleManager"] = mvcexpress.core.ModuleManager;
 mvcexpress.core.ModuleManager.__name__ = ["mvcexpress","core","ModuleManager"];
 mvcexpress.core.ModuleManager._moduleId = null;
 mvcexpress.core.ModuleManager.createModule = function(moduleName,autoInit) {
-	if(mvcexpress.core.ModuleManager.needMetadataTest) {
-		mvcexpress.core.ModuleManager.needMetadataTest = false;
-		var injectTest = new mvcexpress.core.inject.TestInject();
-		if(!injectTest.testInjectMetaTag()) throw "mvcExpress framework failed to use 'Inject' metadata. Please add '-keep-as3-metadata+=Inject' to compile arguments.";
-	}
 	var retVal;
 	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule(moduleName,autoInit));
 	if(mvcexpress.core.ModuleManager.moduleRegistry.get(moduleName) == null) {
@@ -11686,14 +11686,16 @@ mvcexpress.core.ProxyMap.prototype = {
 		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) {
 			var proxy = js.Boot.__cast(this.injectObjectRegistry.h[injectId.__id__] , mvcexpress.mvc.Proxy);
 			var dependencies = proxy.getDependantCommands();
-			var $it0 = ((function(_e) {
-				return function() {
-					return _e.iterator();
-				};
-			})(dependencies))();
-			while( $it0.hasNext() ) {
-				var item = $it0.next();
-				this.commandMap.clearCommandPool(item);
+			if(dependencies != null) {
+				var $it0 = ((function(_e) {
+					return function() {
+						return _e.iterator();
+					};
+				})(dependencies))();
+				while( $it0.hasNext() ) {
+					var item = $it0.next();
+					this.commandMap.clearCommandPool(item);
+				}
 			}
 			proxy.remove();
 			this.injectObjectRegistry.remove(injectId);
@@ -12767,23 +12769,6 @@ suites.commandmap.commands.TestCommand2.prototype = $extend(mvcexpress.mvc.Comma
 	}
 	,__class__: suites.commandmap.commands.TestCommand2
 });
-suites.commands = {}
-suites.commands.CommandsTests = function() { }
-$hxClasses["suites.commands.CommandsTests"] = suites.commands.CommandsTests;
-suites.commands.CommandsTests.__name__ = ["suites","commands","CommandsTests"];
-suites.commands.CommandsTests.prototype = {
-	mediator_send_message_to_all: function() {
-	}
-	,mediator_send_message: function() {
-	}
-	,mediator_instantiate: function() {
-	}
-	,runAfterEveryTest: function() {
-	}
-	,runBeforeEveryTest: function() {
-	}
-	,__class__: suites.commands.CommandsTests
-}
 suites.faturegetproxy = {}
 suites.faturegetproxy.FeatureGetProxyTests = function() {
 	Tester.call(this);
@@ -13206,23 +13191,6 @@ suites.modules.objects.SpriteModuleTester.__super__ = mvcexpress.modules.ModuleS
 suites.modules.objects.SpriteModuleTester.prototype = $extend(mvcexpress.modules.ModuleSprite.prototype,{
 	__class__: suites.modules.objects.SpriteModuleTester
 });
-suites.proxies = {}
-suites.proxies.ProxyTests = function() { }
-$hxClasses["suites.proxies.ProxyTests"] = suites.proxies.ProxyTests;
-suites.proxies.ProxyTests.__name__ = ["suites","proxies","ProxyTests"];
-suites.proxies.ProxyTests.prototype = {
-	proxy_send_message_to_all: function() {
-	}
-	,proxy_send_message: function() {
-	}
-	,proxy_is_ready: function() {
-	}
-	,runAfterEveryTest: function() {
-	}
-	,runBeforeEveryTest: function() {
-	}
-	,__class__: suites.proxies.ProxyTests
-}
 suites.proxymap = {}
 suites.proxymap.NamedInterfacedProxyMapTests = function() {
 	Tester.call(this);
@@ -14382,7 +14350,8 @@ integration.commandpooling.CommandPoolingTests.EXECUTE_REMOVED_DEPENDENCY_COMMAN
 integration.commandpooling.testobj.CommPoolingDependencyProxy.__rtti = "<class path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<proxyName public=\"1\" get=\"accessor\" set=\"null\"><c path=\"String\"/></proxyName>\n\t<_proxyName><c path=\"String\"/></_proxyName>\n\t<onRegister set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<get_proxyName public=\"1\" set=\"method\" line=\"25\"><f a=\"\"><c path=\"String\"/></f></get_proxyName>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"?proxyName\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></new>\n</class>";
 integration.commandpooling.testobj.CommandPoolingModule.NAME = "CommandPoolingModule";
 mvcexpress.mvc.PooledCommand.__rtti = "<class path=\"mvcexpress.mvc.PooledCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<isLocked public=\"1\" get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isLocked>\n\t<_isLocked>\n\t\t<x path=\"Bool\"/>\n\t\t<haxe_doc>* Stores information if command is locked from automatic pooling by user.</haxe_doc>\n\t</_isLocked>\n\t<get_isLocked public=\"1\" set=\"method\" line=\"23\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Shows if command is locked, and will not be automatically pooling after execution, or not.\n\t * Asynchronous PooledCommand must be locked then used, and unlocked then they are done with there work.</haxe_doc>\n\t</get_isLocked>\n\t<lock public=\"1\" set=\"method\" line=\"31\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Locks PooledCommand to avoid automatic pooling after execution.\n\t * Command lock(), unlock() functions are used with asynchronous commands.</haxe_doc>\n\t</lock>\n\t<unlock public=\"1\" set=\"method\" line=\"40\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Unlock and pool PooledCommand.\n\t * Only previously locked commands can be unlocked, or error will be thrown.\n\t * Command lock(), unlock() functions are used with asynchronous commands.</haxe_doc>\n\t</unlock>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingDependantCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"12\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"14\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<dependency public=\"1\"><c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/></dependency>\n\t<execute public=\"1\" set=\"method\" line=\"22\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__meta__ = { fields : { dependency : { inject : null}}};
+integration.commandpooling.testobj.controller.CommPoolingDependantCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingDependantCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"12\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"14\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<dependency public=\"1\">\n\t\t<c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dependency>\n\t<execute public=\"1\" set=\"method\" line=\"25\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"20\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.commandpooling.testobj.controller.CommPoolingDependantCommand.test = "aoeuaoeu";
 integration.commandpooling.testobj.controller.CommPoolingDependantCommand.constructCount = 0;
 integration.commandpooling.testobj.controller.CommPoolingDependantCommand.executeCount = 0;
@@ -14391,7 +14360,8 @@ integration.commandpooling.testobj.controller.CommPoolingLockedCommand.__rtti = 
 integration.commandpooling.testobj.controller.CommPoolingLockedCommand.test = "aoeuaoeu";
 integration.commandpooling.testobj.controller.CommPoolingLockedCommand.constructCount = 0;
 integration.commandpooling.testobj.controller.CommPoolingLockedCommand.executeCount = 0;
-integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"13\" static=\"1\"><c path=\"String\"/></test>\n\t<executedProxyNames public=\"1\" line=\"14\" static=\"1\"><c path=\"String\"/></executedProxyNames>\n\t<dependency public=\"1\"><c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/></dependency>\n\t<execute public=\"1\" set=\"method\" line=\"21\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__meta__ = { fields : { dependency : { inject : null}}};
+integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"13\" static=\"1\"><c path=\"String\"/></test>\n\t<executedProxyNames public=\"1\" line=\"14\" static=\"1\"><c path=\"String\"/></executedProxyNames>\n\t<dependency public=\"1\">\n\t\t<c path=\"integration.commandpooling.testobj.CommPoolingDependencyProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dependency>\n\t<execute public=\"1\" set=\"method\" line=\"23\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"19\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.test = "aoeuaoeu";
 integration.commandpooling.testobj.controller.CommPoolingLockedFailCommand.executedProxyNames = "";
 integration.commandpooling.testobj.controller.CommPoolingSimpleCommand.__rtti = "<class path=\"integration.commandpooling.testobj.controller.CommPoolingSimpleCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.PooledCommand\"/>\n\t<test public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></test>\n\t<constructCount public=\"1\" line=\"12\" static=\"1\"><x path=\"Int\"/></constructCount>\n\t<executeCount public=\"1\" line=\"13\" static=\"1\"><x path=\"Int\"/></executeCount>\n\t<execute public=\"1\" set=\"method\" line=\"21\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"16\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
@@ -14451,8 +14421,8 @@ js.Browser.document = typeof window != "undefined" ? window.document : null;
 mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
-mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 7;
+mvcexpress.MvcExpress.MINOR_VERSION = 1;
+mvcexpress.MvcExpress.REVISION = 0;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.MvcExpress.debugFunction = null;
 mvcexpress.MvcExpress.loggerFunction = null;

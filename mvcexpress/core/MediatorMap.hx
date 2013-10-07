@@ -112,6 +112,9 @@ class MediatorMap implements IMediatorMap {
 	 */
 	public function mediate(viewObject : Dynamic) : Void 
 	{
+		
+		//trace("mediate",viewObject);
+		
 		//use namespace pureLegsCore;
 		if(mediatorRegistry.exists(viewObject))  {
 			throw ("This view object is already mediated by " + mediatorRegistry.get(viewObject));
@@ -205,6 +208,8 @@ class MediatorMap implements IMediatorMap {
 			MvcExpress.debug(new TraceMediatorMap_unmediate(moduleName, viewObject));
 		#end
 		
+		trace(viewObject);
+		
 		// get object mediator
 		var mediator : Mediator = mediatorRegistry.get(viewObject);
 		if( mediator != null ) {
@@ -280,9 +285,16 @@ class MediatorMap implements IMediatorMap {
 	public function dispose() : Void 
 	{
 		// unmediate all mediated view objects
+	//	trace(mediatorRegistry);
+	#if flash
 		for( viewObject in Reflect.fields(mediatorRegistry) ) {
 			unmediate( viewObject );
 		}
+	#elseif js
+		for( viewObject in mediatorRegistry ) {
+			unmediate( viewObject );
+		}
+	#end
 
 		proxyMap = null;
 		messenger = null;

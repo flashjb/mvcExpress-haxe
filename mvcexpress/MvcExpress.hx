@@ -20,9 +20,9 @@ class MvcExpress
 	/** Current framework major version */
 	static public var MAJOR_VERSION : Int = 0;
 	/** Current framework minor version */
-	static public var MINOR_VERSION : Int = 0;
+	static public var MINOR_VERSION : Int = 1;
 	/** Current framework revision version */
-	static public var REVISION : Int = 7;
+	static public var REVISION : Int = 0;
 	/** Current framework version */
 	//public static const VERSION:String = "v" + MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION;
 	static public function get_VERSION() : String {

@@ -141,9 +141,15 @@ class ProxyMap implements IProxyMap
 		{
 			var proxy : Proxy =  cast(injectObjectRegistry.get(injectId), Proxy);
 			// handle dependencies..
-			var dependencies : Map<Dynamic, Class<Dynamic>> = proxy.getDependantCommands();
-			for( item in dependencies ) {
-				commandMap.clearCommandPool(item);
+			//trace("proxy:"+proxy, proxy.getDependantCommands());
+			var dependencies = proxy.getDependantCommands(); 
+			if( dependencies != null )
+			{
+				//trace("dependencies:"+dependencies);
+				for( item in dependencies ) {
+					//trace("item"+item);
+					commandMap.clearCommandPool(item);
+				}
 			}
 
 			proxy.remove();

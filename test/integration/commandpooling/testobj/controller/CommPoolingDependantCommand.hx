@@ -13,7 +13,10 @@ class CommPoolingDependantCommand extends PooledCommand {
 	static public var constructCount : Int = 0;
 	static public var executeCount : Int = 0;
 	
+	@inject
 	public var dependency : CommPoolingDependencyProxy;
+	
+	
 	public function new() {
 		CommPoolingDependantCommand.constructCount++;
 		super();

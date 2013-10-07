@@ -27,7 +27,7 @@ class CommandPoolingTests extends Tester {
 	var commandPoolModuleProxyMap : ProxyMap;
 	
 	public function new (){
-		super();
+		super( );
 		testFunction("commandPooling_cashingCammandUsedTwice_constructedOnce");
 		testFunction("commandPooling_cashingCammandUsedTwice_executedTwice");
 		testFunction("commandPooling_clearCommandPoolUseTwice_commandCreatedTwice");
