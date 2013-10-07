@@ -6,7 +6,7 @@ import mvcexpress.mvc.Mediator;
 
 class MediatingInterfaceMediator extends Mediator {
 
-	
+	@inject
 	public var view : IMediatingIntefrace;
 	//[Inject]
 	//public var myProxy:MyProxy;

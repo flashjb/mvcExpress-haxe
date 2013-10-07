@@ -9,12 +9,15 @@ import integration.scopedproxy.ScopedProxyTests;
 import integration.scopedproxy.testobj.modulea.ScopedTestProxy;
 import mvcexpress.mvc.Mediator;
 
-class ScopedProxyInjectMediator extends Mediator {
+class ScopedProxyInjectMediator extends Mediator 
+{
 
-	
+	@inject
 	public var view : ScopedProxyInjectView;
 	
+	@inject({scope:"proxyScope"})
 	public var myProxy : ScopedTestProxy;
+	
 	override public function onRegister() : Void {
 		trace("ScopedProxyInjectMediator.onRegister");
 		view.pushMediatorIn(this);

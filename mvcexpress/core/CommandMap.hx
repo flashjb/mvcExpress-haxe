@@ -18,6 +18,7 @@ import mvcexpress.core.traceobjects.commandmap.TraceCommandMap_unmap;
 import mvcexpress.mvc.Command;
 import mvcexpress.mvc.PooledCommand;
 import mvcexpress.utils.MvcExpressTools;
+import mvcexpress.utils.RttiHelper;
 
 class CommandMap 
 {
@@ -76,7 +77,7 @@ class CommandMap
 		#if debug
 			MvcExpress.debug(new TraceCommandMap_map(moduleName, type, commandClass));
 			validateCommandClass(commandClass);
-			if (!cast(type, Bool) || type == "null" || type == "undefined") {
+			if (type == null || type == "" || type == "null" || type == "undefined") {
 				throw ("Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + commandClass + ")");
 			}
 		#end
@@ -186,7 +187,7 @@ class CommandMap
 		else  
 		{
 			command.isExecuting = true;
-			Reflect.callMethod(command, Reflect.field(command, "execute"), []);
+			Reflect.callMethod(command, Reflect.field(command, "execute"), [params]);
 			command.isExecuting = false;
 		}
 
@@ -417,7 +418,7 @@ class CommandMap
 					}
 					
 					command.isExecuting = true;
-					Reflect.callMethod(command, Reflect.field(command, "execute"), []);
+					Reflect.callMethod(command, Reflect.field(command, "execute"), [params]);
 					command.isExecuting = false;
 					// if not locked - pool it.
 					if(!cast(command, PooledCommand).isLocked) 
@@ -430,7 +431,7 @@ class CommandMap
 				else 
 				{
 					command.isExecuting = true;
-					Reflect.callMethod(command, Reflect.field(command, "execute"), []);
+					Reflect.callMethod(command, Reflect.field(command, "execute"), [params]);
 					command.isExecuting = false;
 				}
 
@@ -461,26 +462,28 @@ class CommandMap
 				
 				if( commandClassParamTypes.get( commandClass ) == null )  
 				{
-					var parameterCount : Int;// = 0;
+					var parameterCount : Int = 0;
 					
 					// find execute method.
-					//var dFunc = Reflect.field( obj, "execute");
-					var hasExecute : Bool = Reflect.hasField( Type.createEmptyInstance(commandClass), "execute" );
+					var obj = Type.createEmptyInstance(commandClass);
+					var dFunc = Reflect.field( obj, "execute");
+					var hasExecute : Bool = Reflect.hasField( obj, "execute" );
 						
-						// TODO : check parameter ammount.
-						//var paramList = Reflect.fields(dFunc); 
-						//parameterCount = paramList.length();
-						//if(parameterCount == 1)  {
-						//	commandClassParamTypes[commandClass] = Type.typeof(paramList[0]);
-						//}
+					var paramslist : Array<Dynamic> = RttiHelper.getFunctionFields( commandClass, "execute" );
+					parameterCount =   paramslist.length;
+					
+					if(parameterCount == 1)  {
+						var p = paramslist[0]==null? Type.getClassName(Type.getClass(Dynamic)) : paramslist[0];
+						commandClassParamTypes.set(commandClass, p);
+					}
+					
 					
 					
 					if(hasExecute)  
 					{
-						//TODO no way to check this at the moment
-						//if(parameterCount != 1)  {
-							//throw ("Command:" + commandClass + " function execute() must have single parameter, but it has " + parameterCount);
-						//}
+						if(parameterCount != 1)  {
+							throw ("Command:" + commandClass + " function execute() must have single parameter, but it has " + parameterCount);
+						}
 					} else {
 						throw ("Command:" + commandClass + " must have public execute() function with single parameter.");
 					}
@@ -497,9 +500,16 @@ class CommandMap
 			
 			if(params)  
 			{
-				var paramClass : Class<Dynamic> = Type.getClass(commandClassParamTypes.get(commandClass));
-				if(!Std.is(params, paramClass))  {
-					throw "Class " + commandClass + " expects " + commandClassParamTypes.get(commandClass) + ". But you are sending :" + Type.resolveClass(params);
+				var testCommandClassIsOk : Bool = false;
+				if(commandClassParamTypes.get(commandClass) == null)
+				{
+					testCommandClassIsOk = true;
+				}else{
+					var paramClass : Class<Dynamic> = Type.resolveClass(commandClassParamTypes.get(commandClass));
+					testCommandClassIsOk = Std.is(params, paramClass);
+				}
+				if( !testCommandClassIsOk )  {
+					throw "Class " + commandClass + " expects " + commandClassParamTypes.get(commandClass) + ". But you are sending :" + Type.typeof(cast params);
 				}
 			}
 		}

@@ -16,6 +16,7 @@
 
 #for debugging
 -D fdb
+-D debug
 -debug
 
 --next

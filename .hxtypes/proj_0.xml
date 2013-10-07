@@ -16,7 +16,7 @@
 </f></preloader_onComplete>
 	</class>
 	<class path="Main" params="" file="src/Main.hx">
-		<main public="1" set="method" line="58" static="1"><f a=""><x path="Void"/></f></main>
+		<main public="1" set="method" line="57" static="1"><f a=""><x path="Void"/></f></main>
 		<new public="1" set="method" line="29"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="DocumentClass" params="" file="bin/flash/haxe/ApplicationMain.hx" module="ApplicationMain">
@@ -4531,6 +4531,17 @@
 		
 		(As3) This method only returns class fields that are public.</haxe_doc>
 		</getClassFields>
+		<typeof public="1" set="method" line="215" static="1">
+			<f a="v">
+				<d/>
+				<e path="ValueType"/>
+			</f>
+			<haxe_doc>Returns the runtime type of value [v].
+		
+		The result corresponds to the type [v] has at runtime, which may vary
+		per platform. Assumptions regarding this should be minimized to avoid
+		surprises.</haxe_doc>
+		</typeof>
 		<enumParameters public="1" set="method" line="268" static="1">
 			<f a="e">
 				<x path="EnumValue"/>
@@ -16650,6 +16661,7 @@
 			<c path="haxe.ds.ObjectMap.V"/>
 		</implements>
 		<iterator public="1" set="method" line="46"><f a=""><t path="Iterator"><c path="haxe.ds.ObjectMap.V"/></t></f></iterator>
+		<keys public="1" set="method" line="42"><f a=""><t path="Iterator"><c path="haxe.ds.ObjectMap.K"/></t></f></keys>
 		<remove public="1" set="method" line="22"><f a="key">
 	<c path="haxe.ds.ObjectMap.K"/>
 	<x path="Bool"/>
@@ -16672,6 +16684,18 @@
 			<m n=":keep"/>
 			<m n=":coreApi"/>
 		</meta>
+	</class>
+	<class path="haxe.ds._ObjectMap.NativePropertyIterator" params="" file="/usr/lib/haxe/std/flash/_std/haxe/ds/ObjectMap.hx" private="1" module="haxe.ds.ObjectMap">
+		<iterator public="1" set="method" line="68" static="1"><f a="collection">
+	<d/>
+	<c path="haxe.ds._ObjectMap.NativePropertyIterator"/>
+</f></iterator>
+		<next public="1" set="method" line="85"><f a=""><d/></f></next>
+		<hasNext public="1" set="method" line="76"><f a=""><x path="Bool"/></f></hasNext>
+		<index><x path="Int"/></index>
+		<collection><d/></collection>
+		<new set="method" line="74"><f a=""><x path="Void"/></f></new>
+		<meta><m n=":keep"/></meta>
 	</class>
 	<class path="haxe.ds._ObjectMap.NativeValueIterator" params="" file="/usr/lib/haxe/std/flash/_std/haxe/ds/ObjectMap.hx" private="1" module="haxe.ds.ObjectMap">
 		<iterator public="1" set="method" line="97" static="1"><f a="collection">
@@ -17517,7 +17541,7 @@
 	<class path="mvcexpress.mvc.Mediator" params="" file="mvcexpress/mvc/Mediator.hx">
 		<__rtti public="1" line="26" static="1"><c path="String"/></__rtti>
 		<canConstruct public="1" static="1"><x path="Bool"/></canConstruct>
-		<remove public="1" set="method" line="335">
+		<remove public="1" set="method" line="333">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc><![CDATA[* framework function to dispose this mediator. 																			<br>
 	 * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)					<br>
@@ -17527,19 +17551,19 @@
 	 * - sets internals to null																									<br>
 	 *]]></haxe_doc>
 		</remove>
-		<register public="1" set="method" line="321">
+		<register public="1" set="method" line="319">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* marks mediator as ready and calls onRegister()
 	 * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>
 		</register>
-		<removeAllListeners set="method" line="289">
+		<removeAllListeners set="method" line="292">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Removes all listeners created by mediators addEventListener() function.
 	 * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.
 	 * Automatically called then mediator is removed(unmediated) by framework.
 	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
 		</removeAllListeners>
-		<removeListener set="method" line="261">
+		<removeListener set="method" line="264">
 			<f a="viewObject:type:listener:?useCapture">
 				<c path="flash.events.IEventDispatcher"/>
 				<c path="String"/>
@@ -17550,7 +17574,7 @@
 			<haxe_doc>* Removes an event listener from the viewObject.
 	 * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>
 		</removeListener>
-		<addListener set="method" line="236">
+		<addListener set="method" line="237">
 			<f a="viewObject:type:listener:?useCapture:?priority:?useWeakReference">
 				<c path="flash.events.IEventDispatcher"/>
 				<c path="String"/>
@@ -17573,7 +17597,7 @@
 	 * 
 	 *		A strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>
 		</addListener>
-		<removeScopeHandler set="method" line="214">
+		<removeScopeHandler set="method" line="215">
 			<f a="scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -17585,7 +17609,7 @@
 	 * 
 	 *</haxe_doc>
 		</removeScopeHandler>
-		<addScopeHandler set="method" line="203">
+		<addScopeHandler set="method" line="204">
 			<f a="scopeName:type:handler">
 				<c path="String"/>
 				<c path="String"/>
@@ -17597,13 +17621,13 @@
 	 * 
 	 *</haxe_doc>
 		</addScopeHandler>
-		<removeAllHandlers set="method" line="185">
+		<removeAllHandlers set="method" line="186">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.
 	 * Automatically called then mediator is removed(unmediated) by framework.
 	 * (You don't have to put it in mediators onRemove() function.)</haxe_doc>
 		</removeAllHandlers>
-		<removeHandler set="method" line="175">
+		<removeHandler set="method" line="176">
 			<f a="type:handler">
 				<c path="String"/>
 				<d/>
@@ -17614,7 +17638,7 @@
 	 * 
 	 *</haxe_doc>
 		</removeHandler>
-		<addHandler set="method" line="151">
+		<addHandler set="method" line="152">
 			<f a="type:handler">
 				<c path="String"/>
 				<d/>
@@ -17624,7 +17648,7 @@
 	 * 
 	 *</haxe_doc>
 		</addHandler>
-		<sendScopeMessage set="method" line="127">
+		<sendScopeMessage set="method" line="128">
 			<f a="scopeName:type:?params">
 				<c path="String"/>
 				<c path="String"/>
@@ -17701,63 +17725,84 @@
 	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_handlingListener.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
-		<onRemove public="1" set="method" line="27" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<handlTestSendMessageEvent set="method" line="23"><f a="event">
+		<onRemove public="1" set="method" line="28" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handlTestSendMessageEvent set="method" line="24"><f a="event">
 	<c path="integration.agenerictestobjects.view.event.ViewTestEvent"/>
 	<x path="Void"/>
 </f></handlTestSendMessageEvent>
-		<handlTestBlankEvent set="method" line="20"><f a="event">
+		<handlTestBlankEvent set="method" line="21"><f a="event">
 	<c path="integration.agenerictestobjects.view.event.ViewTestEvent"/>
 	<x path="Void"/>
 </f></handlTestBlankEvent>
-		<onRegister public="1" set="method" line="15" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.agenerictestobjects.view.GenericViewObject"/></view>
+		<onRegister public="1" set="method" line="16" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1">
+			<c path="integration.agenerictestobjects.view.GenericViewObject"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_handlingMessage.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<onRemove public="1" set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<handleTestMessage set="method" line="18"><f a="blank">
-	<d/>
-	<x path="Void"/>
-</f></handleTestMessage>
-		<onRegister public="1" set="method" line="14" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.agenerictestobjects.view.GenericViewObject"/></view>
-		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
-	</class>
-	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_handlingScopeMessage.hx">
-		<extends path="mvcexpress.mvc.Mediator"/>
-		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
 		<onRemove public="1" set="method" line="22" override="1"><f a=""><x path="Void"/></f></onRemove>
 		<handleTestMessage set="method" line="19"><f a="blank">
 	<d/>
 	<x path="Void"/>
 </f></handleTestMessage>
 		<onRegister public="1" set="method" line="15" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.agenerictestobjects.view.GenericViewObject"/></view>
+		<view public="1">
+			<c path="integration.agenerictestobjects.view.GenericViewObject"/>
+			<meta><m n="inject"/></meta>
+		</view>
+		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+	</class>
+	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_handlingScopeMessage.hx">
+		<extends path="mvcexpress.mvc.Mediator"/>
+		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
+		<onRemove public="1" set="method" line="23" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handleTestMessage set="method" line="20"><f a="blank">
+	<d/>
+	<x path="Void"/>
+</f></handleTestMessage>
+		<onRegister public="1" set="method" line="16" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<view public="1">
+			<c path="integration.agenerictestobjects.view.GenericViewObject"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_withScopedInject.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<onRemove public="1" set="method" line="20" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<onRegister public="1" set="method" line="16" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<genericTestProxy public="1"><c path="integration.agenerictestobjects.model.GenericTestProxy"/></genericTestProxy>
-		<view public="1"><c path="integration.agenerictestobjects.view.GenericViewObject"/></view>
+		<onRemove public="1" set="method" line="22" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<genericTestProxy public="1">
+			<c path="integration.agenerictestobjects.model.GenericTestProxy"/>
+			<meta><m n="inject"/></meta>
+		</genericTestProxy>
+		<view public="1">
+			<c path="integration.agenerictestobjects.view.GenericViewObject"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage" params="" file="test/integration/agenerictestobjects/view/GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="13" static="1"><c path="String"/></__rtti>
-		<onRemove public="1" set="method" line="29" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<handleTestMessage set="method" line="24"><f a="blank">
+		<onRemove public="1" set="method" line="31" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handleTestMessage set="method" line="26"><f a="blank">
 	<d/>
 	<x path="Void"/>
 </f></handleTestMessage>
-		<onRegister public="1" set="method" line="19" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<genericTestProxy public="1"><c path="integration.agenerictestobjects.model.GenericTestProxy"/></genericTestProxy>
-		<view public="1"><c path="integration.agenerictestobjects.view.GenericViewObject"/></view>
+		<onRegister public="1" set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<genericTestProxy public="1">
+			<c path="integration.agenerictestobjects.model.GenericTestProxy"/>
+			<meta><m n="inject"><e>{scope:"GenericScopeIds_testScope"}</e></m></meta>
+		</genericTestProxy>
+		<view public="1">
+			<c path="integration.agenerictestobjects.view.GenericViewObject"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="13"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.agenerictestobjects.view.event.ViewTestEvent" params="" file="test/integration/agenerictestobjects/view/event/ViewTestEvent.hx">
@@ -17993,7 +18038,10 @@
 		<__rtti public="1" line="7" static="1"><c path="String"/></__rtti>
 		<onRemove public="1" set="method" line="17" override="1"><f a=""><x path="Void"/></f></onRemove>
 		<onRegister public="1" set="method" line="13" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.mediating.testobj.view.viewobj.IMediatingIntefrace"/></view>
+		<view public="1">
+			<c path="integration.mediating.testobj.view.viewobj.IMediatingIntefrace"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="7"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.mediating.testobj.view.MediatingSuperClassMediator" params="" file="test/integration/mediating/testobj/view/MediatingSuperClassMediator.hx">
@@ -18001,7 +18049,10 @@
 		<__rtti public="1" line="6" static="1"><c path="String"/></__rtti>
 		<onRemove public="1" set="method" line="16" override="1"><f a=""><x path="Void"/></f></onRemove>
 		<onRegister public="1" set="method" line="12" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.mediating.testobj.view.viewobj.MediatingBaseView"/></view>
+		<view public="1">
+			<c path="integration.mediating.testobj.view.viewobj.MediatingBaseView"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="6"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.mediating.testobj.view.viewobj.IMediatingIntefrace" params="" file="test/integration/mediating/testobj/view/viewobj/IMediatingIntefrace.hx" interface="1"><doStuff public="1" set="method"><f a=""><x path="Void"/></f></doStuff></class>
@@ -18324,11 +18375,16 @@
 </f></execute>
 		<genericTestProxy public="1">
 			<c path="integration.agenerictestobjects.model.GenericTestProxy"/>
-			<meta><m n="inject"><e>{constName:"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
+			<meta><m n="inject"><e>{constName:"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
 		</genericTestProxy>
 		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
 	</class>
-	<class path="integration.proxymap.testobj.TestConstObject" params="" file="test/integration/proxymap/testobj/TestConstObject.hx"><TEST_CONST_FOR_PROXY_INJECT public="1" line="9" static="1"><c path="String"/></TEST_CONST_FOR_PROXY_INJECT></class>
+	<class path="integration.proxymap.testobj.TestConstObject" params="" file="test/integration/proxymap/testobj/TestConstObject.hx">
+		<TEST_CONST_FOR_PROXY_INJECT public="1" line="9" static="1"><c path="String"/></TEST_CONST_FOR_PROXY_INJECT>
+		<TEST_CONST_FOR_PROXY_AZAZAT public="1" line="10" static="1"><c path="String"/></TEST_CONST_FOR_PROXY_AZAZAT>
+		<AZA public="1" line="11" static="1"><c path="String"/></AZA>
+		<dSD public="1" line="12" static="1"><c path="String"/></dSD>
+	</class>
 	<class path="integration.proxymap.testobj.TestContsView" params="" file="test/integration/proxymap/testobj/TestContsView.hx">
 		<extends path="flash.display.Sprite"/>
 		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
@@ -18340,7 +18396,7 @@
 		<onRegister public="1" set="method" line="19" override="1"><f a=""><x path="Void"/></f></onRegister>
 		<genericTestProxy public="1">
 			<c path="integration.agenerictestobjects.model.GenericTestProxy"/>
-			<meta><m n="inject"><e>{constName:"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
+			<meta><m n="inject"><e>{constName:"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
 		</genericTestProxy>
 		<view public="1">
 			<c path="integration.proxymap.testobj.TestContsView"/>
@@ -18350,14 +18406,14 @@
 	</class>
 	<class path="integration.proxymap.testobj.TexsWithConstNameInjectProxy" params="" file="test/integration/proxymap/testobj/TexsWithConstNameInjectProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
-		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<onRemove set="method" line="23" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<onRegister set="method" line="20" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
+		<onRemove set="method" line="24" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRegister>
 		<genericTestProxy public="1">
 			<c path="integration.agenerictestobjects.model.GenericTestProxy"/>
-			<meta><m n="inject"><e>{constName:"integration.proxyMap.testObj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
+			<meta><m n="inject"><e>{constName:"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}</e></m></meta>
 		</genericTestProxy>
-		<new public="1" set="method" line="16"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="17"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopecontrol.ScopeControlTests" params="" file="test/integration/scopecontrol/ScopeControlTests.hx">
 		<extends path="Tester"/>
@@ -18437,7 +18493,10 @@
 	<x path="Void"/>
 </f></addChannelHandler1>
 		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="integration.scopedmessaging.testobj.modulea.ChannelViewA"/></view>
+		<view public="1">
+			<c path="integration.scopedmessaging.testobj.modulea.ChannelViewA"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedmessaging.testobj.modulea.ChannelModuleA" params="" file="test/integration/scopedmessaging/testobj/modulea/ChannelModuleA.hx">
@@ -18495,7 +18554,10 @@
 	<x path="Void"/>
 </f></sendChannelMessage1>
 		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<view public="1"><c path="flash.display.Sprite"/></view>
+		<view public="1">
+			<c path="flash.display.Sprite"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedmessaging.testobj.moduleb.ChannelModuleB" params="" file="test/integration/scopedmessaging/testobj/moduleb/ChannelModuleB.hx">
@@ -18515,38 +18577,38 @@
 	</class>
 	<class path="integration.scopedproxy.ScopedProxyTests" params="" file="test/integration/scopedproxy/ScopedProxyTests.hx">
 		<extends path="Tester"/>
-		<SCOPED_PROXY_MESSAGE_NAME public="1" line="17" static="1"><c path="String"/></SCOPED_PROXY_MESSAGE_NAME>
-		<SCOPED_PROXY_SCOPE_NAME public="1" line="18" static="1"><c path="String"/></SCOPED_PROXY_SCOPE_NAME>
-		<scopedProxy_unmapScopedProxyTwice_ok public="1" set="method" line="283"><f a=""><x path="Void"/></f></scopedProxy_unmapScopedProxyTwice_ok>
-		<scopedProxy_injectPendingProxyToCommandThenHost_injectFails public="1" set="method" line="273"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToCommandThenHost_injectFails>
-		<scopedProxy_injectPendingProxyToProxyThenHost_injectOk public="1" set="method" line="259"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToProxyThenHost_injectOk>
-		<scopedProxy_injectPendingProxyToMediatorThenHost_injectOk public="1" set="method" line="245"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToMediatorThenHost_injectOk>
-		<scopedProxy_hostAndInjectThenMessage_communicatinOk public="1" set="method" line="231"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectThenMessage_communicatinOk>
-		<scopedProxy_HostAndMapThenMessageLocaly_communicatinOk public="1" set="method" line="214"><f a=""><x path="Void"/></f></scopedProxy_HostAndMapThenMessageLocaly_communicatinOk>
-		<scopedProxy_MapAndHostThenMessageLocaly_communicatinOk public="1" set="method" line="198"><f a=""><x path="Void"/></f></scopedProxy_MapAndHostThenMessageLocaly_communicatinOk>
-		<scopedProxy_hostThenUnhostAndInjectHosted_injectFails public="1" set="method" line="185"><f a=""><x path="Void"/></f></scopedProxy_hostThenUnhostAndInjectHosted_injectFails>
-		<scopedProxy_injectHostedToCommand_injectFails public="1" set="method" line="176"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToCommand_injectFails>
-		<scopedProxy_injectHostedToProxy_injectFails public="1" set="method" line="169"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToProxy_injectFails>
-		<scopedProxy_injectHostedToMediator_injectFails public="1" set="method" line="162"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToMediator_injectFails>
-		<scopedProxy_hostAndInjectHostedToCommand_injectOk public="1" set="method" line="152"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToCommand_injectOk>
-		<scopedProxy_hostAndInjectHostedToProxyTwice_injectOk public="1" set="method" line="130"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToProxyTwice_injectOk>
-		<scopedProxy_hostAndInjectHostedToProxy_injectOk public="1" set="method" line="111"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToProxy_injectOk>
-		<checkMediator2 set="method" line="102"><f a="?obj">
+		<SCOPED_PROXY_MESSAGE_NAME public="1" line="16" static="1"><c path="String"/></SCOPED_PROXY_MESSAGE_NAME>
+		<SCOPED_PROXY_SCOPE_NAME public="1" line="17" static="1"><c path="String"/></SCOPED_PROXY_SCOPE_NAME>
+		<scopedProxy_unmapScopedProxyTwice_ok public="1" set="method" line="286"><f a=""><x path="Void"/></f></scopedProxy_unmapScopedProxyTwice_ok>
+		<scopedProxy_injectPendingProxyToCommandThenHost_injectFails public="1" set="method" line="276"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToCommandThenHost_injectFails>
+		<scopedProxy_injectPendingProxyToProxyThenHost_injectOk public="1" set="method" line="262"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToProxyThenHost_injectOk>
+		<scopedProxy_injectPendingProxyToMediatorThenHost_injectOk public="1" set="method" line="248"><f a=""><x path="Void"/></f></scopedProxy_injectPendingProxyToMediatorThenHost_injectOk>
+		<scopedProxy_hostAndInjectThenMessage_communicatinOk public="1" set="method" line="234"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectThenMessage_communicatinOk>
+		<scopedProxy_HostAndMapThenMessageLocaly_communicatinOk public="1" set="method" line="217"><f a=""><x path="Void"/></f></scopedProxy_HostAndMapThenMessageLocaly_communicatinOk>
+		<scopedProxy_MapAndHostThenMessageLocaly_communicatinOk public="1" set="method" line="201"><f a=""><x path="Void"/></f></scopedProxy_MapAndHostThenMessageLocaly_communicatinOk>
+		<scopedProxy_hostThenUnhostAndInjectHosted_injectFails public="1" set="method" line="188"><f a=""><x path="Void"/></f></scopedProxy_hostThenUnhostAndInjectHosted_injectFails>
+		<scopedProxy_injectHostedToCommand_injectFails public="1" set="method" line="179"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToCommand_injectFails>
+		<scopedProxy_injectHostedToProxy_injectFails public="1" set="method" line="172"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToProxy_injectFails>
+		<scopedProxy_injectHostedToMediator_injectFails public="1" set="method" line="165"><f a=""><x path="Void"/></f></scopedProxy_injectHostedToMediator_injectFails>
+		<scopedProxy_hostAndInjectHostedToCommand_injectOk public="1" set="method" line="155"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToCommand_injectOk>
+		<scopedProxy_hostAndInjectHostedToProxyTwice_injectOk public="1" set="method" line="133"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToProxyTwice_injectOk>
+		<scopedProxy_hostAndInjectHostedToProxy_injectOk public="1" set="method" line="114"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToProxy_injectOk>
+		<checkMediator2 set="method" line="105"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></checkMediator2>
-		<scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk public="1" set="method" line="89"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk>
-		<checkMediator set="method" line="74"><f a="?obj">
+		<scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk public="1" set="method" line="91"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk>
+		<checkMediator set="method" line="76"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></checkMediator>
-		<failMediatorCheck public="1" set="method" line="70"><f a="?obj">
+		<failMediatorCheck public="1" set="method" line="72"><f a="?obj">
 	<d/>
 	<x path="Void"/>
 </f></failMediatorCheck>
-		<scopedProxy_hostAndInjectHostedToMediator_injectOk public="1" set="method" line="63"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToMediator_injectOk>
-		<runAfterEveryTest public="1" set="method" line="52" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
-		<runBeforeEveryTest public="1" set="method" line="46" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
+		<scopedProxy_hostAndInjectHostedToMediator_injectOk public="1" set="method" line="64"><f a=""><x path="Void"/></f></scopedProxy_hostAndInjectHostedToMediator_injectOk>
+		<runAfterEveryTest public="1" set="method" line="53" override="1"><f a=""><x path="Void"/></f></runAfterEveryTest>
+		<runBeforeEveryTest public="1" set="method" line="47" override="1"><f a=""><x path="Void"/></f></runBeforeEveryTest>
 		<randomData><c path="String"/></randomData>
 		<scopedTestProxy><c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/></scopedTestProxy>
 		<scopedProxyModuleB><c path="integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB"/></scopedProxyModuleB>
@@ -18556,27 +18618,33 @@
 	<class path="integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator" params="" file="test/integration/scopedproxy/testobj/modulea/ScopedProxyLocalInjectMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="12" static="1"><c path="String"/></__rtti>
-		<sendDataToProxy public="1" set="method" line="33"><f a="testData">
+		<sendDataToProxy public="1" set="method" line="35"><f a="testData">
 	<c path="String"/>
 	<x path="Void"/>
 </f></sendDataToProxy>
-		<onRemove public="1" set="method" line="30" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<handleScopedMessage set="method" line="25"><f a="testdata">
+		<onRemove public="1" set="method" line="32" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handleScopedMessage set="method" line="27"><f a="testdata">
 	<c path="String"/>
 	<x path="Void"/>
 </f></handleScopedMessage>
-		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<myProxy public="1"><c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/></myProxy>
-		<view public="1"><c path="integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView"/></view>
+		<onRegister public="1" set="method" line="20" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<myProxy public="1">
+			<c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/>
+			<meta><m n="inject"/></meta>
+		</myProxy>
+		<view public="1">
+			<c path="integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView" params="" file="test/integration/scopedproxy/testobj/modulea/ScopedProxyLocalInjectView.hx">
 		<extends path="flash.display.Sprite"/>
-		<sendDataToProxy public="1" set="method" line="15"><f a="testData">
+		<sendDataToProxy public="1" set="method" line="17"><f a="testData">
 	<c path="String"/>
 	<x path="Void"/>
 </f></sendDataToProxy>
-		<pushMediatorIn public="1" set="method" line="11"><f a="scopedProxyLocalInjectMediator">
+		<pushMediatorIn public="1" set="method" line="13"><f a="scopedProxyLocalInjectMediator">
 	<c path="integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator"/>
 	<x path="Void"/>
 </f></pushMediatorIn>
@@ -18624,41 +18692,53 @@
 	<class path="integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand" params="" file="test/integration/scopedproxy/testobj/moduleb/ScopedProxpyTestCommand.hx">
 		<extends path="mvcexpress.mvc.Command"/>
 		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<execute public="1" set="method" line="14"><f a="testData">
+		<execute public="1" set="method" line="15"><f a="testData">
 	<c path="String"/>
 	<x path="Void"/>
 </f></execute>
-		<myProxy public="1"><c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/></myProxy>
+		<myProxy public="1">
+			<c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/>
+			<meta><m n="inject"><e>{scope:"proxyScope"}</e></m></meta>
+		</myProxy>
 		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator" params="" file="test/integration/scopedproxy/testobj/moduleb/ScopedProxyInjectMediator.hx">
 		<extends path="mvcexpress.mvc.Mediator"/>
 		<__rtti public="1" line="12" static="1"><c path="String"/></__rtti>
-		<sendDataToProxy public="1" set="method" line="34"><f a="testData">
+		<sendDataToProxy public="1" set="method" line="37"><f a="testData">
 	<c path="String"/>
 	<x path="Void"/>
 </f></sendDataToProxy>
-		<onRemove public="1" set="method" line="31" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<handleScopedMessage set="method" line="25"><f a="testdata">
+		<onRemove public="1" set="method" line="34" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<handleScopedMessage set="method" line="28"><f a="testdata">
 	<c path="String"/>
 	<x path="Void"/>
 </f></handleScopedMessage>
-		<onRegister public="1" set="method" line="18" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<myProxy public="1"><c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/></myProxy>
-		<view public="1"><c path="integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView"/></view>
+		<onRegister public="1" set="method" line="21" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<myProxy public="1">
+			<c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/>
+			<meta><m n="inject"><e>{scope:"proxyScope"}</e></m></meta>
+		</myProxy>
+		<view public="1">
+			<c path="integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView"/>
+			<meta><m n="inject"/></meta>
+		</view>
 		<new public="1" set="method" line="12"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy" params="" file="test/integration/scopedproxy/testobj/moduleb/ScopedProxyInjectProxy.hx">
 		<extends path="mvcexpress.mvc.Proxy"/>
 		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<onRemove set="method" line="26" override="1"><f a=""><x path="Void"/></f></onRemove>
-		<onRegister set="method" line="22" override="1"><f a=""><x path="Void"/></f></onRegister>
-		<storeTestData public="1" set="method" line="18"><f a="testData">
+		<onRemove set="method" line="27" override="1"><f a=""><x path="Void"/></f></onRemove>
+		<onRegister set="method" line="23" override="1"><f a=""><x path="Void"/></f></onRegister>
+		<storeTestData public="1" set="method" line="19"><f a="testData">
 	<c path="String"/>
 	<x path="Void"/>
 </f></storeTestData>
-		<myProxy public="1"><c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/></myProxy>
-		<new public="1" set="method" line="14"><f a=""><x path="Void"/></f></new>
+		<myProxy public="1">
+			<c path="integration.scopedproxy.testobj.modulea.ScopedTestProxy"/>
+			<meta><m n="inject"><e>{scope:"proxyScope"}</e></m></meta>
+		</myProxy>
+		<new public="1" set="method" line="15"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView" params="" file="test/integration/scopedproxy/testobj/moduleb/ScopedProxyInjectView.hx">
 		<extends path="flash.display.Sprite"/>
@@ -18765,27 +18845,27 @@
 		<new public="1" set="method" line="87"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.CommandMap" params="" file="mvcexpress/core/CommandMap.hx">
-		<commandClassParamTypes line="42" static="1">
+		<commandClassParamTypes line="43" static="1">
 			<c path="haxe.ds.ObjectMap">
 				<d/>
 				<d/>
 			</c>
 			<haxe_doc>types of command execute function, needed for debug mode only validation of execute() parameter.</haxe_doc>
 		</commandClassParamTypes>
-		<validatedCommands line="45" static="1"><c path="haxe.ds.ObjectMap">
+		<validatedCommands line="46" static="1"><c path="haxe.ds.ObjectMap">
 	<d/>
 	<x path="Bool"/>
 </c></validatedCommands>
-		<listMessageCommands public="1" set="method" line="509"><f a="messageType">
+		<listMessageCommands public="1" set="method" line="519"><f a="messageType">
 	<c path="String"/>
 	<c path="Array"><x path="Class"><d/></x></c>
 </f></listMessageCommands>
-		<validateCommandParams set="method" line="494"><f a="commandClass:params">
+		<validateCommandParams set="method" line="497"><f a="commandClass:params">
 	<x path="Class"><d/></x>
 	<d/>
 	<x path="Void"/>
 </f></validateCommandParams>
-		<validateCommandClass public="1" set="method" line="451">
+		<validateCommandClass public="1" set="method" line="452">
 			<f a="commandClass">
 				<x path="Class"><d/></x>
 				<x path="Void"/>
@@ -18793,7 +18873,7 @@
 			<haxe_doc>* Helper functions for error checking
 	 *</haxe_doc>
 		</validateCommandClass>
-		<handleCommandExecute public="1" set="method" line="361">
+		<handleCommandExecute public="1" set="method" line="362">
 			<f a="messageType:params">
 				<c path="String"/>
 				<d/>
@@ -18801,12 +18881,12 @@
 			</f>
 			<haxe_doc>function to be called by messenger on needed message type sent</haxe_doc>
 		</handleCommandExecute>
-		<dispose public="1" set="method" line="340">
+		<dispose public="1" set="method" line="341">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose commandMap on disposeModule()
 	 *</haxe_doc>
 		</dispose>
-		<poolCommand public="1" set="method" line="328">
+		<poolCommand public="1" set="method" line="329">
 			<f a="command">
 				<c path="mvcexpress.mvc.PooledCommand"/>
 				<x path="Void"/>
@@ -18815,12 +18895,12 @@
 	 * 
 	 *</haxe_doc>
 		</poolCommand>
-		<listMappings public="1" set="method" line="309">
+		<listMappings public="1" set="method" line="310">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns text of all command classes that are mapped to messages. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<mappedCommandCount public="1" set="method" line="297">
+		<mappedCommandCount public="1" set="method" line="298">
 			<f a="type">
 				<c path="String"/>
 				<x path="Int"/>
@@ -18829,7 +18909,7 @@
 	 * 
 	 *</haxe_doc>
 		</mappedCommandCount>
-		<isMapped public="1" set="method" line="275">
+		<isMapped public="1" set="method" line="276">
 			<f a="type:commandClass">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -18840,7 +18920,7 @@
 	 * 
 	 *</haxe_doc>
 		</isMapped>
-		<clearCommandPool public="1" set="method" line="261">
+		<clearCommandPool public="1" set="method" line="262">
 			<f a="commandClass">
 				<x path="Class"><d/></x>
 				<x path="Void"/>
@@ -18849,7 +18929,7 @@
 	 * (if commands are not pooled - function fails silently.)
 	 *</haxe_doc>
 		</clearCommandPool>
-		<checkIsClassPooled public="1" set="method" line="251">
+		<checkIsClassPooled public="1" set="method" line="252">
 			<f a="commandClass">
 				<x path="Class"><d/></x>
 				<x path="Bool"/>
@@ -18858,7 +18938,7 @@
 	 * 
 	 *</haxe_doc>
 		</checkIsClassPooled>
-		<scopeUnmap public="1" set="method" line="226">
+		<scopeUnmap public="1" set="method" line="227">
 			<f a="scopeName:type:commandClass">
 				<c path="String"/>
 				<c path="String"/>
@@ -18870,7 +18950,7 @@
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<scopeMap public="1" set="method" line="206">
+		<scopeMap public="1" set="method" line="207">
 			<f a="scopeName:type:commandClass">
 				<c path="String"/>
 				<c path="String"/>
@@ -18882,7 +18962,7 @@
 	 * 
 	 *</haxe_doc>
 		</scopeMap>
-		<execute public="1" set="method" line="128">
+		<execute public="1" set="method" line="129">
 			<f a="commandClass:?params">
 				<x path="Class"><d/></x>
 				<d/>
@@ -18892,7 +18972,7 @@
 	 * 
 	 *</haxe_doc>
 		</execute>
-		<unmap public="1" set="method" line="98">
+		<unmap public="1" set="method" line="99">
 			<f a="type:commandClass">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -18902,7 +18982,7 @@
 	 * 
 	 *</haxe_doc>
 		</unmap>
-		<map public="1" set="method" line="70">
+		<map public="1" set="method" line="71">
 			<f a="type:commandClass">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -18925,7 +19005,7 @@
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
 		<moduleName><c path="String"/></moduleName>
-		<new public="1" set="method" line="50">
+		<new public="1" set="method" line="51">
 			<f a="moduleName:messenger:proxyMap:mediatorMap">
 				<c path="String"/>
 				<c path="mvcexpress.core.messenger.Messenger"/>
@@ -18958,17 +19038,17 @@
 	</class>
 	<class path="mvcexpress.core.MediatorMap" params="" file="mvcexpress/core/MediatorMap.hx">
 		<implements path="mvcexpress.core.interfaces.IMediatorMap"/>
-		<dispose public="1" set="method" line="279">
+		<dispose public="1" set="method" line="280">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose mediatorMap - unmediate all mediated view objects and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<listMappings public="1" set="method" line="261">
+		<listMappings public="1" set="method" line="262">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns String of all view classes that are mapped to mediator classes. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMediated public="1" set="method" line="253">
+		<isMediated public="1" set="method" line="254">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -18976,7 +19056,7 @@
 			<haxe_doc>* Checks if view object is mediated.
 	 *</haxe_doc>
 		</isMediated>
-		<isViewMapped public="1" set="method" line="239">
+		<isViewMapped public="1" set="method" line="240">
 			<f a="viewObject">
 				<d/>
 				<x path="Bool"/>
@@ -18984,7 +19064,7 @@
 			<haxe_doc>* Check if class of view object is mapped to any mediator.
 	 *</haxe_doc>
 		</isViewMapped>
-		<isMapped public="1" set="method" line="227">
+		<isMapped public="1" set="method" line="228">
 			<f a="viewClass:?mediatorClass">
 				<x path="Class"><d/></x>
 				<x path="Class"><d/></x>
@@ -18995,7 +19075,7 @@
 	 * 
 	 *</haxe_doc>
 		</isMapped>
-		<unmediate public="1" set="method" line="198">
+		<unmediate public="1" set="method" line="199">
 			<f a="viewObject">
 				<d/>
 				<x path="Void"/>
@@ -19004,7 +19084,7 @@
 	 * If any mediator is mediating viewObject - it calls onRemove on that mediator, automatically removes all message handlers, all event listeners and disposes it.
 	 *</haxe_doc>
 		</unmediate>
-		<mediateWith public="1" set="method" line="167">
+		<mediateWith public="1" set="method" line="168">
 			<f a="viewObject:mediatorClass:?injectClass">
 				<d/>
 				<x path="Class"><d/></x>
@@ -19351,7 +19431,7 @@
 	 * 
 	 *</haxe_doc>
 		</scopeMap>
-		<scopeUnmap public="1" set="method" line="284" static="1">
+		<scopeUnmap public="1" set="method" line="287" static="1">
 			<f a="moduleName:scopeName:injectClass:name">
 				<c path="String"/>
 				<c path="String"/>
@@ -19373,9 +19453,6 @@
 				<x path="Bool"/>
 			</f>
 			<haxe_doc>* Inject Scoped proxy.
-	 * 
-	 * 
-	 * 
 	 *</haxe_doc>
 		</injectScopedProxy>
 		<addPendingScopedInjection public="1" set="method" line="326" static="1">
@@ -19475,22 +19552,22 @@
 			</c>
 			<haxe_doc>dictionary of (Vector of InjectRuleVO), stored by class names.</haxe_doc>
 		</classInjectRules>
-		<getProxyById public="1" set="method" line="645"><f a="injectClassAndName">
+		<getProxyById public="1" set="method" line="675"><f a="injectClassAndName">
 	<c path="String"/>
 	<c path="mvcexpress.mvc.Proxy"/>
 </f></getProxyById>
-		<getInjectByConstName set="method" line="617"><f a="constName">
+		<getInjectByConstName set="method" line="637"><f a="constName">
 	<c path="String"/>
 	<c path="String"/>
 </f></getInjectByConstName>
-		<getInjectRules set="method" line="573">
+		<getInjectRules set="method" line="589">
 			<f a="signatureClass">
 				<x path="Class"><d/></x>
 				<c path="Array"><c path="mvcexpress.core.inject.InjectRuleVO"/></c>
 			</f>
 			<haxe_doc>* Finds and cashes class injection point rules.</haxe_doc>
 		</getInjectRules>
-		<injectPendingStuff set="method" line="525">
+		<injectPendingStuff set="method" line="541">
 			<f a="injectClassAndName:injectee">
 				<c path="String"/>
 				<d/>
@@ -19498,7 +19575,7 @@
 			</f>
 			<haxe_doc>* Handle all pending injections for specified key.</haxe_doc>
 		</injectPendingStuff>
-		<addPendingInjection public="1" set="method" line="513">
+		<addPendingInjection public="1" set="method" line="529">
 			<f a="injectClassAndName:pendingInjection">
 				<c path="String"/>
 				<c path="mvcexpress.core.inject.PendingInject"/>
@@ -19509,7 +19586,7 @@
 	 * 
 	 *</haxe_doc>
 		</addPendingInjection>
-		<injectStuff public="1" set="method" line="364">
+		<injectStuff public="1" set="method" line="374">
 			<f a="object:signatureClass:?tempValue:?tempClass">
 				<d/>
 				<x path="Class"><d/></x>
@@ -19521,12 +19598,12 @@
 	 * tempValue and tempClass defines injection that will be done for current object only.
 	 *</haxe_doc>
 		</injectStuff>
-		<dispose public="1" set="method" line="338">
+		<dispose public="1" set="method" line="348">
 			<f a=""><x path="Void"/></f>
 			<haxe_doc>* Dispose of proxyMap. Remove all registered proxies and set all internals to null.
 	 *</haxe_doc>
 		</dispose>
-		<initProxy public="1" set="method" line="322">
+		<initProxy public="1" set="method" line="332">
 			<f a="proxyObject:proxyClass:injectId">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -19537,16 +19614,16 @@
 	 * 
 	 *</haxe_doc>
 		</initProxy>
-		<setCommandMap public="1" set="method" line="313"><f a="value">
+		<setCommandMap public="1" set="method" line="323"><f a="value">
 	<c path="mvcexpress.core.CommandMap"/>
 	<x path="Void"/>
 </f></setCommandMap>
-		<listMappings public="1" set="method" line="299">
+		<listMappings public="1" set="method" line="309">
 			<f a=""><c path="String"/></f>
 			<haxe_doc>* Returns text of all mapped proxy objects, and keys they are mapped to. (for debugging)
 	 *</haxe_doc>
 		</listMappings>
-		<isMapped public="1" set="method" line="277">
+		<isMapped public="1" set="method" line="287">
 			<f a="proxyObject:?injectClass:?name">
 				<c path="mvcexpress.mvc.Proxy"/>
 				<x path="Class"><d/></x>
@@ -19556,7 +19633,7 @@
 			<haxe_doc>* Checks if proxy object is already mapped.
 	 *</haxe_doc>
 		</isMapped>
-		<scopeUnmap public="1" set="method" line="259">
+		<scopeUnmap public="1" set="method" line="269">
 			<f a="scopeName:injectClass:?name">
 				<c path="String"/>
 				<x path="Class"><d/></x>
@@ -19569,7 +19646,7 @@
 	 * 
 	 *</haxe_doc>
 		</scopeUnmap>
-		<scopeMap public="1" set="method" line="224">
+		<scopeMap public="1" set="method" line="233">
 			<f a="scopeName:proxyObject:?injectClass:?name">
 				<c path="String"/>
 				<c path="mvcexpress.mvc.Proxy"/>
@@ -19580,7 +19657,7 @@
 			<haxe_doc>* Maps proxy object to the scape with injectClass and name.
 	 *</haxe_doc>
 		</scopeMap>
-		<getProxy public="1" set="method" line="200">
+		<getProxy public="1" set="method" line="209">
 			<f a="injectClass:?name">
 				<x path="Class"><d/></x>
 				<c path="String"/>
@@ -19673,7 +19750,7 @@
 			<x path="Class"><d/></x>
 			<haxe_doc>* private class to store lazy proxy data.</haxe_doc>
 		</proxyClass>
-		<new public="1" set="method" line="662"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="692"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="mvcexpress.core.inject.InjectRuleVO" params="" file="mvcexpress/core/inject/InjectRuleVO.hx">
 		<toString public="1" set="method" line="19"><f a=""><c path="String"/></f></toString>
@@ -20359,10 +20436,17 @@
 	<x path="Class"><d/></x>
 </x></stringRegistry>
 	</class>
-	<class path="mvcexpress.utils.RttiHelper" params="" file="mvcexpress/utils/RttiHelper.hx"><getMetaFields public="1" set="method" line="8" static="1"><f a="type">
+	<class path="mvcexpress.utils.RttiHelper" params="" file="mvcexpress/utils/RttiHelper.hx">
+		<getMetaFields public="1" set="method" line="9" static="1"><f a="type">
 	<x path="Class"><d/></x>
 	<c path="Array"><d/></c>
-</f></getMetaFields></class>
+</f></getMetaFields>
+		<getFunctionFields public="1" set="method" line="59" static="1"><f a="type:funcName">
+	<x path="Class"><d/></x>
+	<c path="String"/>
+	<c path="Array"><d/></c>
+</f></getFunctionFields>
+	</class>
 	<class path="nme.AssetData" params="" file="bin/flash/haxe/nme/AssetData.hx">
 		<className public="1" line="10" static="1"><x path="Map">
 	<c path="String"/>
@@ -20564,7 +20648,7 @@
 		<mediatorMap><c path="mvcexpress.core.MediatorMap"/></mediatorMap>
 		<proxyMap><c path="mvcexpress.core.ProxyMap"/></proxyMap>
 		<messenger><c path="mvcexpress.core.messenger.Messenger"/></messenger>
-		<new public="1" set="method" line="36"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="37"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.commandmap.commands.ExtendedSuperParamCommand" params="" file="test/suites/commandmap/commands/ExtendedSuperParamCommand.hx">
 		<extends path="mvcexpress.mvc.Command"/>
@@ -20615,13 +20699,13 @@
 	</class>
 	<class path="suites.commandmap.commands.TestCommand1" params="" file="test/suites/commandmap/commands/TestCommand1.hx">
 		<extends path="mvcexpress.mvc.Command"/>
-		<__rtti public="1" line="10" static="1"><c path="String"/></__rtti>
-		<TEST_FUNCTION public="1" line="12" static="1"><d/></TEST_FUNCTION>
-		<execute public="1" set="method" line="16"><f a="params">
+		<__rtti public="1" line="11" static="1"><c path="String"/></__rtti>
+		<TEST_FUNCTION public="1" line="13" static="1"><d/></TEST_FUNCTION>
+		<execute public="1" set="method" line="17"><f a="params">
 	<d/>
 	<x path="Void"/>
 </f></execute>
-		<new public="1" set="method" line="10"><f a=""><x path="Void"/></f></new>
+		<new public="1" set="method" line="11"><f a=""><x path="Void"/></f></new>
 	</class>
 	<class path="suites.commandmap.commands.TestCommand2" params="" file="test/suites/commandmap/commands/TestCommand2.hx">
 		<extends path="mvcexpress.mvc.Command"/>

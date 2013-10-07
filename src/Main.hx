@@ -30,27 +30,26 @@ class Main
 	{
 		
 		MvcExpress.debugFunction  = haxe.Log.trace;
-	//	MvcExpress.loggerFunction = haxe.Log.trace;
 		
 		//new GeneralTests();		// OK
 		//new ModuleInitTests();	// OK
 		//new UtilsTests();			// OK
 		//new MessengerTests();		// OK no errors .. maybe ok?? >> My Async Test are too bad
 		//new ModularTests(); 		// OK
-		//new OldProxyMapTests(); 	// XXX >> TODO : unmap not work
-		//new ProxyMapTests();  	// XXX >> TODO : inject by Constant name
+		//new OldProxyMapTests(); 	// seems to be OK
+		//new ProxyMapTests();  	// OK
 		//new NamedInterfacedProxyMapTests(); // OK 
-		//new LazyProxyTests();		// XXX : TODO : lazyProxy_lazyMapingNotProxy_fails should fail... many params supported
+		//new LazyProxyTests();		// OK
 		//new MediatorTests();		// OK
 		//new MediatorMapTests(); 	// OK	
-		//new MediatingTests();		// XXX : Many many errors TODO : 2 Module.. umnediate nok...
-		//new CommandMapTests();	// XXX : cast problem /// check for parameters type... good luck
-		//new CommandPoolingTests();// XXX : cast problem /// check for parameters type... good luck
+		//new MediatingTests();		// OK
+		//new CommandMapTests();	// OK
+		//new CommandPoolingTests();// XXX : TODO : Command create twice - see further dependency
 		
-		new ChannelingTests();		// XXX >> TODO : unmediate problem not work
-		new FeatureGetProxyTests();	// XXX >> TODO : 
-		new ScopedProxyTests();		// XXX >> TODO : 
-		new ScopeControlTests();	// XXX >> TODO : 
+		//new ChannelingTests();		// OK
+		//new FeatureGetProxyTests();	// OK
+		//new ScopedProxyTests();		// XXX >> TODO : 
+		//new ScopeControlTests();		// OK
 		
 		
 	}

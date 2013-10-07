@@ -19,7 +19,7 @@ class ProxyMapTests  extends Tester  {
 	
 	public function new ()
 	{
-		super();
+		super( true );
 		testFunction("proxyMap_injectIntoProxyConstNamedVariable_injectedOk");
 		testFunction("proxyMap_injectIntoMediatorConstNamedVariable_injectedOk");
 		testFunction("proxyMap_injectIntoCommandConstNamedVariable_injectedOk");

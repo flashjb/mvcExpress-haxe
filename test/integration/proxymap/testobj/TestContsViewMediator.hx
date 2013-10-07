@@ -12,7 +12,7 @@ class TestContsViewMediator extends Mediator {
 	@inject
 	public var view : TestContsView;
 	
-	@inject({constName:"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"})
+	@inject({constName:"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"})
 	public var genericTestProxy : GenericTestProxy;
 	
 	

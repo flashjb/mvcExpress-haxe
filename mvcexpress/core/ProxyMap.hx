@@ -103,11 +103,11 @@ class ProxyMap implements IProxyMap
 			initProxy(proxyObject, proxyClass, injectId);
 		}
 		
-		if( Reflect.hasField(pendingInjectionsRegistry, injectId) )  {
+		if( pendingInjectionsRegistry.exists(injectId) )  {
 			injectPendingStuff(injectId, proxyObject);
 		}
 		
-		//trace( "can map :"+injectId+"--" + injectObjectRegistry.exists(injectId) ) ;
+	//	trace( "can map :"+injectId+"--" + !injectObjectRegistry.exists(injectId), proxyObject ) ;
 		if( !injectObjectRegistry.exists(injectId) )  {
 			// store proxy injection for other classes.
 			injectObjectRegistry.set(injectId, proxyObject);
@@ -177,6 +177,15 @@ class ProxyMap implements IProxyMap
 		if( injectObjectRegistry.exists(injectId) )  {
 			throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		}
+		
+		//debug this action
+		#if debug
+			if (!MvcExpressTools.checkClassSuperClass(proxyClass, Proxy)) {
+				throw ("proxyClass:" + proxyClass + " you are trying to lazy map is not extended from 'org.mvcexpress.mvc::Proxy' class.");
+			}
+			MvcExpress.debug(new TraceProxyMap_lazyMap(moduleName, proxyClass, injectClass, name, proxyParams));
+		#end
+		
 		var lazyInject : LazyProxyData = new LazyProxyData();
 			lazyInject.proxyClass  = proxyClass;
 			lazyInject.injectClass = injectClass;
@@ -248,6 +257,7 @@ class ProxyMap implements IProxyMap
 		}
 		ModuleManager.scopeMap(moduleName, scopeName, proxyObject, injectClass, name);
 	}
+
 
 	/**
 	 * Removes proxy mapped to scope with injectClass and name.
@@ -381,11 +391,10 @@ class ProxyMap implements IProxyMap
 					qualifiedClassNameRegistry.set(tempClass, tempClassName);
 				}
 				
-			/*
-				#if debug
-					trace( "injectionClassName:", tempClassName, "already exists : ", injectObjectRegistry.exists(tempClassName) );
-				#end
-			*/
+			
+				//trace( "tempClassName:", tempClass, " className : ", Type.getClassName(tempClass) );
+				//trace( "injectionClassName:", tempClassName, "already exists : ", injectObjectRegistry.exists(tempClassName) );
+			
 				if(!injectObjectRegistry.exists(tempClassName))  {
 					injectObjectRegistry.set(tempClassName, tempValue);
 				} else  {
@@ -396,6 +405,7 @@ class ProxyMap implements IProxyMap
 			}
 		}
 		
+		// get class injection rules. (cashing is used.)
 		var rules : Array<InjectRuleVO> = classInjectRules.get(signatureClass);
 		if( rules == null )  {
 			////////////////////////////////////////////////////////////
@@ -409,10 +419,12 @@ class ProxyMap implements IProxyMap
 			//////////////////////////////////////////////////////////
 		}
 		
-		for ( rule  in rules )
+		var i :Int = 0;
+		var ruleCount:Int = rules.length;
+		//trace("num Rules : "+ruleCount);
+		for ( rule  in rules ) 
 		{
-			
-			
+			//trace("rule:"+rule);
 			var scopename : String = rule.scopeName;
 			var injectClassAndName : String = rule.injectClassAndName;
 			
@@ -420,6 +432,7 @@ class ProxyMap implements IProxyMap
 			 {
 				if(!ModuleManager.injectScopedProxy(object, rule))  
 				{
+					//trace(MvcExpress.pendingInjectsTimeOut, "//", object, "type:", Std.is(object, Command), MvcExpress.pendingInjectsTimeOut > 0 && !Std.is(object, Command));
 					if(MvcExpress.pendingInjectsTimeOut > 0 && !Std.is(object, Command))  
 					{
 						isAllInjected = false;
@@ -440,7 +453,6 @@ class ProxyMap implements IProxyMap
 			else  
 			{
 				var injectObject = injectObjectRegistry.get(injectClassAndName);
-			
 				if( injectObject != null ) 
 				{
 					Reflect.setField(object, rule.varName, injectObject);
@@ -462,13 +474,16 @@ class ProxyMap implements IProxyMap
 						var lazyProxy = Type.createInstance( lazyProxyData.proxyClass, lazyProxyData.proxyParams );
 
 						map(lazyProxy, lazyProxyData.injectClass, lazyProxyData.name);
+						
+						
+					//	i--;
+						
 					}
 					else  
 					{
 						// remember that not all injections exists
 						isAllInjected = false;
 						if(MvcExpress.pendingInjectsTimeOut > 0  && !Std.is(object, Command) ) 
-						//if( !Std.is(object, Command) ) 
 						{
 							//add injection to pending injections.
 							// debug this action
@@ -483,6 +498,7 @@ class ProxyMap implements IProxyMap
 						}
 					}
 				}
+				//++i;
 			}
 		}
 		////// handle command pooling (register dependencies)
@@ -512,7 +528,7 @@ class ProxyMap implements IProxyMap
 	 */
 	public function addPendingInjection(injectClassAndName : String, pendingInjection : PendingInject) : Void {
 		var pendingInjections : Array<PendingInject> = pendingInjectionsRegistry[injectClassAndName];
-		if( pendingInjections != null )  {
+		if( pendingInjections == null )  {
 			pendingInjections = new Array<PendingInject>();
 			pendingInjectionsRegistry[injectClassAndName] = pendingInjections;
 		}
@@ -597,15 +613,19 @@ class ProxyMap implements IProxyMap
 					var injectName : String = "";
 					var scopeName  : String = "";
 					
+					
 					if( args != null ) {
 						injectName = Reflect.hasField(args, "name")   ? Reflect.field(args, "name")  : Reflect.hasField(args, "constName")  ? getInjectByConstName(Reflect.field(args, "constName"))  : "";
 						scopeName  = Reflect.hasField(args, "scope")  ? Reflect.field(args, "scope") : Reflect.hasField(args, "constScope") ? getInjectByConstName(Reflect.field(args, "constScope")) : "";
 					}
-					
+					/*
+					trace(signatureClass+" >>> injectName:", injectName);
+					trace(signatureClass+" >>> scopeName:", scopeName);
+					*/
 					var mapRule : InjectRuleVO = new InjectRuleVO();
 						mapRule.varName   = name;
 						mapRule.injectClassAndName = type + injectName;
-						mapRule.scopeName = scopeName != "" ? scopeName : null;
+						mapRule.scopeName = (scopeName != "") ? scopeName : null;
 					retVal[retVal.length] = mapRule;
 				}
 			}
@@ -619,18 +639,28 @@ class ProxyMap implements IProxyMap
 		if( classConstRegistry[constName] == null )  
 		{
 			var split : Array<Dynamic> = constName.split(".");
+			var constPos : Int = split.length - 1;
 			var className : String = split[0];
-			var splitLength : Int = split.length - 1;
-			var spliteIndex : Int = 1;
-			while(spliteIndex < splitLength) {
+			for(spliteIndex in 1...constPos) {
 				className += "." + split[spliteIndex];
-				spliteIndex++;
 			}
-			try {
+			
+			
+			
+			try 
+			{
 				var constClass : Class<Dynamic> = Type.resolveClass(className);
-				classConstRegistry[constName] = Reflect.field(className, split[spliteIndex]);
-				if( classConstRegistry[constName] == null )  {
-					throw ("Failed to get constant out of class:" + constClass + " Check constant name: " + split[spliteIndex]);
+				var constants = Type.getClassFields(constClass);
+				for ( j in Type.getClassFields(constClass) ) 
+				{
+					if(  j == split[constPos] )
+					{
+						var value = Reflect.field(constClass, j);
+						classConstRegistry[constName] = value;
+					}
+				}
+				if( !classConstRegistry.exists(constName) )  {
+					throw ("Failed to get constant out of class:" + constClass + " Check constant name: " + split[constPos]);
 				}
 			}
 			catch ( msg : String ) {

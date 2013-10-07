@@ -8,7 +8,7 @@ import mvcexpress.mvc.Mediator;
 
 class GenericViewObjectMediator extends Mediator {
 
-	
+	@inject
 	public var view : GenericViewObject;
 	//[Inject]
 	//public var myProxy:MyProxy;

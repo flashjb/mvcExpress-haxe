@@ -11,10 +11,12 @@ import mvcexpress.mvc.Mediator;
 
 class ScopedProxyLocalInjectMediator extends Mediator {
 
-	
+	@inject
 	public var view : ScopedProxyLocalInjectView;
 	
+	@inject
 	public var myProxy : ScopedTestProxy;
+	
 	override public function onRegister() : Void {
 		trace("ScopedProxyInjectMediator.onRegister");
 		view.pushMediatorIn(this);

@@ -1,6 +1,7 @@
 package mvcexpress.utils;
 
 import haxe.rtti.Meta;
+import haxe.rtti.CType;
 
 class RttiHelper 
 {
@@ -55,6 +56,48 @@ class RttiHelper
 		return metalist;
 	}
 	
+	public static function getFunctionFields(type:Class<Dynamic>, funcName : String ) : Array<Dynamic>
+	{
+		var paramList = new Array<Dynamic>();
+		
+		var infos = null;
+		var allFields = Type.getClassFields(type);
+		for( i in allFields )
+		{
+			if( i == "__rtti" ){
+				infos = new haxe.rtti.XmlParser().processElement( Xml.parse(Reflect.field(type,i)).firstElement()  );
+			//	trace(infos);
+				if( infos != null) {
+					switch(infos)
+				    {
+				        case TClassdecl(cl):
+				            for (f in cl.fields)
+				            {
+				               if (f.name == funcName )
+				               {
+									var paramsAndReturn = cast f.type.getParameters();
+									for( i in Reflect.fields(paramsAndReturn))
+									{
+										if( Std.is(Reflect.field(paramsAndReturn, i), List ) )
+										{
+											var params : List<Dynamic> = Reflect.field(paramsAndReturn, i);
+											for( j in params){
+												var param : CType =  j.t;
+												paramList.push(param.getParameters()[0]);
+											}
+										}
+									}
+				               }
+				            }
+				        default:
+				    }
+				}
+				break;
+			}
+		}
+			
+		return paramList;
+	}
 	
 	/***************************
 	 *     PRIVATE METHODS

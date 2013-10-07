@@ -11,7 +11,7 @@ import mvcexpress.mvc.Mediator;
 
 class ChannelBMediator extends Mediator {
 
-	
+	@inject	
 	public var view : Sprite;
 	//[Inject]
 	//public var myProxy:MyProxy;

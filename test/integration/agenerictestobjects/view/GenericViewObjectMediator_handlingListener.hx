@@ -10,8 +10,9 @@ import mvcexpress.mvc.Mediator;
 
 class GenericViewObjectMediator_handlingListener extends Mediator {
 
-	
+	@inject
 	public var view : GenericViewObject;
+	
 	override public function onRegister() : Void {
 		addListener(view, ViewTestEvent.VIEW_TEST_BLANK, handlTestBlankEvent);
 		addListener(view, ViewTestEvent.VIEW_TEST_SENDS_MESSAGE, handlTestSendMessageEvent);

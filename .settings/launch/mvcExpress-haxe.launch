@@ -5,5 +5,5 @@
 <intAttribute key="PLAYER_HEIGHT" value="768"/>
 <intAttribute key="PLAYER_WIDTH" value="1024"/>
 <stringAttribute key="PROJECT_NAME" value="mvcExpress-haxe"/>
-<stringAttribute key="START_SWF_WITH" value="External SWF Viewer"/>
+<stringAttribute key="START_SWF_WITH" value="Browser"/>
 </launchConfiguration>

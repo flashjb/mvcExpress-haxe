@@ -9,8 +9,9 @@ import mvcexpress.mvc.Proxy;
 
 class ScopedProxyInjectProxy extends Proxy {
 
-	
+	@inject({scope:"proxyScope"})
 	public var myProxy : ScopedTestProxy;
+	
 	public function new() {
 		super();
 	}

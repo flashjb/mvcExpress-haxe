@@ -16,7 +16,7 @@ class ChannelingTests extends Tester {
 	
 	public function new() 
 	{
-		super();
+		super( false );
 		testFunction( "channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage" );
 		testFunction( "channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing" );
 		testFunction( "channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");
@@ -89,8 +89,8 @@ class ChannelingTests extends Tester {
 		channelModulA.addChannelHandler_test2();
 		channelModulB.sendChannelMessage_test2();
 		//
-		Assert.assertTrue("test1 handler must be true after addChannelHandler() and sendChannelMessage()", channelModulA.view.test2handled);
-		Assert.assertFalse(channelModulA.view.test1handled);
+		Assert.assertTrue("test2 handler must be true after addChannelHandler() and sendChannelMessage()", channelModulA.view.test2handled);
+		Assert.assertFalse("test1 handled must be false after addChannelHandler() and sendChannelMessage()", channelModulA.view.test1handled);
 	}
 
 	//[Ignore]
@@ -102,7 +102,7 @@ class ChannelingTests extends Tester {
 		Assert.assertFalse("test1 handler must be false", channelModulA.view.test1handled);
 		Assert.assertFalse("test2 handler must be false", channelModulA.view.test2handled);
 		Assert.assertFalse("test3 handler must be false", channelModulA.view.test3handled);
-		Assert.assertFalse("test3 handler must be false", channelModulA.view.test4handled);
+		Assert.assertFalse("test4 handler must be false", channelModulA.view.test4handled);
 		//
 		channelModulA.addChannelHandler_test1();
 		channelModulA.addChannelHandler_test2();
@@ -110,8 +110,8 @@ class ChannelingTests extends Tester {
 		channelModulB.sendChannelMessage_testChannel_test3();
 		//
 		Assert.assertTrue("test3 handler must be true after addChannelHandler() and sendChannelMessage()", channelModulA.view.test3handled);
-		Assert.assertFalse(channelModulA.view.test1handled);
-		Assert.assertFalse(channelModulA.view.test2handled);
+		Assert.assertFalse("test1 handler must be false after addChannelHandler() and sendChannelMessage()",channelModulA.view.test1handled);
+		Assert.assertFalse("test2 handler must be false after addChannelHandler() and sendChannelMessage()",channelModulA.view.test2handled);
 	}
 
 	//[Ignore]
@@ -133,9 +133,9 @@ class ChannelingTests extends Tester {
 		//
 		Assert.assertEquals("params must be sent properly", channelModulA.view.test4params, "test4 params string");
 		Assert.assertTrue("test4 handler must be true after addChannelHandler() and sendChannelMessage()", channelModulA.view.test4handled);
-		Assert.assertFalse(channelModulA.view.test1handled);
-		Assert.assertFalse(channelModulA.view.test2handled);
-		Assert.assertFalse(channelModulA.view.test3handled);
+		Assert.assertFalse("test1 handler must be false after addChannelHandler() and sendChannelMessage()",channelModulA.view.test1handled);
+		Assert.assertFalse("test2 handler must be false after addChannelHandler() and sendChannelMessage()",channelModulA.view.test2handled);
+		Assert.assertFalse("test3 handler must be false after addChannelHandler() and sendChannelMessage()",channelModulA.view.test3handled);
 	}
 	
 	public function channeling_messegeToCommandChanneling_addChannelCommand_commandsHandlesMessage() : Void {

@@ -13,9 +13,9 @@ import utils.AsyncUtil;
 
 class ScopedProxyTests extends Tester
 {
-
 	static public var SCOPED_PROXY_MESSAGE_NAME : String = "scopedProxyMessageName";
 	static public var SCOPED_PROXY_SCOPE_NAME : String = "proxyScope";
+	
 	var scopedProxyModuleA : ScopedProxyModuleA;
 	var scopedProxyModuleB : ScopedProxyModuleB;
 	var scopedTestProxy : ScopedTestProxy;
@@ -23,15 +23,16 @@ class ScopedProxyTests extends Tester
 	
 	public function new() : Void 
 	{
-		super();
+		super( );
 		testFunction("scopedProxy_hostAndInjectHostedToMediator_injectOk");
 		testFunction("scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk");
 		testFunction("scopedProxy_hostAndInjectHostedToProxy_injectOk");
 		testFunction("scopedProxy_unmapScopedProxyTwice_ok");
 	
-		testFunction("scopedProxy_injectPendingProxyToCommandThenHost_injectFails");
+		testFunction("scopedProxy_injectPendingProxyToCommandThenHost_injectFails");//ok
 		testFunction("scopedProxy_injectPendingProxyToProxyThenHost_injectOk");
 		testFunction("scopedProxy_injectPendingProxyToMediatorThenHost_injectOk");
+		
 		testFunction("scopedProxy_hostAndInjectThenMessage_communicatinOk");
 		testFunction("scopedProxy_HostAndMapThenMessageLocaly_communicatinOk");
 		testFunction("scopedProxy_MapAndHostThenMessageLocaly_communicatinOk");
@@ -62,7 +63,8 @@ class ScopedProxyTests extends Tester
 	//	[Test(async)]
 	public function scopedProxy_hostAndInjectHostedToMediator_injectOk() : Void {
 		scopedTestProxy = new ScopedTestProxy();
-		ScopedProxyModuleB.TEST_FUNCTION = AsyncUtil.asyncHandler(this, checkMediator, null, 2000, failMediatorCheck);
+		//ScopedProxyModuleB.TEST_FUNCTION = AsyncUtil.asyncHandler(this, checkMediator, null, 2000, failMediatorCheck);
+		ScopedProxyModuleB.TEST_FUNCTION = checkMediator;
 		scopedProxyModuleA.hostTestProxy(scopedTestProxy);
 		scopedProxyModuleB.createMediatorWithItject();
 	}
@@ -88,7 +90,8 @@ class ScopedProxyTests extends Tester
 	//	[Test(async)]
 	public function scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk() : Void {
 		scopedTestProxy = new ScopedTestProxy();
-		ScopedProxyModuleB.TEST_FUNCTION = AsyncUtil.asyncHandler(this, checkMediator2, null, 2000, failMediatorCheck);
+		ScopedProxyModuleB.TEST_FUNCTION = checkMediator2;
+	//	ScopedProxyModuleB.TEST_FUNCTION = AsyncUtil.asyncHandler(this, checkMediator2, null, 2000, failMediatorCheck);
 		scopedProxyModuleA.hostTestProxy(scopedTestProxy);
 		scopedProxyModuleA.disposeModule();
 		scopedProxyModuleB.disposeModule();

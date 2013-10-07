@@ -16,7 +16,7 @@ class MediatingTests  extends Tester {
 	
 	public function new ()
 	{
-		super();
+		super( );
 		testFunction("mediating_mediateWrongClass_fails");
 		testFunction("mediating_mediateWithWrongClass_fails");
 		testFunction("mediating_mediatingAsInterface_ok");

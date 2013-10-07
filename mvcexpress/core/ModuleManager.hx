@@ -38,7 +38,7 @@ class ModuleManager
 	/* all proxies maped to scope */
 	static var scopedProxiesByScope : Map<String, Map<String, ScopedProxyData>> = new Map();
 	/* of Dictionary(of ProxyMap by Proxy) by String{moduleName} */
-	static var needMetadataTest : Bool = true;
+	static var needMetadataTest : Bool = false;
 	/* all module permision datas by modleName and scopeName */
 	static var scopePermissionsRegistry : Map<String, Map<String, ScopePermissionData>>  = new Map();
 	/* of Dictionary (of ScopePermissionData by scopeName String) by String{moduleName}  */
@@ -112,7 +112,7 @@ class ModuleManager
 		if( moduleRegistry.exists(moduleName) )  
 		{
 			// remove scoped proxies from this module
-			var scopiedProxies : Map<String, ScopedProxyData> = scopedProxiesByScope[moduleName];
+			var scopiedProxies = scopedProxiesByScope[moduleName];
 			if( scopiedProxies != null )  {
 				// remove scoped proxies.
 				for( scopedProxyData in scopiedProxies )
@@ -155,7 +155,7 @@ class ModuleManager
 			if( scopePermissionsRegistry[moduleName] != null )  {
 				scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 			}
-			if( scopePermission != null || !scopePermission.messageSending)  {
+			if( scopePermission == null || !scopePermission.messageSending)  {
 				throw ("Module with name:" + moduleName + " has no permition to send messages to scope:" + scopeName + ". Please use: registerScopeTest() function.");
 			}
 		}
@@ -172,7 +172,7 @@ class ModuleManager
 		if( scopePermissionsRegistry[moduleName]  != null ) {
 			scopePermission = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if( scopePermission != null || !scopePermission.messageReceiving)  {
+		if( scopePermission == null || !scopePermission.messageReceiving )  {
 			throw ("Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
@@ -208,7 +208,7 @@ class ModuleManager
 		if( scopePermissionsRegistry[moduleName]  != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if( scopePermission  != null || !scopePermission.messageReceiving)  {
+		if( scopePermission == null || !scopePermission.messageReceiving)  {
 			throw ("Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
@@ -234,13 +234,16 @@ class ModuleManager
 	 * 
 	 * 
 	 */
-	static public function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void {
+	static public function scopeMap(moduleName : String, scopeName : String, proxyObject : Proxy, injectClass : Class<Dynamic>, name : String) : Void 
+	{
 		// get permission object
 		var scopePermission : ScopePermissionData = null;
 		if( scopePermissionsRegistry[moduleName] != null )  {
 			scopePermission  = scopePermissionsRegistry[moduleName][scopeName];
 		}
-		if( scopePermission != null || !scopePermission.proxieMapping)  {
+		
+		
+		if( scopePermission == null || !scopePermission.proxieMapping )  {
 			throw ("Module with name:" + moduleName + " has no permition to map proxies to scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
 	//	use namespace pureLegsCore;
@@ -289,20 +292,17 @@ class ModuleManager
 			var injectId : String = scopedProxyMap.unmap(injectClass, name);
 			// remove scope from proxy, so it would stop sending scoped messages.
 			//use namespace pureLegsCore;
-			if( scopedProxiesByScope[moduleName]  == null )  {
-				if( scopedProxiesByScope[moduleName][injectId] != null )  {
-					scopedProxiesByScope[moduleName][injectId].scopedProxy.removeScope(scopeName);
+			if( scopedProxiesByScope.get(moduleName)  == null )  {
+				if( scopedProxiesByScope.get(moduleName).get(injectId) != null )  {
+					scopedProxiesByScope.get(moduleName).get(injectId).scopedProxy.removeScope(scopeName);
 				}
 			}
-			scopedProxiesByScope[moduleName][injectId] = null;
+			scopedProxiesByScope.get(moduleName).remove(injectId) ;
 		}
 	}
 
 	/**
 	 * Inject Scoped proxy.
-	 * 
-	 * 
-	 * 
 	 * 
 	 */
 	static public function injectScopedProxy(recipientObject : Dynamic, injectRule : InjectRuleVO) : Bool 

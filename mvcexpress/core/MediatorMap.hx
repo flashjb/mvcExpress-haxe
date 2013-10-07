@@ -147,10 +147,11 @@ class MediatorMap implements IMediatorMap {
 			
 			var isAllInjected : Bool = proxyMap.injectStuff(mediator, mediatorClass, viewObject, injectClass);
 			mediatorRegistry.set(viewObject, mediator);
-			
+
 			if(isAllInjected)  {
 				mediator.register();
 			}
+			
 		} else {
 			throw "View object" + viewObject + " class is not mapped with any mediator class. use mediatorMap.map()";
 		}
@@ -205,10 +206,10 @@ class MediatorMap implements IMediatorMap {
 		#end
 		
 		// get object mediator
-		if( mediatorRegistry.get(viewObject) != null ) {
-			var mediator : Mediator = mediatorRegistry.get(viewObject);
-				mediator.remove();
-				mediatorRegistry.remove(viewObject);
+		var mediator : Mediator = mediatorRegistry.get(viewObject);
+		if( mediator != null ) {
+			mediator.remove();
+			mediatorRegistry.remove(viewObject);
 		} else {
 			throw "View object:" + viewObject + " has no mediator created for it.";
 		}
@@ -279,7 +280,7 @@ class MediatorMap implements IMediatorMap {
 	public function dispose() : Void 
 	{
 		// unmediate all mediated view objects
-		for( viewObject in mediatorRegistry ) {
+		for( viewObject in Reflect.fields(mediatorRegistry) ) {
 			unmediate( viewObject );
 		}
 

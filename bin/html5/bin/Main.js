@@ -84,10 +84,6 @@ ApplicationMain.preloader_onComplete = function(event) {
 }
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
-	new integration.scopedmessaging.ChannelingTests();
-	new suites.faturegetproxy.FeatureGetProxyTests();
-	new integration.scopedproxy.ScopedProxyTests();
-	new integration.scopecontrol.ScopeControlTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -1696,6 +1692,32 @@ Type.getClassFields = function(c) {
 	HxOverrides.remove(a,"__super__");
 	HxOverrides.remove(a,"prototype");
 	return a;
+}
+Type["typeof"] = function(v) {
+	var _g = typeof(v);
+	switch(_g) {
+	case "boolean":
+		return ValueType.TBool;
+	case "string":
+		return ValueType.TClass(String);
+	case "number":
+		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
+		return ValueType.TFloat;
+	case "object":
+		if(v == null) return ValueType.TNull;
+		var e = v.__enum__;
+		if(e != null) return ValueType.TEnum(e);
+		var c = v.__class__;
+		if(c != null) return ValueType.TClass(c);
+		return ValueType.TObject;
+	case "function":
+		if(v.__name__ || v.__ename__) return ValueType.TObject;
+		return ValueType.TFunction;
+	case "undefined":
+		return ValueType.TNull;
+	default:
+		return ValueType.TUnknown;
+	}
 }
 var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
 var Xml = function() {
@@ -8648,33 +8670,26 @@ mvcexpress.mvc.Mediator.prototype = {
 		this.onRegister();
 	}
 	,removeAllListeners: function() {
-		var eventTypes;
-		var _g = 0, _g1 = Reflect.fields(this.eventListenerCaptureRegistry);
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
-			eventTypes = this.eventListenerCaptureRegistry.h[listener.__id__];
-			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
-			while(_g2 < _g3.length) {
-				var type = _g3[_g2];
-				++_g2;
-				var viewObject = eventTypes.get(type);
-				viewObject.removeEventListener(type,listener,true);
+		var $it0 = this.eventListenerCaptureRegistry.keys();
+		while( $it0.hasNext() ) {
+			var func = $it0.next();
+			var listener = this.eventListenerCaptureRegistry.h[func.__id__];
+			var $it1 = listener.keys();
+			while( $it1.hasNext() ) {
+				var type = $it1.next();
+				var viewObject = listener.get(type);
+				viewObject.removeEventListener(type,func,false);
 			}
 		}
-		var _g = 0, _g1 = Reflect.fields(this.eventListenerRegistry);
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			var listener = Reflect.field(this.eventListenerCaptureRegistry,l);
-			eventTypes = this.eventListenerRegistry.h[listener.__id__];
-			var _g2 = 0, _g3 = Reflect.fields(eventTypes);
-			while(_g2 < _g3.length) {
-				var type = _g3[_g2];
-				++_g2;
-				var viewObject = eventTypes.get(type);
-				viewObject.removeEventListener(type,listener,false);
+		var $it2 = this.eventListenerRegistry.keys();
+		while( $it2.hasNext() ) {
+			var func = $it2.next();
+			var listener = this.eventListenerRegistry.h[func.__id__];
+			var $it3 = listener.keys();
+			while( $it3.hasNext() ) {
+				var type = $it3.next();
+				var viewObject = listener.get(type);
+				viewObject.removeEventListener(type,func,false);
 			}
 		}
 	}
@@ -8816,7 +8831,7 @@ integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.
 	onRemove: function() {
 	}
 	,onRegister: function() {
-		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject.hx", lineNumber : 17, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject", methodName : "onRegister"});
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject.hx", lineNumber : 19, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject", methodName : "onRegister"});
 	}
 	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject
 });
@@ -8830,11 +8845,11 @@ integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_
 	onRemove: function() {
 	}
 	,handleTestMessage: function(blank) {
-		haxe.Log.trace("GenericViewObjectMediator_withScopedInject_handlingScopeMessage.handleTestMessage > blank : " + Std.string(blank),{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 25, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "handleTestMessage"});
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject_handlingScopeMessage.handleTestMessage > blank : " + Std.string(blank),{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 27, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "handleTestMessage"});
 		this.genericTestProxy.testData = integration.agenerictestobjects.constants.GenericTestStrings.data1;
 	}
 	,onRegister: function() {
-		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 20, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "onRegister"});
+		haxe.Log.trace("GenericViewObjectMediator_withScopedInject.onRegister",{ fileName : "GenericViewObjectMediator_withScopedInject_handlingScopeMessage.hx", lineNumber : 22, className : "integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage", methodName : "onRegister"});
 		this.addScopeHandler(integration.agenerictestobjects.constants.GenericScopeIds.TEST_SCOPE,integration.agenerictestobjects.constants.GenericTestMessage.TEST_MESSAGE,$bind(this,this.handleTestMessage));
 	}
 	,__class__: integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage
@@ -9675,7 +9690,7 @@ integration.moduleinittests.testobj.InitTestModuleSprite.prototype = $extend(mvc
 });
 integration.proxymap = {}
 integration.proxymap.ProxyMapTests = function() {
-	Tester.call(this);
+	Tester.call(this,true);
 	this.testFunction("proxyMap_injectIntoProxyConstNamedVariable_injectedOk");
 	this.testFunction("proxyMap_injectIntoMediatorConstNamedVariable_injectedOk");
 	this.testFunction("proxyMap_injectIntoCommandConstNamedVariable_injectedOk");
@@ -9857,7 +9872,7 @@ integration.scopecontrol.ScopeControlTests.prototype = $extend(Tester.prototype,
 });
 integration.scopedmessaging = {}
 integration.scopedmessaging.ChannelingTests = function() {
-	Tester.call(this);
+	Tester.call(this,false);
 	this.testFunction("channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage");
 	this.testFunction("channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing");
 	this.testFunction("channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");
@@ -9897,9 +9912,9 @@ integration.scopedmessaging.ChannelingTests.prototype = $extend(Tester.prototype
 		this.channelModulB.sendChannelMessage_testChannel_test4_withParams();
 		utils.Assert.assertEquals("params must be sent properly",this.channelModulA.view.test4params,"test4 params string");
 		utils.Assert.assertTrue("test4 handler must be true after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test4handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test1handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test2handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test3handled);
+		utils.Assert.assertFalse("test1 handler must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test1handled);
+		utils.Assert.assertFalse("test2 handler must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test2handled);
+		utils.Assert.assertFalse("test3 handler must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test3handled);
 	}
 	,channeling_moduleToModuleChanneling_add2ChannelHandler_sendsMessage: function() {
 		this.channelModulA.cheateTestMediator();
@@ -9907,14 +9922,14 @@ integration.scopedmessaging.ChannelingTests.prototype = $extend(Tester.prototype
 		utils.Assert.assertFalse("test1 handler must be false",this.channelModulA.view.test1handled);
 		utils.Assert.assertFalse("test2 handler must be false",this.channelModulA.view.test2handled);
 		utils.Assert.assertFalse("test3 handler must be false",this.channelModulA.view.test3handled);
-		utils.Assert.assertFalse("test3 handler must be false",this.channelModulA.view.test4handled);
+		utils.Assert.assertFalse("test4 handler must be false",this.channelModulA.view.test4handled);
 		this.channelModulA.addChannelHandler_test1();
 		this.channelModulA.addChannelHandler_test2();
 		this.channelModulA.addChannelHandler_testChannel_test3();
 		this.channelModulB.sendChannelMessage_testChannel_test3();
 		utils.Assert.assertTrue("test3 handler must be true after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test3handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test1handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test2handled);
+		utils.Assert.assertFalse("test1 handler must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test1handled);
+		utils.Assert.assertFalse("test2 handler must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test2handled);
 	}
 	,channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage: function() {
 		this.channelModulA.cheateTestMediator();
@@ -9926,8 +9941,8 @@ integration.scopedmessaging.ChannelingTests.prototype = $extend(Tester.prototype
 		this.channelModulA.addChannelHandler_test1();
 		this.channelModulA.addChannelHandler_test2();
 		this.channelModulB.sendChannelMessage_test2();
-		utils.Assert.assertTrue("test1 handler must be true after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test2handled);
-		utils.Assert.assertFalse(null,this.channelModulA.view.test1handled);
+		utils.Assert.assertTrue("test2 handler must be true after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test2handled);
+		utils.Assert.assertFalse("test1 handled must be false after addChannelHandler() and sendChannelMessage()",this.channelModulA.view.test1handled);
 	}
 	,channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing: function() {
 		this.channelModulA.cheateTestMediator();
@@ -10273,7 +10288,7 @@ integration.scopedproxy.ScopedProxyTests.prototype = $extend(Tester.prototype,{
 	}
 	,scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk: function() {
 		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
-		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = utils.AsyncUtil.asyncHandler(this,$bind(this,this.checkMediator2),null,2000,$bind(this,this.failMediatorCheck));
+		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = $bind(this,this.checkMediator2);
 		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
 		this.scopedProxyModuleA.disposeModule();
 		this.scopedProxyModuleB.disposeModule();
@@ -10292,7 +10307,7 @@ integration.scopedproxy.ScopedProxyTests.prototype = $extend(Tester.prototype,{
 	}
 	,scopedProxy_hostAndInjectHostedToMediator_injectOk: function() {
 		this.scopedTestProxy = new integration.scopedproxy.testobj.modulea.ScopedTestProxy();
-		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = utils.AsyncUtil.asyncHandler(this,$bind(this,this.checkMediator),null,2000,$bind(this,this.failMediatorCheck));
+		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION = $bind(this,this.checkMediator);
 		this.scopedProxyModuleA.hostTestProxy(this.scopedTestProxy);
 		this.scopedProxyModuleB.createMediatorWithItject();
 	}
@@ -10323,11 +10338,11 @@ integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.prototype
 	,onRemove: function() {
 	}
 	,handleScopedMessage: function(testdata) {
-		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 26, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "handleScopedMessage"});
+		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 28, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "handleScopedMessage"});
 		this.myProxy.storedData = testdata;
 	}
 	,onRegister: function() {
-		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 19, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "onRegister"});
+		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyLocalInjectMediator.hx", lineNumber : 21, className : "integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator", methodName : "onRegister"});
 		this.view.pushMediatorIn(this);
 		this.addHandler(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME,$bind(this,this.handleScopedMessage));
 	}
@@ -10423,12 +10438,12 @@ integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.prototype = $e
 	,onRemove: function() {
 	}
 	,handleScopedMessage: function(testdata) {
-		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 26, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "handleScopedMessage"});
+		haxe.Log.trace("ScopedProxyInjectMediator.handleScopedMessage > testdata : " + testdata,{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 29, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "handleScopedMessage"});
 		this.myProxy.storedData = testdata;
 		this.view.testData = testdata;
 	}
 	,onRegister: function() {
-		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 19, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "onRegister"});
+		haxe.Log.trace("ScopedProxyInjectMediator.onRegister",{ fileName : "ScopedProxyInjectMediator.hx", lineNumber : 22, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator", methodName : "onRegister"});
 		this.view.pushMediatorIn(this);
 		integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.TEST_FUNCTION(null);
 		this.addScopeHandler(integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME,integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME,$bind(this,this.handleScopedMessage));
@@ -10445,7 +10460,7 @@ integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.prototype = $exte
 	onRemove: function() {
 	}
 	,onRegister: function() {
-		haxe.Log.trace("ScopedProxyInjectProxy.onRegister",{ fileName : "ScopedProxyInjectProxy.hx", lineNumber : 23, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy", methodName : "onRegister"});
+		haxe.Log.trace("ScopedProxyInjectProxy.onRegister",{ fileName : "ScopedProxyInjectProxy.hx", lineNumber : 24, className : "integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy", methodName : "onRegister"});
 	}
 	,storeTestData: function(testData) {
 		this.myProxy.storedData = testData;
@@ -10679,17 +10694,30 @@ mvcexpress.core.CommandMap.prototype = {
 	,validateCommandParams: function(commandClass,params) {
 		this.validateCommandClass(commandClass);
 		if(params) {
-			var paramClass = Type.getClass(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]);
-			if(!js.Boot.__instanceof(params,paramClass)) throw "Class " + Std.string(commandClass) + " expects " + Std.string(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]) + ". But you are sending :" + Std.string(Type.resolveClass(params));
+			var testCommandClassIsOk = false;
+			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) testCommandClassIsOk = true; else {
+				var paramClass = Type.resolveClass(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]);
+				testCommandClassIsOk = js.Boot.__instanceof(params,paramClass);
+			}
+			if(!testCommandClassIsOk) throw "Class " + Std.string(commandClass) + " expects " + Std.string(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]) + ". But you are sending :" + Std.string(Type["typeof"](params));
 		}
 	}
 	,validateCommandClass: function(commandClass) {
 		if(mvcexpress.core.CommandMap.validatedCommands.h[commandClass.__id__] != true) {
 			if(js.Boot.__instanceof(Type.getSuperClass(commandClass),mvcexpress.mvc.Command)) throw "commandClass:" + Std.string(commandClass) + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.";
 			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) {
-				var parameterCount;
-				var hasExecute = Reflect.hasField(Type.createEmptyInstance(commandClass),"execute");
+				var parameterCount = 0;
+				var obj = Type.createEmptyInstance(commandClass);
+				var dFunc = Reflect.field(obj,"execute");
+				var hasExecute = Reflect.hasField(obj,"execute");
+				var paramslist = mvcexpress.utils.RttiHelper.getFunctionFields(commandClass,"execute");
+				parameterCount = paramslist.length;
+				if(parameterCount == 1) {
+					var p = paramslist[0] == null?Type.getClassName(Type.getClass(Dynamic)):paramslist[0];
+					mvcexpress.core.CommandMap.commandClassParamTypes.set(commandClass,p);
+				}
 				if(hasExecute) {
+					if(parameterCount != 1) throw "Command:" + Std.string(commandClass) + " function execute() must have single parameter, but it has " + parameterCount;
 				} else throw "Command:" + Std.string(commandClass) + " must have public execute() function with single parameter.";
 			}
 			mvcexpress.core.CommandMap.validatedCommands.set(commandClass,true);
@@ -10724,14 +10752,14 @@ mvcexpress.core.CommandMap.prototype = {
 						this.commandPools.set(commandClass,pooledCommands);
 					}
 					command.isExecuting = true;
-					Reflect.field(command,"execute").apply(command,[]);
+					Reflect.field(command,"execute").apply(command,[params]);
 					command.isExecuting = false;
 					if(!(js.Boot.__cast(command , mvcexpress.mvc.PooledCommand)).get_isLocked()) {
 						if(pooledCommands != null) pooledCommands[pooledCommands.length] = js.Boot.__cast(command , mvcexpress.mvc.PooledCommand);
 					}
 				} else {
 					command.isExecuting = true;
-					Reflect.field(command,"execute").apply(command,[]);
+					Reflect.field(command,"execute").apply(command,[params]);
 					command.isExecuting = false;
 				}
 				i++;
@@ -10852,7 +10880,7 @@ mvcexpress.core.CommandMap.prototype = {
 			}
 		} else {
 			command.isExecuting = true;
-			Reflect.field(command,"execute").apply(command,[]);
+			Reflect.field(command,"execute").apply(command,[params]);
 			command.isExecuting = false;
 		}
 	}
@@ -10874,7 +10902,7 @@ mvcexpress.core.CommandMap.prototype = {
 	,map: function(type,commandClass) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map(this.moduleName,type,commandClass));
 		this.validateCommandClass(commandClass);
-		if(!js.Boot.__cast(type , Bool) || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + Std.string(commandClass) + ")";
+		if(type == null || type == "" || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + Std.string(commandClass) + ")";
 		var messageClasses = this.classRegistry.get(type);
 		if(messageClasses == null) {
 			messageClasses = new Array();
@@ -10906,9 +10934,10 @@ mvcexpress.core.MediatorMap.__name__ = ["mvcexpress","core","MediatorMap"];
 mvcexpress.core.MediatorMap.__interfaces__ = [mvcexpress.core.interfaces.IMediatorMap];
 mvcexpress.core.MediatorMap.prototype = {
 	dispose: function() {
-		var $it0 = this.mediatorRegistry.iterator();
-		while( $it0.hasNext() ) {
-			var viewObject = $it0.next();
+		var _g = 0, _g1 = Reflect.fields(this.mediatorRegistry);
+		while(_g < _g1.length) {
+			var viewObject = _g1[_g];
+			++_g;
 			this.unmediate(viewObject);
 		}
 		this.proxyMap = null;
@@ -10943,8 +10972,8 @@ mvcexpress.core.MediatorMap.prototype = {
 	}
 	,unmediate: function(viewObject) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate(this.moduleName,viewObject));
-		if(this.mediatorRegistry.get(viewObject) != null) {
-			var mediator = this.mediatorRegistry.get(viewObject);
+		var mediator = this.mediatorRegistry.get(viewObject);
+		if(mediator != null) {
 			mediator.remove();
 			this.mediatorRegistry.remove(viewObject);
 		} else throw "View object:" + Std.string(viewObject) + " has no mediator created for it.";
@@ -11165,7 +11194,7 @@ mvcexpress.core.ModuleManager.sendScopeMessage = function(moduleName,scopeName,t
 	var scopePermission = null;
 	if(checkPermisions) {
 		if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) scopePermission = mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName);
-		if(scopePermission != null || !scopePermission.messageSending) throw "Module with name:" + moduleName + " has no permition to send messages to scope:" + scopeName + ". Please use: registerScopeTest() function.";
+		if(scopePermission == null || !scopePermission.messageSending) throw "Module with name:" + moduleName + " has no permition to send messages to scope:" + scopeName + ". Please use: registerScopeTest() function.";
 	}
 	var scopeMesanger = mvcexpress.core.ModuleManager.scopedMessengers.get(scopeName);
 	if(scopeMesanger != null) scopeMesanger.send(scopeName + "_^~_" + type,params);
@@ -11173,7 +11202,7 @@ mvcexpress.core.ModuleManager.sendScopeMessage = function(moduleName,scopeName,t
 mvcexpress.core.ModuleManager.addScopeHandler = function(moduleName,scopeName,type,handler) {
 	var scopePermission = null;
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) scopePermission = mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName);
-	if(scopePermission != null || !scopePermission.messageReceiving) throw "Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function.";
+	if(scopePermission == null || !scopePermission.messageReceiving) throw "Module with name:" + moduleName + " has no permition to receive messages from scope:" + scopeName + ". Please use: registerScopeTest() function.";
 	var scopeMesanger = mvcexpress.core.ModuleManager.scopedMessengers.get(scopeName);
 	if(scopeMesanger == null) {
 		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
@@ -11191,7 +11220,7 @@ mvcexpress.core.ModuleManager.removeScopeHandler = function(scopeName,type,handl
 mvcexpress.core.ModuleManager.scopedCommandMap = function(moduleName,handleCommandExecute,scopeName,type,commandClass) {
 	var scopePermission = null;
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) scopePermission = mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName);
-	if(scopePermission != null || !scopePermission.messageReceiving) throw "Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.";
+	if(scopePermission == null || !scopePermission.messageReceiving) throw "Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.";
 	var scopeMesanger = mvcexpress.core.ModuleManager.scopedMessengers.get(scopeName);
 	if(scopeMesanger != null) {
 		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
@@ -11205,7 +11234,7 @@ mvcexpress.core.ModuleManager.scopedCommandMap = function(moduleName,handleComma
 mvcexpress.core.ModuleManager.scopeMap = function(moduleName,scopeName,proxyObject,injectClass,name) {
 	var scopePermission = null;
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) scopePermission = mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName);
-	if(scopePermission != null || !scopePermission.proxieMapping) throw "Module with name:" + moduleName + " has no permition to map proxies to scope:" + scopeName + ". Please use: registerScopeTest() function.";
+	if(scopePermission == null || !scopePermission.proxieMapping) throw "Module with name:" + moduleName + " has no permition to map proxies to scope:" + scopeName + ". Please use: registerScopeTest() function.";
 	var scopedProxyMap = mvcexpress.core.ModuleManager.scopedProxyMaps.get(scopeName);
 	if(scopedProxyMap == null) {
 		mvcexpress.core.ModuleManager.initScopedProxyMap(scopeName);
@@ -11234,8 +11263,7 @@ mvcexpress.core.ModuleManager.scopeUnmap = function(moduleName,scopeName,injectC
 		if(mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName) == null) {
 			if(mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName).get(injectId) != null) mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName).get(injectId).scopedProxy.removeScope(scopeName);
 		}
-		mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName).set(injectId,null);
-		null;
+		mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName).remove(injectId);
 	}
 }
 mvcexpress.core.ModuleManager.injectScopedProxy = function(recipientObject,injectRule) {
@@ -11367,19 +11395,27 @@ mvcexpress.core.ProxyMap.prototype = {
 	,getInjectByConstName: function(constName) {
 		if(this.classConstRegistry.get(constName) == null) {
 			var split = constName.split(".");
+			var constPos = split.length - 1;
 			var className = split[0];
-			var splitLength = split.length - 1;
-			var spliteIndex = 1;
-			while(spliteIndex < splitLength) {
+			var _g = 1;
+			while(_g < constPos) {
+				var spliteIndex = _g++;
 				className += "." + split[spliteIndex];
-				spliteIndex++;
 			}
 			try {
 				var constClass = Type.resolveClass(className);
-				var v = Reflect.field(className,split[spliteIndex]);
-				this.classConstRegistry.set(constName,v);
-				v;
-				if(this.classConstRegistry.get(constName) == null) throw "Failed to get constant out of class:" + Std.string(constClass) + " Check constant name: " + split[spliteIndex];
+				var constants = Type.getClassFields(constClass);
+				var _g = 0, _g1 = Type.getClassFields(constClass);
+				while(_g < _g1.length) {
+					var j = _g1[_g];
+					++_g;
+					if(j == split[constPos]) {
+						var value = Reflect.field(constClass,j);
+						this.classConstRegistry.set(constName,value);
+						value;
+					}
+				}
+				if(!this.classConstRegistry.exists(constName)) throw "Failed to get constant out of class:" + Std.string(constClass) + " Check constant name: " + split[constPos];
 			} catch( msg ) {
 				if( js.Boot.__instanceof(msg,String) ) {
 					throw "Failed to get constant out of constName:" + constName + " Can't get class from definition : " + className;
@@ -11456,7 +11492,7 @@ mvcexpress.core.ProxyMap.prototype = {
 	}
 	,addPendingInjection: function(injectClassAndName,pendingInjection) {
 		var pendingInjections = this.pendingInjectionsRegistry.get(injectClassAndName);
-		if(pendingInjections != null) {
+		if(pendingInjections == null) {
 			pendingInjections = new Array();
 			this.pendingInjectionsRegistry.set(injectClassAndName,pendingInjections);
 			pendingInjections;
@@ -11481,6 +11517,8 @@ mvcexpress.core.ProxyMap.prototype = {
 			rules = this.getInjectRules(signatureClass);
 			mvcexpress.core.ProxyMap.classInjectRules.set(signatureClass,rules);
 		}
+		var i = 0;
+		var ruleCount = rules.length;
 		var _g = 0;
 		while(_g < rules.length) {
 			var rule = rules[_g];
@@ -11625,6 +11663,8 @@ mvcexpress.core.ProxyMap.prototype = {
 		var injectId = className + name;
 		if(this.lazyProxyRegistry.exists(injectId)) throw "Proxy class is already lazy mapped. [injectClass:" + className + " name:" + name + "]";
 		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
+		if(!mvcexpress.utils.MvcExpressTools.checkClassSuperClass(proxyClass,mvcexpress.mvc.Proxy)) throw "proxyClass:" + Std.string(proxyClass) + " you are trying to lazy map is not extended from 'org.mvcexpress.mvc::Proxy' class.";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap(this.moduleName,proxyClass,injectClass,name,proxyParams));
 		var lazyInject = new mvcexpress.core.LazyProxyData();
 		lazyInject.proxyClass = proxyClass;
 		lazyInject.injectClass = injectClass;
@@ -11673,7 +11713,7 @@ mvcexpress.core.ProxyMap.prototype = {
 		if(this.lazyProxyRegistry.exists(injectId)) throw "Proxy object is already lazy mapped. [injectClass:" + Std.string(injectClass) + " name:" + name + "]";
 		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		if(proxyObject.messenger == null) this.initProxy(proxyObject,proxyClass,injectId);
-		if(Reflect.hasField(this.pendingInjectionsRegistry,injectId)) this.injectPendingStuff(injectId,proxyObject);
+		if(this.pendingInjectionsRegistry.exists(injectId)) this.injectPendingStuff(injectId,proxyObject);
 		if(!this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) this.injectObjectRegistry.set(injectId,proxyObject); else throw "Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]";
 		return injectId;
 	}
@@ -12420,6 +12460,51 @@ mvcexpress.utils.RttiHelper.getMetaFields = function(type) {
 	}
 	return metalist;
 }
+mvcexpress.utils.RttiHelper.getFunctionFields = function(type,funcName) {
+	var paramList = new Array();
+	var infos = null;
+	var allFields = Type.getClassFields(type);
+	var _g = 0;
+	while(_g < allFields.length) {
+		var i = allFields[_g];
+		++_g;
+		if(i == "__rtti") {
+			infos = new haxe.rtti.XmlParser().processElement(Xml.parse(Reflect.field(type,i)).firstElement());
+			if(infos != null) {
+				var $e = (infos);
+				switch( $e[1] ) {
+				case 1:
+					var cl = $e[2];
+					var $it0 = cl.fields.iterator();
+					while( $it0.hasNext() ) {
+						var f = $it0.next();
+						if(f.name == funcName) {
+							var paramsAndReturn = f.type.slice(2);
+							var _g1 = 0, _g2 = Reflect.fields(paramsAndReturn);
+							while(_g1 < _g2.length) {
+								var i1 = _g2[_g1];
+								++_g1;
+								if(js.Boot.__instanceof(Reflect.field(paramsAndReturn,i1),List)) {
+									var params = Reflect.field(paramsAndReturn,i1);
+									var $it1 = params.iterator();
+									while( $it1.hasNext() ) {
+										var j = $it1.next();
+										var param = j.t;
+										paramList.push(param.slice(2)[0]);
+									}
+								}
+							}
+						}
+					}
+					break;
+				default:
+				}
+			}
+			break;
+		}
+	}
+	return paramList;
+}
 var openfl = {}
 openfl.display = {}
 openfl.display.Tilesheet = function(image) {
@@ -12462,7 +12547,6 @@ suites.commandmap = {}
 suites.commandmap.CommandMapTests = function() {
 	Tester.call(this);
 	this.testFunction("test_command_execute");
-	this.testFunction("test_command_execute");
 	this.testFunction("test_two_command_execute");
 	this.testFunction("test_two_add_one_remove_command_execute");
 	this.testFunction("test_cammandMap_command_execute");
@@ -12484,9 +12568,11 @@ suites.commandmap.CommandMapTests.__name__ = ["suites","commandmap","CommandMapT
 suites.commandmap.CommandMapTests.__super__ = Tester;
 suites.commandmap.CommandMapTests.prototype = $extend(Tester.prototype,{
 	callBackIncrease: function(obj) {
+		haxe.Log.trace("ControllerTests.callBackIncrease > obj : " + Std.string(obj),{ fileName : "CommandMapTests.hx", lineNumber : 216, className : "suites.commandmap.CommandMapTests", methodName : "callBackIncrease"});
 		this.callCaunter++;
 	}
 	,callBackCheck: function(obj) {
+		haxe.Log.trace("ControllerTests.callBackCheck > obj : " + Std.string(obj),{ fileName : "CommandMapTests.hx", lineNumber : 209, className : "suites.commandmap.CommandMapTests", methodName : "callBackCheck"});
 		if(this.callCaunter != this.callsExpected) utils.Assert.fail("Expected " + this.callsExpected + " calls, but " + this.callCaunter + " was received...");
 	}
 	,callBackSuccess: function(obj) {
@@ -14274,12 +14360,17 @@ mvcexpress.mvc.Command.__rtti = "<class path=\"mvcexpress.mvc.Command\" params=\
 integration.agenerictestobjects.controller.GenericCommand.__rtti = "<class path=\"integration.agenerictestobjects.controller.GenericCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"7\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"5\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 mvcexpress.mvc.Proxy.__rtti = "<class path=\"mvcexpress.mvc.Proxy\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<proxyMap>\n\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t<haxe_doc>* Interface to work with proxies.</haxe_doc>\n\t</proxyMap>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<proxyScopes><c path=\"Array\"><c path=\"String\"/></c></proxyScopes>\n\t<dependantCommands public=\"1\"><c path=\"haxe.ds.ObjectMap\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</c></dependantCommands>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<onRegister set=\"method\" line=\"52\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is mapped with proxyMap this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is unmapped with proxyMap this function is called.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"66\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if proxy is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"78\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"105\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<setProxyMap public=\"1\" set=\"method\" line=\"129\">\n\t\t<f a=\"iProxyMap\">\n\t\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* sets proxyMap interface.\n\t * \n\t *</haxe_doc>\n\t</setProxyMap>\n\t<register public=\"1\" set=\"method\" line=\"138\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"150\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as not ready and calls onRemove().\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</remove>\n\t<addScope public=\"1\" set=\"method\" line=\"164\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Add scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</addScope>\n\t<removeScope public=\"1\" set=\"method\" line=\"184\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Remove scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</removeScope>\n\t<registerDependantCommand public=\"1\" set=\"method\" line=\"198\"><f a=\"signatureClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></registerDependantCommand>\n\t<getDependantCommands public=\"1\" set=\"method\" line=\"203\"><f a=\"\"><x path=\"Map\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</x></f></getDependantCommands>\n\t<new public=\"1\" set=\"method\" line=\"41\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 integration.agenerictestobjects.model.GenericTestProxy.__rtti = "<class path=\"integration.agenerictestobjects.model.GenericTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<testData public=\"1\"><c path=\"String\"/></testData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendMessageTest public=\"1\" set=\"method\" line=\"23\"><f a=\"type:?params\">\n\t<c path=\"String\"/>\n\t<d/>\n\t<x path=\"Void\"/>\n</f></sendMessageTest>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"80\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"87\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"94\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"106\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"127\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"151\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"175\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"185\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"203\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"214\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"236\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"261\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"289\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"321\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"335\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
-integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handlTestBlankEvent set=\"method\" line=\"20\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestBlankEvent>\n\t<handlTestSendMessageEvent set=\"method\" line=\"23\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestSendMessageEvent>\n\t<onRemove public=\"1\" set=\"method\" line=\"27\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"14\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"18\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"19\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<genericTestProxy public=\"1\"><c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/></genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.agenerictestobjects.view.GenericViewObject\"/></view>\n\t<genericTestProxy public=\"1\"><c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/></genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"24\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"29\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"80\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"87\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"94\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"106\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"128\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"152\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"176\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"186\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"204\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"215\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"237\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"264\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"292\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"319\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"333\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__meta__ = { fields : { view : { inject : null}}};
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handlTestBlankEvent set=\"method\" line=\"21\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestBlankEvent>\n\t<handlTestSendMessageEvent set=\"method\" line=\"24\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestSendMessageEvent>\n\t<onRemove public=\"1\" set=\"method\" line=\"28\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__meta__ = { fields : { view : { inject : null}}};
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"15\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"19\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__meta__ = { fields : { view : { inject : null}}};
+integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"20\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"23\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__meta__ = { fields : { genericTestProxy : { inject : null}, view : { inject : null}}};
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__meta__ = { fields : { genericTestProxy : { inject : [{ scope : "GenericScopeIds_testScope"}]}, view : { inject : null}}};
+integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_withScopedInject_handlingScopeMessage\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{scope:\"GenericScopeIds_testScope\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleTestMessage set=\"method\" line=\"26\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_BLANK = "ViewTest_BLANK";
 integration.agenerictestobjects.view.event.ViewTestEvent.VIEW_TEST_SENDS_MESSAGE = "ViewTest_SENDS_MESSAGE";
 integration.commandpooling.CommandPoolingTests.EXECUTE_SIMPLE_POOLED_COMMAND = "executeSimplePooledCommand";
@@ -14317,32 +14408,43 @@ integration.lazyproxy.testobj.modulea.LazyProxy.__rtti = "<class path=\"integrat
 integration.lazyproxy.testobj.modulea.LazyProxy.instantiateCount = 0;
 integration.lazyproxy.testobj.modulea.LazyProxyModuleA.NAME = "LazyProxyModuleA";
 integration.mediating.testobj.MediatingModule.NAME = "MediatingModule";
-integration.mediating.testobj.view.MediatingInterfaceMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingInterfaceMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.mediating.testobj.view.viewobj.IMediatingIntefrace\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"13\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"7\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.mediating.testobj.view.MediatingSuperClassMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingSuperClassMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.mediating.testobj.view.viewobj.MediatingBaseView\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"12\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"6\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.mediating.testobj.view.MediatingInterfaceMediator.__meta__ = { fields : { view : { inject : null}}};
+integration.mediating.testobj.view.MediatingInterfaceMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingInterfaceMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.mediating.testobj.view.viewobj.IMediatingIntefrace\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"13\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"7\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.mediating.testobj.view.MediatingSuperClassMediator.__meta__ = { fields : { view : { inject : null}}};
+integration.mediating.testobj.view.MediatingSuperClassMediator.__rtti = "<class path=\"integration.mediating.testobj.view.MediatingSuperClassMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.mediating.testobj.view.viewobj.MediatingBaseView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"12\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"6\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.mediating.testobj.view.viewobj.MediatingBaseView.timesRegistered = 0;
 integration.moduleinittests.testobj.InitTestModuleCore.NAME = "InitTestModuleCore";
 integration.moduleinittests.testobj.InitTestModuleMovieClip.NAME = "InitTestModuleMovieClip";
 integration.moduleinittests.testobj.InitTestModuleSprite.NAME = "InitTestModuleSprite";
-integration.proxymap.testobj.CestConstCommand.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
-integration.proxymap.testobj.CestConstCommand.__rtti = "<class path=\"integration.proxymap.testobj.CestConstCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT = "testConstForProxyInject";
-integration.proxymap.testobj.TestContsViewMediator.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}, view : { inject : null}}};
-integration.proxymap.testobj.TestContsViewMediator.__rtti = "<class path=\"integration.proxymap.testobj.TestContsViewMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.proxymap.testobj.TestContsView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj::TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.proxymap.testobj.TexsWithConstNameInjectProxy.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxyMap.testObj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
-integration.proxymap.testobj.TexsWithConstNameInjectProxy.__rtti = "<class path=\"integration.proxymap.testobj.TexsWithConstNameInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxyMap.testObj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"23\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"16\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.scopedmessaging.testobj.modulea.ChannelAMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.modulea.ChannelAMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedmessaging.testobj.modulea.ChannelViewA\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<addChannelHandler1 set=\"method\" line=\"26\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler1>\n\t<addChannelHandler2 set=\"method\" line=\"30\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler2>\n\t<addChannelHandler3 set=\"method\" line=\"34\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler3>\n\t<addChannelHandler4 set=\"method\" line=\"38\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler4>\n\t<removeChannelHandler1 set=\"method\" line=\"42\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></removeChannelHandler1>\n\t<handleTest1Channelmessage set=\"method\" line=\"46\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest1Channelmessage>\n\t<handleTest2Channelmessage set=\"method\" line=\"51\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest2Channelmessage>\n\t<handleTest3Channelmessage set=\"method\" line=\"56\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest3Channelmessage>\n\t<handleTest4Channelmessage set=\"method\" line=\"61\"><f a=\"testParams\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTest4Channelmessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"67\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.proxymap.testobj.CestConstCommand.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
+integration.proxymap.testobj.CestConstCommand.__rtti = "<class path=\"integration.proxymap.testobj.CestConstCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT = "mygreattesttestConstForProxyInject";
+integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_AZAZAT = "mygreqsdqdattesttestConstForProxyInject";
+integration.proxymap.testobj.TestConstObject.AZA = "mygreattesttestConstForPrqsdqdqoxyInject";
+integration.proxymap.testobj.TestConstObject.dSD = "mygreattesttestConstFoddddrProxyInject";
+integration.proxymap.testobj.TestContsViewMediator.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}, view : { inject : null}}};
+integration.proxymap.testobj.TestContsViewMediator.__rtti = "<class path=\"integration.proxymap.testobj.TestContsViewMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.proxymap.testobj.TestContsView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__meta__ = { fields : { genericTestProxy : { inject : [{ constName : "integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT"}]}}};
+integration.proxymap.testobj.TexsWithConstNameInjectProxy.__rtti = "<class path=\"integration.proxymap.testobj.TexsWithConstNameInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<genericTestProxy public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.model.GenericTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{constName:\"integration.proxymap.testobj.TestConstObject.TEST_CONST_FOR_PROXY_INJECT\"}</e></m></meta>\n\t</genericTestProxy>\n\t<onRegister set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"24\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedmessaging.testobj.modulea.ChannelAMediator.__meta__ = { fields : { view : { inject : null}}};
+integration.scopedmessaging.testobj.modulea.ChannelAMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.modulea.ChannelAMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.scopedmessaging.testobj.modulea.ChannelViewA\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<addChannelHandler1 set=\"method\" line=\"26\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler1>\n\t<addChannelHandler2 set=\"method\" line=\"30\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler2>\n\t<addChannelHandler3 set=\"method\" line=\"34\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler3>\n\t<addChannelHandler4 set=\"method\" line=\"38\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addChannelHandler4>\n\t<removeChannelHandler1 set=\"method\" line=\"42\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></removeChannelHandler1>\n\t<handleTest1Channelmessage set=\"method\" line=\"46\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest1Channelmessage>\n\t<handleTest2Channelmessage set=\"method\" line=\"51\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest2Channelmessage>\n\t<handleTest3Channelmessage set=\"method\" line=\"56\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTest3Channelmessage>\n\t<handleTest4Channelmessage set=\"method\" line=\"61\"><f a=\"testParams\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTest4Channelmessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"67\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.modulea.ChannelModuleA.NAME = "ChannelModuleA";
 integration.scopedmessaging.testobj.modulea.ComTest1Command.__rtti = "<class path=\"integration.scopedmessaging.testobj.modulea.ComTest1Command\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"14\"><f a=\"moduleB\">\n\t<c path=\"integration.scopedmessaging.testobj.moduleb.ChannelModuleB\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.scopedmessaging.testobj.moduleb.ChannelBMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.moduleb.ChannelBMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"flash.display.Sprite\"/></view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<sendChannelMessage1 set=\"method\" line=\"25\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage1>\n\t<sendChannelMessage2 set=\"method\" line=\"29\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage2>\n\t<sendChannelMessage3 set=\"method\" line=\"33\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage3>\n\t<sendChannelMessage4 set=\"method\" line=\"37\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage4>\n\t<onRemove public=\"1\" set=\"method\" line=\"41\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedmessaging.testobj.moduleb.ChannelBMediator.__meta__ = { fields : { view : { inject : null}}};
+integration.scopedmessaging.testobj.moduleb.ChannelBMediator.__rtti = "<class path=\"integration.scopedmessaging.testobj.moduleb.ChannelBMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"flash.display.Sprite\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<sendChannelMessage1 set=\"method\" line=\"25\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage1>\n\t<sendChannelMessage2 set=\"method\" line=\"29\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage2>\n\t<sendChannelMessage3 set=\"method\" line=\"33\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage3>\n\t<sendChannelMessage4 set=\"method\" line=\"37\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></sendChannelMessage4>\n\t<onRemove public=\"1\" set=\"method\" line=\"41\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedmessaging.testobj.moduleb.ChannelModuleB.NAME = "ChannelModuleB";
 integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME = "scopedProxyMessageName";
 integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME = "proxyScope";
-integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView\"/></view>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"25\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"30\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"33\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__meta__ = { fields : { myProxy : { inject : null}, view : { inject : null}}};
+integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"27\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"32\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"35\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.NAME = "ScopedProxyModuleA";
 integration.scopedproxy.testobj.modulea.ScopedTestProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<storedData public=\"1\"><c path=\"String\"/></storedData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<trigerMessage public=\"1\" set=\"method\" line=\"23\"><f a=\"messagedata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></trigerMessage>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<execute public=\"1\" set=\"method\" line=\"14\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\"><c path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView\"/></view>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"18\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"25\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"34\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<myProxy public=\"1\"><c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/></myProxy>\n\t<storeTestData public=\"1\" set=\"method\" line=\"18\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></storeTestData>\n\t<onRegister set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"26\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__meta__ = { fields : { myProxy : { inject : [{ scope : "proxyScope"}]}}};
+integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{scope:\"proxyScope\"}</e></m></meta>\n\t</myProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__meta__ = { fields : { myProxy : { inject : [{ scope : "proxyScope"}]}, view : { inject : null}}};
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{scope:\"proxyScope\"}</e></m></meta>\n\t</myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"28\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"34\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"37\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__meta__ = { fields : { myProxy : { inject : [{ scope : "proxyScope"}]}}};
+integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxyInjectProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{scope:\"proxyScope\"}</e></m></meta>\n\t</myProxy>\n\t<storeTestData public=\"1\" set=\"method\" line=\"19\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></storeTestData>\n\t<onRegister set=\"method\" line=\"23\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"27\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"15\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedproxy.testobj.moduleb.ScopedProxyModuleB.NAME = "ScopedProxyModuleB";
 js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
@@ -14350,7 +14452,7 @@ mvcexpress.MvcExpress.WEBSITE_URL = "http://mvcexpress.org";
 mvcexpress.MvcExpress.NAME = "mvcExpress-haxe";
 mvcexpress.MvcExpress.MAJOR_VERSION = 0;
 mvcexpress.MvcExpress.MINOR_VERSION = 0;
-mvcexpress.MvcExpress.REVISION = 6;
+mvcexpress.MvcExpress.REVISION = 7;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.MvcExpress.debugFunction = null;
 mvcexpress.MvcExpress.loggerFunction = null;
@@ -14361,7 +14463,7 @@ mvcexpress.core.ModuleManager.allModules = new Array();
 mvcexpress.core.ModuleManager.scopedMessengers = new haxe.ds.StringMap();
 mvcexpress.core.ModuleManager.scopedProxyMaps = new haxe.ds.StringMap();
 mvcexpress.core.ModuleManager.scopedProxiesByScope = new haxe.ds.StringMap();
-mvcexpress.core.ModuleManager.needMetadataTest = true;
+mvcexpress.core.ModuleManager.needMetadataTest = false;
 mvcexpress.core.ModuleManager.scopePermissionsRegistry = new haxe.ds.StringMap();
 mvcexpress.core.ProxyMap.qualifiedClassNameRegistry = new haxe.ds.ObjectMap();
 mvcexpress.core.ProxyMap.classInjectRules = new haxe.ds.ObjectMap();
@@ -14430,7 +14532,7 @@ suites.commandmap.commands.NoExecuteCommand.__rtti = "<class path=\"suites.comma
 suites.commandmap.commands.NoParamsCommand.__rtti = "<class path=\"suites.commandmap.commands.NoParamsCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.commandmap.commands.SuperInterfaceParamCommand.__rtti = "<class path=\"suites.commandmap.commands.SuperInterfaceParamCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"11\"><f a=\"params\">\n\t<c path=\"suites.testobjects.ITestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.commandmap.commands.SuperParamCommand.__rtti = "<class path=\"suites.commandmap.commands.SuperParamCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"10\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"8\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-suites.commandmap.commands.TestCommand1.__rtti = "<class path=\"suites.commandmap.commands.TestCommand1\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<TEST_FUNCTION public=\"1\" line=\"12\" static=\"1\"><d/></TEST_FUNCTION>\n\t<execute public=\"1\" set=\"method\" line=\"16\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.commandmap.commands.TestCommand1.__rtti = "<class path=\"suites.commandmap.commands.TestCommand1\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<TEST_FUNCTION public=\"1\" line=\"13\" static=\"1\"><d/></TEST_FUNCTION>\n\t<execute public=\"1\" set=\"method\" line=\"17\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.commandmap.commands.TestCommand2.__rtti = "<class path=\"suites.commandmap.commands.TestCommand2\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<TEST_FUNCTION public=\"1\" line=\"11\" static=\"1\"><d/></TEST_FUNCTION>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.__rtti = "<class path=\"suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<TEST_MESSAGE_TYPE public=\"1\" line=\"11\" static=\"1\"><c path=\"String\"/></TEST_MESSAGE_TYPE>\n\t<REGISTER_TEST_FUNCTION public=\"1\" line=\"12\" static=\"1\"><d/></REGISTER_TEST_FUNCTION>\n\t<REMOVE_TEST_FUNCTION public=\"1\" line=\"15\" static=\"1\"><d/></REMOVE_TEST_FUNCTION>\n\t<CALLBACK_TEST_FUNCTION public=\"1\" line=\"18\" static=\"1\"><d/></CALLBACK_TEST_FUNCTION>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"26\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<handleTestCallBack set=\"method\" line=\"30\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestCallBack>\n\t<new public=\"1\" set=\"method\" line=\"9\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.mediatormap.medatormaptestobj.MediatorMapTestSpriteMediator.TEST_MESSAGE_TYPE = "mediatorMapTestType";

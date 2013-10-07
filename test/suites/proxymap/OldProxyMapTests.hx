@@ -20,9 +20,9 @@ class OldProxyMapTests extends Tester {
 	var callsExpected : Int;
 	
 	
-	public function new()
+	public function new(  )
 	{
-		super();
+		super( );
 		testFunction( "using_class_proxy" );// OK
 		testFunction( "using_class_proxy_twice_both_should_be_equal" );// OK
 		testFunction( "mapping_class_proxy_twice_throws_error" ); //>> Error sent // OK

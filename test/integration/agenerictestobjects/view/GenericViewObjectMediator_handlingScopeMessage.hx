@@ -10,8 +10,9 @@ import mvcexpress.mvc.Mediator;
 
 class GenericViewObjectMediator_handlingScopeMessage extends Mediator {
 
-	
+	@inject
 	public var view : GenericViewObject;
+	
 	override public function onRegister() : Void {
 		addScopeHandler(GenericScopeIds.TEST_SCOPE, GenericTestMessage.TEST_MESSAGE, handleTestMessage);
 	}

@@ -9,10 +9,12 @@ import mvcexpress.mvc.Mediator;
 
 class GenericViewObjectMediator_withInject extends Mediator {
 
-	
+	@inject
 	public var view : GenericViewObject;
 	
+	@inject
 	public var genericTestProxy : GenericTestProxy;
+	
 	override public function onRegister() : Void {
 	}
 

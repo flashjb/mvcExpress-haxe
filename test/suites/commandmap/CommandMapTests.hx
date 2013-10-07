@@ -22,6 +22,7 @@ import suites.commandmap.commands.TestCommand1;
 import suites.commandmap.commands.TestCommand2;
 import suites.testobjects.ExtendedTestObject;
 import utils.AsyncUtil;
+import mvcexpress.mvc.Command;
 
 class CommandMapTests  extends Tester {
 
@@ -35,9 +36,8 @@ class CommandMapTests  extends Tester {
 	
 	public function new ()
 	{
-		super();
+		super( );
 		
-		testFunction("test_command_execute");
 		testFunction("test_command_execute");
 		testFunction("test_two_command_execute");
 		testFunction("test_two_add_one_remove_command_execute");
@@ -206,14 +206,14 @@ class CommandMapTests  extends Tester {
 	//
 	//----------------------------------
 	function callBackCheck(obj : Dynamic = null) : Void {
-		//trace( "ControllerTests.callBackCheck > obj : " + obj );
+		trace( "ControllerTests.callBackCheck > obj : " + obj );
 		if(callCaunter != callsExpected)  {
 			Assert.fail("Expected " + callsExpected + " calls, but " + callCaunter + " was received...");
 		}
 	}
 
 	public function callBackIncrease(obj : Dynamic = null) : Void {
-		//trace( "ControllerTests.callBackIncrease > obj : " + obj );
+		trace( "ControllerTests.callBackIncrease > obj : " + obj );
 		callCaunter++;
 	}
 

@@ -110,6 +110,7 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 			MvcExpress.debug(new TraceMediator_sendMessage(moduleName, this, type, params, true));
 		#end
 		//
+
 		messenger.send(type, params);
 		//
 		// clean up logging the action
@@ -235,6 +236,7 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 	 */
 	function addListener(viewObject : IEventDispatcher, type : String, listener : Dynamic, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void 
 	{
+		
 		if(useCapture)  {
 			if(!eventListenerCaptureRegistry.exists(listener) )  {
 				eventListenerCaptureRegistry.set(listener, new Map());
@@ -247,6 +249,7 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 			if(!eventListenerRegistry.exists(listener))  {
 				eventListenerRegistry.set(listener, new Map());
 			}
+			
 			if(!eventListenerRegistry.get(listener).exists(type))  {
 				eventListenerRegistry.get(listener).set(type, viewObject);
 				viewObject.addEventListener(type, listener, useCapture, priority, useWeakReference);
@@ -288,27 +291,22 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 	 */
 	function removeAllListeners() : Void 
 	{
-		var eventTypes : Map<String, IEventDispatcher>;
-		for( l in Reflect.fields(eventListenerCaptureRegistry) ) 
+		for( func in eventListenerCaptureRegistry.keys()  ) 
 		{
-			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
-			eventTypes = eventListenerCaptureRegistry.get(listener);
-			for( type in Reflect.fields(eventTypes)) {
-				var viewObject : IEventDispatcher = eventTypes[type];
-					viewObject.removeEventListener(type, listener, true);
+			var listener = eventListenerCaptureRegistry.get(func);
+			for(type in listener.keys() ) {
+				var viewObject : IEventDispatcher = listener.get(type);
+					viewObject.removeEventListener(type, func, false);
 			}
 		}
-
-		for( l in Reflect.fields(eventListenerRegistry) ) 
+		for( func in eventListenerRegistry.keys()  ) 
 		{
-			var listener  = Reflect.field(eventListenerCaptureRegistry, l);
-			eventTypes = eventListenerRegistry.get(listener);
-			for(type in Reflect.fields(eventTypes)) {
-				var viewObject : IEventDispatcher = eventTypes[type];
-					viewObject.removeEventListener(type, listener, false);
+			var listener = eventListenerRegistry.get(func);
+			for(type in listener.keys() ) {
+				var viewObject : IEventDispatcher = listener.get(type);
+					viewObject.removeEventListener(type, func, false);
 			}
 		}
-
 	}
 
 	//----------------------------------

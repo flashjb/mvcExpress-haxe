@@ -9,8 +9,9 @@ import mvcexpress.mvc.Mediator;
 
 class GenericViewObjectMediator_handlingMessage extends Mediator {
 
-	
+	@inject
 	public var view : GenericViewObject;
+	
 	override public function onRegister() : Void {
 		addHandler(GenericTestMessage.TEST_MESSAGE, handleTestMessage);
 	}
