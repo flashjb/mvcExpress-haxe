@@ -456,7 +456,7 @@ class CommandMap
 			// skip alread validated classes.
 			if(validatedCommands.get(commandClass) != true)  
 			{
-				if( Std.is(Type.getSuperClass(commandClass), Command) )  
+				if( !MvcExpressTools.checkClassSuperClass(commandClass, Command) )  
 				{
 					throw ("commandClass:" + commandClass + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.");
 				}
@@ -470,7 +470,7 @@ class CommandMap
 						
 					var paramslist : Array<Dynamic> = RttiHelper.getMethodFields( commandClass, "execute" );
 					parameterCount =   paramslist.length;
-					trace("\n\n\n\nnpppppppppppppppp:"+paramslist);
+				//	trace("\n\n\n\nnpppppppppppppppp:"+paramslist);
 					if(parameterCount == 1)  {
 						var p = (paramslist[0]==null) ? null : paramslist[0];
 						commandClassParamTypes.set(commandClass, p);

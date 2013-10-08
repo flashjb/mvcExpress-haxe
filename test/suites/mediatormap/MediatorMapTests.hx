@@ -32,7 +32,7 @@ class MediatorMapTests extends Tester {
 	
 	public function new() 
 	{
-		super();
+		super( );
 		testFunction( "mediatorMap_onRegister_and_no_onRemove" );
 		testFunction( "mediatorMap_onRegister_and_onRemove" );
 		testFunction( "mediatorMap_messag_callBack_test" );
@@ -59,6 +59,9 @@ class MediatorMapTests extends Tester {
 	
 	override public function runAfterEveryTest() : Void {
 		//use namespace pureLegsCore
+		MediatorMapTestSpriteMediator.REGISTER_TEST_FUNCTION = function(msg : Dynamic = null){};
+		MediatorMapTestSpriteMediator.REMOVE_TEST_FUNCTION   = function(msg : Dynamic = null){};
+		MediatorMapTestSpriteMediator.CALLBACK_TEST_FUNCTION = function(msg : Dynamic = null){};
 		messenger = null;
 		proxyMap = null;
 		mediatorMap = null;
@@ -161,7 +164,7 @@ class MediatorMapTests extends Tester {
 
 	public function callBackSuccess(obj : Dynamic = null) : Void 
 	{
-		//trace("callback Succes", obj);
+		trace("callback Succes", obj);
 	}
 
 	//----------------------------------

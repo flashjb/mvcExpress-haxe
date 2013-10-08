@@ -37,5 +37,5 @@
 -D html5
 -D html
 --remap flash:flash
--D debug
--debug
+#-D debug
+#-debug

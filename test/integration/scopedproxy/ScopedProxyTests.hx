@@ -23,7 +23,7 @@ class ScopedProxyTests extends Tester
 	
 	public function new() : Void 
 	{
-		super( );
+		super(  );
 		testFunction("scopedProxy_hostAndInjectHostedToMediator_injectOk");
 		testFunction("scopedProxy_hostAndInjectHostedToMediatorTwice_injectOk");
 		testFunction("scopedProxy_hostAndInjectHostedToProxy_injectOk");
@@ -31,7 +31,9 @@ class ScopedProxyTests extends Tester
 	
 		testFunction("scopedProxy_injectPendingProxyToCommandThenHost_injectFails");//ok
 		testFunction("scopedProxy_injectPendingProxyToProxyThenHost_injectOk");
+	//	_inProgress = true;
 		testFunction("scopedProxy_injectPendingProxyToMediatorThenHost_injectOk");
+		
 		
 		testFunction("scopedProxy_hostAndInjectThenMessage_communicatinOk");
 		testFunction("scopedProxy_HostAndMapThenMessageLocaly_communicatinOk");

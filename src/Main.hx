@@ -2,6 +2,7 @@ package;
 
 
 import suites.general.GeneralTests;
+/*
 import integration.moduleinittests.ModuleInitTests;
 import suites.utils.UtilsTests;
 import suites.messenger.MessengerTests;
@@ -18,6 +19,8 @@ import integration.commandpooling.CommandPoolingTests;
 import integration.scopedmessaging.ChannelingTests;
 import suites.faturegetproxy.FeatureGetProxyTests;
 import integration.scopecontrol.ScopeControlTests;
+	 * 
+	*/
 import integration.scopedproxy.ScopedProxyTests;
 import mvcexpress.MvcExpress;
 
@@ -40,19 +43,19 @@ class Main
 		new NamedInterfacedProxyMapTests(); // OK 
 		new LazyProxyTests();		// OK
 		new MediatorTests();		// OK
-	*/
 		new MediatorMapTests(); 	// OK	
 		new MediatingTests();		// OK
-	/*
-			
-			
 		new CommandMapTests();		// OK
-	
 		new CommandPoolingTests();	// OK
 		new ChannelingTests();		// OK
 		new FeatureGetProxyTests();	// OK
+	*/
 		new ScopedProxyTests();		// OK 
+	/*
 		new ScopeControlTests();	// OK
+			
+			
+	
 */
 	}
 	

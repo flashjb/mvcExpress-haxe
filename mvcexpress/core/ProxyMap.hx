@@ -478,14 +478,12 @@ class ProxyMap implements IProxyMap
 					
 					
 					// if local injection fails... test for lazy injections
-					trace(" there :",lazyProxyRegistry.exists(injectClassAndName));
 					if(lazyProxyRegistry.exists(injectClassAndName))  
 					{
 						var lazyProxyData : LazyProxyData;
 							lazyProxyData = lazyProxyRegistry.get(injectClassAndName);
 							
 						lazyProxyRegistry.remove(injectClassAndName);
-						trace("alreazdy there :",lazyProxyRegistry.exists(injectClassAndName), lazyProxyData.proxyClass, lazyProxyData.proxyParams);
 
 						var lazyProxy;
 						if( lazyProxyData.proxyParams != null )
@@ -692,8 +690,12 @@ class ProxyMap implements IProxyMap
 	}
 
 	// gets proxy by id directly.
-	public function getProxyById(injectClassAndName : String) : Proxy {
-		return cast( injectObjectRegistry.get(injectClassAndName), Proxy );
+	public function getProxyById(injectClassAndName : String) : Proxy 
+	{
+		if(injectObjectRegistry.exists(injectClassAndName))
+			return cast( injectObjectRegistry.get(injectClassAndName), Proxy );
+		else
+			return null;
 	}
 	
 	
