@@ -22,6 +22,8 @@ import mvcexpress.core.messenger.Messenger;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
+import mvcexpress.utils.RttiHelper;
+import flash.utils.Function;
 
 @:rtti class Mediator 
 {
@@ -53,7 +55,7 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 	// Allows Mediator to be constructed. (removed from release build to save some performance.)
 	#if debug
 		//static pureLegsCore var canConstruct:Boolean; // = false;
-		public static var canConstruct:Bool; // = false;
+		public static var canConstruct:Bool = false;
 	#end
 	/** CONSTRUCTOR */
 	public function new() 
@@ -149,12 +151,20 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 	 * 
 	 * 
 	 */
-	function addHandler(type : String, handler : Dynamic) : Void {
+	//function addHandler(type : String, handler : Dynamic ) : Void {
+	function addHandler(type : String, handler : Dynamic->Void) : Void {
 		//use namespace pureLegsCore;
 		#if debug
-			if (handler.length < 1) {
+		
+			/*
+			 * 
+			 MESSAGE SENT AT COMPILATION
+			if ( handler.length < 1 ) {
 				throw ("Every message handler function needs at least one parameter. You are trying to add handler function from " +  Type.getClassName(Type.getClass(this)) + " for message type:" + type);
 			}
+			 * 
+			 */
+			 
 			if (type == null || type == "null" || type == "undefined") {
 				throw ("Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + this + ")");
 			}

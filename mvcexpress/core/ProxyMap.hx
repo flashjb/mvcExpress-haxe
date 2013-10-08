@@ -27,6 +27,7 @@ import mvcexpress.mvc.PooledCommand;
 import mvcexpress.mvc.Proxy;
 import mvcexpress.utils.MvcExpressTools;
 import mvcexpress.utils.RttiHelper;
+import flash.utils.Object;
 
 class ProxyMap implements IProxyMap 
 {
@@ -42,7 +43,7 @@ class ProxyMap implements IProxyMap
 	static var classInjectRules : ObjectMap<Dynamic, Array<InjectRuleVO>> = new ObjectMap();
 	/* of Vector.<InjectRuleVO> by Class */
 	/** all objects ready for injection stored by key. (className + inject name) */
-	var injectObjectRegistry : ObjectMap<Dynamic, Dynamic>;
+	var injectObjectRegistry : Map<String, Object>;
 	/* of Proxy by String */
 	/** dictionary of (Vector of PendingInject), it holds array of pending data with proxies and mediators that has pending injections,  stored by needed injection key(className + inject name).  */
 	var pendingInjectionsRegistry : Map<String, Array<PendingInject>>;
@@ -57,7 +58,7 @@ class ProxyMap implements IProxyMap
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger) 
 	{
-		injectObjectRegistry 		= new ObjectMap<Dynamic, Dynamic>();
+		injectObjectRegistry 		= new Map();
 		pendingInjectionsRegistry 	= new Map();
 		lazyProxyRegistry 			= new Map();
 		classConstRegistry 			= new Map<String, Dynamic>();
@@ -197,7 +198,7 @@ class ProxyMap implements IProxyMap
 			lazyInject.injectClass = injectClass;
 			lazyInject.name = name;
 			lazyInject.proxyParams = proxyParams;
-			lazyProxyRegistry[injectId] = lazyInject;
+			lazyProxyRegistry.set(injectId, lazyInject);
 		return injectId;
 	}
 
@@ -397,9 +398,10 @@ class ProxyMap implements IProxyMap
 					qualifiedClassNameRegistry.set(tempClass, tempClassName);
 				}
 				
-			
-				//trace( "tempClassName:", tempClass, " className : ", Type.getClassName(tempClass) );
-				//trace( "injectionClassName:", tempClassName, "already exists : ", injectObjectRegistry.exists(tempClassName) );
+			/*
+				trace( "tempClassName:", tempClass, " className : ", Type.getClassName(tempClass) );
+				trace( "injectionClassName:", tempClassName, "already exists : ", injectObjectRegistry.exists(tempClassName) );
+			*/
 			
 				if(!injectObjectRegistry.exists(tempClassName))  {
 					injectObjectRegistry.set(tempClassName, tempValue);
@@ -459,6 +461,10 @@ class ProxyMap implements IProxyMap
 			else  
 			{
 				var injectObject = injectObjectRegistry.get(injectClassAndName);
+				/*
+				trace("injectClassAndName>>"+injectClassAndName);
+				trace("injectObject>>"+injectObject);
+				*/
 				if( injectObject != null ) 
 				{
 					Reflect.setField(object, rule.varName, injectObject);
@@ -470,14 +476,22 @@ class ProxyMap implements IProxyMap
 					
 				} else {
 					
-					var lazyProxyData : LazyProxyData;
 					
 					// if local injection fails... test for lazy injections
-					if(lazyProxyRegistry[injectClassAndName] != null)  
+					trace(" there :",lazyProxyRegistry.exists(injectClassAndName));
+					if(lazyProxyRegistry.exists(injectClassAndName))  
 					{
-						lazyProxyData = lazyProxyRegistry[injectClassAndName];
-						lazyProxyRegistry[injectClassAndName] = null;
-						var lazyProxy = Type.createInstance( lazyProxyData.proxyClass, lazyProxyData.proxyParams );
+						var lazyProxyData : LazyProxyData;
+							lazyProxyData = lazyProxyRegistry.get(injectClassAndName);
+							
+						lazyProxyRegistry.remove(injectClassAndName);
+						trace("alreazdy there :",lazyProxyRegistry.exists(injectClassAndName), lazyProxyData.proxyClass, lazyProxyData.proxyParams);
+
+						var lazyProxy;
+						if( lazyProxyData.proxyParams != null )
+							lazyProxy = Type.createInstance( lazyProxyData.proxyClass,  lazyProxyData.proxyParams );
+						else
+							lazyProxy = Type.createInstance( lazyProxyData.proxyClass, [] );
 
 						map(lazyProxy, lazyProxyData.injectClass, lazyProxyData.name);
 						

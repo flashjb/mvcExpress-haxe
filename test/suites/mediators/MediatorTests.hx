@@ -21,14 +21,14 @@ class MediatorTests extends Tester {
 	
 	public function new() 
 	{
-		super();
+		super( );
 		testFunction( "mediator_constructor_fails" );//?? no fails
 		testFunction( "mediator_isReady" );//nok
 		testFunction( "mediator_empty_handler" );//nok
 		testFunction( "mediator_handler_object_params");
-		testFunction( "mediator_handler_bad_params" );
-		testFunction( "mediator_handler_two_params" );
-		testFunction( "mediator_handler_two_params_one_optional" );
+		testFunction( "mediator_handler_bad_params" ); // not allowed by compiler
+		testFunction( "mediator_handler_two_params" ); // not allowed by compiler
+		testFunction( "mediator_handler_two_params_one_optional" ); // not allowed by compiler
 	//	testFunction( "mediator_same_handler_added_twice_fails"); // uhuh fails but not catch...we comment it
 	}
 	
@@ -38,7 +38,7 @@ class MediatorTests extends Tester {
 		messenger = new Messenger("test");
 		Messenger.allowInstantiation = false;
 		
-		proxyMap = new ProxyMap("test", messenger);
+		proxyMap 	= new ProxyMap("test", messenger);
 		mediatorMap = new MediatorMap("test", messenger, proxyMap);
 		mediatorMap.map(MediatorSprite, MediatorSpriteMediator);
 		

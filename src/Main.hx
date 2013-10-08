@@ -30,22 +30,22 @@ class Main
 		MvcExpress.debugFunction  = haxe.Log.trace;
 	
 		new GeneralTests();			// OK
-			 /*
-		new ModuleInitTests();		// OK
-		new UtilsTests();			// OK
-		new MessengerTests();		// OK  
-		new ModularTests(); 		// OK
-		new OldProxyMapTests(); 	// seems to be OK
-			  */
-			
-		new ProxyMapTests();  		// OK
 	/*
+		new ModuleInitTests();		// OK
+		new MessengerTests();		// OK  
+		new UtilsTests();			// OK
+		new ModularTests(); 		// OK
+		new ProxyMapTests();  		// OK
+		new OldProxyMapTests(); 	// seems to be OK
 		new NamedInterfacedProxyMapTests(); // OK 
-			
 		new LazyProxyTests();		// OK
 		new MediatorTests();		// OK
+	*/
 		new MediatorMapTests(); 	// OK	
 		new MediatingTests();		// OK
+	/*
+			
+			
 		new CommandMapTests();		// OK
 	
 		new CommandPoolingTests();	// OK

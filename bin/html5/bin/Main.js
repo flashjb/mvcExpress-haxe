@@ -85,7 +85,8 @@ ApplicationMain.preloader_onComplete = function(event) {
 var Main = function() {
 	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
 	new suites.general.GeneralTests();
-	new integration.proxymap.ProxyMapTests();
+	new suites.mediatormap.MediatorMapTests();
+	new integration.mediating.MediatingTests();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
@@ -1681,10 +1682,6 @@ Type.createInstance = function(cl,args) {
 		throw "Too many arguments";
 	}
 	return null;
-}
-Type.createEmptyInstance = function(cl) {
-	function empty() {}; empty.prototype = cl.prototype;
-	return new empty();
 }
 Type.getClassFields = function(c) {
 	var a = Reflect.fields(c);
@@ -8656,7 +8653,6 @@ mvcexpress.mvc.Mediator = function() {
 };
 $hxClasses["mvcexpress.mvc.Mediator"] = mvcexpress.mvc.Mediator;
 mvcexpress.mvc.Mediator.__name__ = ["mvcexpress","mvc","Mediator"];
-mvcexpress.mvc.Mediator.canConstruct = null;
 mvcexpress.mvc.Mediator.prototype = {
 	remove: function() {
 		this.onRemove();
@@ -8744,7 +8740,6 @@ mvcexpress.mvc.Mediator.prototype = {
 		this.messenger.removeHandler(type,handler);
 	}
 	,addHandler: function(type,handler) {
-		if(handler.length < 1) throw "Every message handler function needs at least one parameter. You are trying to add handler function from " + Type.getClassName(Type.getClass(this)) + " for message type:" + type;
 		if(type == null || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler(this.moduleName,this,type,handler));
 		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler,Type.getClassName(Type.getClass(this)));
@@ -10653,9 +10648,6 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -10700,7 +10692,7 @@ mvcexpress.core.CommandMap.prototype = {
 		this.validateCommandClass(commandClass);
 		if(params) {
 			var testCommandClassIsOk = false;
-			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) testCommandClassIsOk = true; else {
+			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == "*" || mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) testCommandClassIsOk = true; else {
 				var paramClass = Type.resolveClass(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]);
 				testCommandClassIsOk = js.Boot.__instanceof(params,paramClass);
 			}
@@ -10712,13 +10704,12 @@ mvcexpress.core.CommandMap.prototype = {
 			if(js.Boot.__instanceof(Type.getSuperClass(commandClass),mvcexpress.mvc.Command)) throw "commandClass:" + Std.string(commandClass) + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.";
 			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) {
 				var parameterCount = 0;
-				var obj = Type.createEmptyInstance(commandClass);
-				var dFunc = Reflect.field(obj,"execute");
-				var hasExecute = Reflect.hasField(obj,"execute");
-				var paramslist = mvcexpress.utils.RttiHelper.getFunctionFields(commandClass,"execute");
+				var hasExecute = mvcexpress.utils.RttiHelper.hasMethod(commandClass,"execute");
+				var paramslist = mvcexpress.utils.RttiHelper.getMethodFields(commandClass,"execute");
 				parameterCount = paramslist.length;
+				haxe.Log.trace("\n\n\n\nnpppppppppppppppp:" + Std.string(paramslist),{ fileName : "CommandMap.hx", lineNumber : 473, className : "mvcexpress.core.CommandMap", methodName : "validateCommandClass"});
 				if(parameterCount == 1) {
-					var p = paramslist[0] == null?Type.getClassName(Type.getClass(Dynamic)):paramslist[0];
+					var p = paramslist[0] == null?null:paramslist[0];
 					mvcexpress.core.CommandMap.commandClassParamTypes.set(commandClass,p);
 				}
 				if(hasExecute) {
@@ -10772,10 +10763,9 @@ mvcexpress.core.CommandMap.prototype = {
 		}
 	}
 	,dispose: function() {
-		var _g = 0, _g1 = Reflect.fields(this.classRegistry);
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
+		var $it0 = this.classRegistry.keys();
+		while( $it0.hasNext() ) {
+			var type = $it0.next();
 			this.messenger.removeHandler(type,$bind(this,this.handleCommandExecute));
 		}
 		var scopeHandlerCount = this.scopeHandlers.length;
@@ -10808,12 +10798,12 @@ mvcexpress.core.CommandMap.prototype = {
 		return retVal;
 	}
 	,mappedCommandCount: function(type) {
-		if(this.classRegistry.get(type) != null) return this.classRegistry.get(type).length;
+		if(this.classRegistry.exists(type)) return this.classRegistry.get(type).length;
 		return 0;
 	}
 	,isMapped: function(type,commandClass) {
 		var retVal = false;
-		if(this.classRegistry.get(type) != null) {
+		if(this.classRegistry.exists(type)) {
 			var mappedClasses = this.classRegistry.get(type);
 			var classCaunt = mappedClasses.length;
 			var i = 0;
@@ -10851,7 +10841,6 @@ mvcexpress.core.CommandMap.prototype = {
 		if(messageClasses == null) {
 			messageClasses = new Array();
 			this.classRegistry.set(scopedType,messageClasses);
-			messageClasses;
 			this.scopeHandlers[this.scopeHandlers.length] = mvcexpress.core.ModuleManager.scopedCommandMap(this.moduleName,$bind(this,this.handleCommandExecute),scopeName,type,commandClass);
 		}
 		messageClasses[messageClasses.length] = commandClass;
@@ -10912,7 +10901,6 @@ mvcexpress.core.CommandMap.prototype = {
 		if(messageClasses == null) {
 			messageClasses = new Array();
 			this.classRegistry.set(type,messageClasses);
-			messageClasses;
 			this.messenger.addCommandHandler(type,$bind(this,this.handleCommandExecute),commandClass);
 		}
 		messageClasses[messageClasses.length] = commandClass;
@@ -10939,7 +10927,7 @@ mvcexpress.core.MediatorMap.__name__ = ["mvcexpress","core","MediatorMap"];
 mvcexpress.core.MediatorMap.__interfaces__ = [mvcexpress.core.interfaces.IMediatorMap];
 mvcexpress.core.MediatorMap.prototype = {
 	dispose: function() {
-		var $it0 = this.mediatorRegistry.iterator();
+		var $it0 = this.mediatorRegistry.keys();
 		while( $it0.hasNext() ) {
 			var viewObject = $it0.next();
 			this.unmediate(viewObject);
@@ -10976,7 +10964,6 @@ mvcexpress.core.MediatorMap.prototype = {
 	}
 	,unmediate: function(viewObject) {
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate(this.moduleName,viewObject));
-		haxe.Log.trace(viewObject,{ fileName : "MediatorMap.hx", lineNumber : 211, className : "mvcexpress.core.MediatorMap", methodName : "unmediate"});
 		var mediator = this.mediatorRegistry.get(viewObject);
 		if(mediator != null) {
 			mediator.remove();
@@ -11378,7 +11365,7 @@ mvcexpress.core.interfaces.IProxyMap.prototype = {
 	__class__: mvcexpress.core.interfaces.IProxyMap
 }
 mvcexpress.core.ProxyMap = function(moduleName,messenger) {
-	this.injectObjectRegistry = new haxe.ds.ObjectMap();
+	this.injectObjectRegistry = new haxe.ds.StringMap();
 	this.pendingInjectionsRegistry = new haxe.ds.StringMap();
 	this.lazyProxyRegistry = new haxe.ds.StringMap();
 	this.classConstRegistry = new haxe.ds.StringMap();
@@ -11390,7 +11377,7 @@ mvcexpress.core.ProxyMap.__name__ = ["mvcexpress","core","ProxyMap"];
 mvcexpress.core.ProxyMap.__interfaces__ = [mvcexpress.core.interfaces.IProxyMap];
 mvcexpress.core.ProxyMap.prototype = {
 	getProxyById: function(injectClassAndName) {
-		return js.Boot.__cast(this.injectObjectRegistry.h[injectClassAndName.__id__] , mvcexpress.mvc.Proxy);
+		return js.Boot.__cast(this.injectObjectRegistry.get(injectClassAndName) , mvcexpress.mvc.Proxy);
 	}
 	,getInjectByConstName: function(constName) {
 		if(this.classConstRegistry.get(constName) == null) {
@@ -11509,7 +11496,10 @@ mvcexpress.core.ProxyMap.prototype = {
 					tempClassName = Type.getClassName(tempClass);
 					mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(tempClass,tempClassName);
 				}
-				if(!this.injectObjectRegistry.h.hasOwnProperty(tempClassName.__id__)) this.injectObjectRegistry.set(tempClassName,tempValue); else throw "Temp object should not be mapped already... it was meant to be used by framework for mediator view object only.";
+				if(!this.injectObjectRegistry.exists(tempClassName)) {
+					var value = tempValue;
+					this.injectObjectRegistry.set(tempClassName,value);
+				} else throw "Temp object should not be mapped already... it was meant to be used by framework for mediator view object only.";
 			}
 		}
 		var rules = mvcexpress.core.ProxyMap.classInjectRules.h[signatureClass.__id__];
@@ -11535,17 +11525,19 @@ mvcexpress.core.ProxyMap.prototype = {
 					} else throw "Inject object is not found in scope:" + scopename + " for class with id:" + injectClassAndName + "(needed in " + Std.string(object) + ")";
 				}
 			} else {
-				var injectObject = this.injectObjectRegistry.h[injectClassAndName.__id__];
+				var injectObject = this.injectObjectRegistry.get(injectClassAndName);
 				if(injectObject != null) {
 					object[rule.varName] = injectObject;
 					mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff(this.moduleName,object,injectObject,rule));
 				} else {
-					var lazyProxyData;
-					if(this.lazyProxyRegistry.get(injectClassAndName) != null) {
+					haxe.Log.trace(" there :",{ fileName : "ProxyMap.hx", lineNumber : 481, className : "mvcexpress.core.ProxyMap", methodName : "injectStuff", customParams : [this.lazyProxyRegistry.exists(injectClassAndName)]});
+					if(this.lazyProxyRegistry.exists(injectClassAndName)) {
+						var lazyProxyData;
 						lazyProxyData = this.lazyProxyRegistry.get(injectClassAndName);
-						this.lazyProxyRegistry.set(injectClassAndName,null);
-						null;
-						var lazyProxy = Type.createInstance(lazyProxyData.proxyClass,lazyProxyData.proxyParams);
+						this.lazyProxyRegistry.remove(injectClassAndName);
+						haxe.Log.trace("alreazdy there :",{ fileName : "ProxyMap.hx", lineNumber : 488, className : "mvcexpress.core.ProxyMap", methodName : "injectStuff", customParams : [this.lazyProxyRegistry.exists(injectClassAndName),lazyProxyData.proxyClass,lazyProxyData.proxyParams]});
+						var lazyProxy;
+						if(lazyProxyData.proxyParams != null) lazyProxy = Type.createInstance(lazyProxyData.proxyClass,lazyProxyData.proxyParams); else lazyProxy = Type.createInstance(lazyProxyData.proxyClass,[]);
 						this.map(lazyProxy,lazyProxyData.injectClass,lazyProxyData.name);
 					} else {
 						isAllInjected = false;
@@ -11573,7 +11565,11 @@ mvcexpress.core.ProxyMap.prototype = {
 		return isAllInjected;
 	}
 	,dispose: function() {
-		var $it0 = this.injectObjectRegistry.iterator();
+		var $it0 = ((function(_e) {
+			return function() {
+				return _e.iterator();
+			};
+		})(this.injectObjectRegistry))();
 		while( $it0.hasNext() ) {
 			var proxyObject = $it0.next();
 			if(js.Boot.__instanceof(proxyObject,mvcexpress.mvc.Proxy)) (js.Boot.__cast(proxyObject , mvcexpress.mvc.Proxy)).remove();
@@ -11616,7 +11612,7 @@ mvcexpress.core.ProxyMap.prototype = {
 			className = Type.getClassName(injectClass);
 			mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(injectClass,className);
 		}
-		if(this.injectObjectRegistry.h.hasOwnProperty((className + name).__id__)) retVal = true;
+		if(this.injectObjectRegistry.exists(className + name)) retVal = true;
 		return retVal;
 	}
 	,scopeUnmap: function(scopeName,injectClass,name) {
@@ -11648,7 +11644,7 @@ mvcexpress.core.ProxyMap.prototype = {
 			mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(injectClass,className);
 		}
 		var classAndName = className + name;
-		if(this.injectObjectRegistry.h.hasOwnProperty(classAndName.__id__)) return this.injectObjectRegistry.h[classAndName.__id__];
+		if(this.injectObjectRegistry.exists(classAndName)) return this.injectObjectRegistry.get(classAndName);
 		throw "Proxy object is not mapped. [injectClass:" + className + " name:" + name + "]";
 		return null;
 	}
@@ -11662,7 +11658,7 @@ mvcexpress.core.ProxyMap.prototype = {
 		}
 		var injectId = className + name;
 		if(this.lazyProxyRegistry.exists(injectId)) throw "Proxy class is already lazy mapped. [injectClass:" + className + " name:" + name + "]";
-		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
+		if(this.injectObjectRegistry.exists(injectId)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		if(!mvcexpress.utils.MvcExpressTools.checkClassSuperClass(proxyClass,mvcexpress.mvc.Proxy)) throw "proxyClass:" + Std.string(proxyClass) + " you are trying to lazy map is not extended from 'org.mvcexpress.mvc::Proxy' class.";
 		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap(this.moduleName,proxyClass,injectClass,name,proxyParams));
 		var lazyInject = new mvcexpress.core.LazyProxyData();
@@ -11671,7 +11667,6 @@ mvcexpress.core.ProxyMap.prototype = {
 		lazyInject.name = name;
 		lazyInject.proxyParams = proxyParams;
 		this.lazyProxyRegistry.set(injectId,lazyInject);
-		lazyInject;
 		return injectId;
 	}
 	,unmap: function(injectClass,name) {
@@ -11683,8 +11678,8 @@ mvcexpress.core.ProxyMap.prototype = {
 			mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.set(injectClass,className);
 		}
 		var injectId = className + name;
-		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) {
-			var proxy = js.Boot.__cast(this.injectObjectRegistry.h[injectId.__id__] , mvcexpress.mvc.Proxy);
+		if(this.injectObjectRegistry.exists(injectId)) {
+			var proxy = js.Boot.__cast(this.injectObjectRegistry.get(injectId) , mvcexpress.mvc.Proxy);
 			var dependencies = proxy.getDependantCommands();
 			if(dependencies != null) {
 				var $it0 = ((function(_e) {
@@ -11713,10 +11708,10 @@ mvcexpress.core.ProxyMap.prototype = {
 		}
 		var injectId = className + name;
 		if(this.lazyProxyRegistry.exists(injectId)) throw "Proxy object is already lazy mapped. [injectClass:" + Std.string(injectClass) + " name:" + name + "]";
-		if(this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
+		if(this.injectObjectRegistry.exists(injectId)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
 		if(proxyObject.messenger == null) this.initProxy(proxyObject,proxyClass,injectId);
 		if(this.pendingInjectionsRegistry.exists(injectId)) this.injectPendingStuff(injectId,proxyObject);
-		if(!this.injectObjectRegistry.h.hasOwnProperty(injectId.__id__)) this.injectObjectRegistry.set(injectId,proxyObject); else throw "Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]";
+		if(!this.injectObjectRegistry.exists(injectId)) this.injectObjectRegistry.set(injectId,proxyObject); else throw "Proxy object class is already mapped.[injectClass:" + className + " name:" + name + "]";
 		return injectId;
 	}
 	,__class__: mvcexpress.core.ProxyMap
@@ -12462,7 +12457,7 @@ mvcexpress.utils.RttiHelper.getMetaFields = function(type) {
 	}
 	return metalist;
 }
-mvcexpress.utils.RttiHelper.getFunctionFields = function(type,funcName) {
+mvcexpress.utils.RttiHelper.getMethodFields = function(type,funcName) {
 	var paramList = new Array();
 	var infos = null;
 	var allFields = Type.getClassFields(type);
@@ -12506,6 +12501,80 @@ mvcexpress.utils.RttiHelper.getFunctionFields = function(type,funcName) {
 		}
 	}
 	return paramList;
+}
+mvcexpress.utils.RttiHelper.getNumParametersByMethod = function(type,func) {
+	var paramList = new Array();
+	var infos = null;
+	var allFields = Type.getClassFields(type);
+	var _g = 0;
+	while(_g < allFields.length) {
+		var i = allFields[_g];
+		++_g;
+		if(i == "__rtti") {
+			infos = new haxe.rtti.XmlParser().processElement(Xml.parse(Reflect.field(type,i)).firstElement());
+			if(infos != null) {
+				var $e = (infos);
+				switch( $e[1] ) {
+				case 1:
+					var cl = $e[2];
+					var $it0 = cl.fields.iterator();
+					while( $it0.hasNext() ) {
+						var f = $it0.next();
+						haxe.Log.trace(f.type,{ fileName : "RttiHelper.hx", lineNumber : 118, className : "mvcexpress.utils.RttiHelper", methodName : "getNumParametersByMethod"});
+						haxe.Log.trace(Type["typeof"](f.type),{ fileName : "RttiHelper.hx", lineNumber : 119, className : "mvcexpress.utils.RttiHelper", methodName : "getNumParametersByMethod", customParams : [Type["typeof"](func)]});
+						if(f == func) {
+							var paramsAndReturn = f.type.slice(2);
+							var _g1 = 0, _g2 = Reflect.fields(paramsAndReturn);
+							while(_g1 < _g2.length) {
+								var i1 = _g2[_g1];
+								++_g1;
+								if(js.Boot.__instanceof(Reflect.field(paramsAndReturn,i1),List)) {
+									var params = Reflect.field(paramsAndReturn,i1);
+									var $it1 = params.iterator();
+									while( $it1.hasNext() ) {
+										var j = $it1.next();
+										var param = j.t;
+										paramList.push(param.slice(2)[0]);
+									}
+								}
+							}
+						}
+					}
+					break;
+				default:
+				}
+			}
+			break;
+		}
+	}
+	return paramList.length;
+}
+mvcexpress.utils.RttiHelper.hasMethod = function(type,funcName) {
+	var allFields = Type.getClassFields(type);
+	var _g = 0;
+	while(_g < allFields.length) {
+		var i = allFields[_g];
+		++_g;
+		if(i == "__rtti") {
+			var infos = new haxe.rtti.XmlParser().processElement(Xml.parse(Reflect.field(type,i)).firstElement());
+			if(infos != null) {
+				var $e = (infos);
+				switch( $e[1] ) {
+				case 1:
+					var cl = $e[2];
+					var $it0 = cl.fields.iterator();
+					while( $it0.hasNext() ) {
+						var f = $it0.next();
+						if(f.name == funcName) return true;
+					}
+					break;
+				default:
+				}
+			}
+			break;
+		}
+	}
+	return false;
 }
 var openfl = {}
 openfl.display = {}
@@ -13644,20 +13713,17 @@ suites.testobjects.view.MediatorSpriteMediator.prototype = $extend(mvcexpress.mv
 	,handleTestEmpty: function() {
 	}
 	,handleTestEmptyHandler: function(params) {
-		this.addHandler("test_empty_handler",$bind(this,this.handleTestEmpty));
 	}
 	,addTestHandler: function(event) {
-		this.addHandler("test_handler_two_params_one_optional",$bind(this,this.handleTestWithTwoParamsOneOptional));
+		this.addHandler("test_handler_bad_params",$bind(this,this.handleTestWithBadParams));
 	}
 	,onRemove: function() {
 		suites.testobjects.view.MediatorSpriteMediator.instance = null;
 	}
 	,onRegister: function() {
-		this.addHandler("test_add_empty_handler",$bind(this,this.handleTestEmptyHandler));
 		this.addHandler("test_handler_object_params",$bind(this,this.handleTestWithObjectParams));
+		this.addHandler("test_add_empty_handler",$bind(this,this.handleTestEmptyHandler));
 		this.addHandler("test_handler_bad_params",$bind(this,this.handleTestWithBadParams));
-		this.addHandler("test_handler_two_params",$bind(this,this.handleTestWithTwoParams));
-		this.addHandler("test_handler_two_params_one_optional",$bind(this,this.handleTestWithTwoParamsOneOptional));
 		this.view.addEventListener(suites.TestViewEvent.TRIGER_ADD_HANDLER,$bind(this,this.addTestHandler));
 		suites.testobjects.view.MediatorSpriteMediator.instance = this;
 	}
@@ -14328,7 +14394,8 @@ mvcexpress.mvc.Command.__rtti = "<class path=\"mvcexpress.mvc.Command\" params=\
 integration.agenerictestobjects.controller.GenericCommand.__rtti = "<class path=\"integration.agenerictestobjects.controller.GenericCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<execute public=\"1\" set=\"method\" line=\"7\"><f a=\"blank\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"5\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 mvcexpress.mvc.Proxy.__rtti = "<class path=\"mvcexpress.mvc.Proxy\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<proxyMap>\n\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t<haxe_doc>* Interface to work with proxies.</haxe_doc>\n\t</proxyMap>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<proxyScopes><c path=\"Array\"><c path=\"String\"/></c></proxyScopes>\n\t<dependantCommands public=\"1\"><c path=\"haxe.ds.ObjectMap\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</c></dependantCommands>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<onRegister set=\"method\" line=\"52\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is mapped with proxyMap this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is unmapped with proxyMap this function is called.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"66\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if proxy is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"78\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"105\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<setProxyMap public=\"1\" set=\"method\" line=\"129\">\n\t\t<f a=\"iProxyMap\">\n\t\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* sets proxyMap interface.\n\t * \n\t *</haxe_doc>\n\t</setProxyMap>\n\t<register public=\"1\" set=\"method\" line=\"138\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"150\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as not ready and calls onRemove().\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</remove>\n\t<addScope public=\"1\" set=\"method\" line=\"164\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Add scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</addScope>\n\t<removeScope public=\"1\" set=\"method\" line=\"184\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Remove scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</removeScope>\n\t<registerDependantCommand public=\"1\" set=\"method\" line=\"198\"><f a=\"signatureClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></registerDependantCommand>\n\t<getDependantCommands public=\"1\" set=\"method\" line=\"203\"><f a=\"\"><x path=\"Map\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</x></f></getDependantCommands>\n\t<new public=\"1\" set=\"method\" line=\"41\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 integration.agenerictestobjects.model.GenericTestProxy.__rtti = "<class path=\"integration.agenerictestobjects.model.GenericTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<testData public=\"1\"><c path=\"String\"/></testData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendMessageTest public=\"1\" set=\"method\" line=\"23\"><f a=\"type:?params\">\n\t<c path=\"String\"/>\n\t<d/>\n\t<x path=\"Void\"/>\n</f></sendMessageTest>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"80\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"87\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"94\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"106\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"128\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"152\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"176\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"186\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"204\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"215\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"237\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"264\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"292\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"319\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"333\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" line=\"58\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"82\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"89\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"96\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"108\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"130\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"155\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<f a=\"\">\n\t\t\t\t<d/>\n\t\t\t\t<x path=\"Void\"/>\n\t\t\t</f>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"186\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"196\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"214\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"225\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"247\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"274\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"302\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"329\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"343\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"61\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+mvcexpress.mvc.Mediator.canConstruct = false;
 integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__meta__ = { fields : { view : { inject : null}}};
 integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener.__rtti = "<class path=\"integration.agenerictestobjects.view.GenericViewObjectMediator_handlingListener\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.agenerictestobjects.view.GenericViewObject\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"16\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handlTestBlankEvent set=\"method\" line=\"21\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestBlankEvent>\n\t<handlTestSendMessageEvent set=\"method\" line=\"24\"><f a=\"event\">\n\t<c path=\"integration.agenerictestobjects.view.event.ViewTestEvent\"/>\n\t<x path=\"Void\"/>\n</f></handlTestSendMessageEvent>\n\t<onRemove public=\"1\" set=\"method\" line=\"28\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<new public=\"1\" set=\"method\" line=\"11\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.agenerictestobjects.view.GenericViewObjectMediator_handlingMessage.__meta__ = { fields : { view : { inject : null}}};
@@ -14521,7 +14588,7 @@ suites.testobjects.modulemain.MainModule.NAME = suites.SuiteModuleNames.MAIN_MOD
 suites.testobjects.modulemain.MainViewMediator.__meta__ = { fields : { dataProxy : { inject : null}, view : { inject : null}}};
 suites.testobjects.modulemain.MainViewMediator.__rtti = "<class path=\"suites.testobjects.modulemain.MainViewMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<dataProxy public=\"1\">\n\t\t<c path=\"suites.testobjects.modulemain.MainDataProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</dataProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"21\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"29\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<handleAddLocalHandler set=\"method\" line=\"37\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleAddLocalHandler>\n\t<handleRemoveLocalHandler set=\"method\" line=\"44\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleRemoveLocalHandler>\n\t<handleTestProxyGetHandler set=\"method\" line=\"51\"><f a=\"event\">\n\t<c path=\"suites.TestViewEvent\"/>\n\t<x path=\"Void\"/>\n</f></handleTestProxyGetHandler>\n\t<trigerLocalHandler set=\"method\" line=\"59\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></trigerLocalHandler>\n\t<trigerRemoteHandler set=\"method\" line=\"63\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></trigerRemoteHandler>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.testobjects.view.MediatorSpriteMediator.__meta__ = { fields : { view : { inject : null}}};
-suites.testobjects.view.MediatorSpriteMediator.__rtti = "<class path=\"suites.testobjects.view.MediatorSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<instance public=\"1\" static=\"1\"><c path=\"suites.testobjects.view.MediatorSpriteMediator\"/></instance>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.view.MediatorSprite\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"32\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<addTestHandler set=\"method\" line=\"36\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addTestHandler>\n\t<handleTestEmptyHandler public=\"1\" set=\"method\" line=\"40\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestEmptyHandler>\n\t<handleTestEmpty public=\"1\" set=\"method\" line=\"44\"><f a=\"\"><x path=\"Void\"/></f></handleTestEmpty>\n\t<handleTestWithObjectParams public=\"1\" set=\"method\" line=\"47\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestWithObjectParams>\n\t<handleTestWithBadParams public=\"1\" set=\"method\" line=\"50\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithBadParams>\n\t<handleTestWithTwoParams public=\"1\" set=\"method\" line=\"53\"><f a=\"params:extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParams>\n\t<handleTestWithTwoParamsOneOptional public=\"1\" set=\"method\" line=\"56\"><f a=\"params:?extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParamsOneOptional>\n\t<getIsReady public=\"1\" set=\"method\" line=\"59\"><f a=\"\"><x path=\"Bool\"/></f></getIsReady>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
+suites.testobjects.view.MediatorSpriteMediator.__rtti = "<class path=\"suites.testobjects.view.MediatorSpriteMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<instance public=\"1\" static=\"1\"><c path=\"suites.testobjects.view.MediatorSpriteMediator\"/></instance>\n\t<view public=\"1\">\n\t\t<c path=\"suites.testobjects.view.MediatorSprite\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<onRegister public=\"1\" set=\"method\" line=\"19\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"35\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<addTestHandler set=\"method\" line=\"39\"><f a=\"event\">\n\t<c path=\"flash.events.Event\"/>\n\t<x path=\"Void\"/>\n</f></addTestHandler>\n\t<handleTestEmptyHandler public=\"1\" set=\"method\" line=\"44\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestEmptyHandler>\n\t<handleTestEmpty public=\"1\" set=\"method\" line=\"49\"><f a=\"\"><x path=\"Void\"/></f></handleTestEmpty>\n\t<handleTestWithObjectParams public=\"1\" set=\"method\" line=\"52\"><f a=\"params\">\n\t<d/>\n\t<x path=\"Void\"/>\n</f></handleTestWithObjectParams>\n\t<handleTestWithBadParams public=\"1\" set=\"method\" line=\"55\"><f a=\"params\">\n\t<c path=\"suites.testobjects.TestObject\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithBadParams>\n\t<handleTestWithTwoParams public=\"1\" set=\"method\" line=\"58\"><f a=\"params:extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParams>\n\t<handleTestWithTwoParamsOneOptional public=\"1\" set=\"method\" line=\"61\"><f a=\"params:?extraParam\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleTestWithTwoParamsOneOptional>\n\t<getIsReady public=\"1\" set=\"method\" line=\"64\"><f a=\"\"><x path=\"Bool\"/></f></getIsReady>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 suites.utils.objects.ConstantsA.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.AAAA = "aaaaaaaaaaaaaaaaaaaaaaaa";
 suites.utils.objects.ConstantsAB.BBBB = "bbbbbbbbbbbbbbbbbbbbbbbb";

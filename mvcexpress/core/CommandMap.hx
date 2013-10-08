@@ -82,10 +82,10 @@ class CommandMap
 			}
 		#end
 		
-		var messageClasses : Array<Class<Dynamic>> = classRegistry[type];
+		var messageClasses : Array<Class<Dynamic>> = classRegistry.get(type);
 		if( messageClasses == null )  {
 			messageClasses = new Array<Class<Dynamic>>();
-			classRegistry[type] = messageClasses;
+			classRegistry.set(type, messageClasses);
 			messenger.addCommandHandler(type, handleCommandExecute, commandClass);
 		}
 		messageClasses[messageClasses.length] = commandClass;
@@ -104,7 +104,7 @@ class CommandMap
 			MvcExpress.debug(new TraceCommandMap_unmap(moduleName, type, commandClass));
 		#end
 		
-		var messageClasses : Array<Class<Dynamic>> = classRegistry[type];
+		var messageClasses : Array<Class<Dynamic>> = classRegistry.get(type);
 		if( messageClasses !=  null )  {
 			var commandCount : Int = messageClasses.length;
 			var i : Int = 0;
@@ -208,10 +208,10 @@ class CommandMap
 		//use namespace pureLegsCore;
 		//
 		var scopedType : String = scopeName + "_^~_" + type;
-		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
+		var messageClasses : Array<Class<Dynamic>> = classRegistry.get(scopedType);
 		if( messageClasses == null )  {
 			messageClasses = new Array<Class<Dynamic>>();
-			classRegistry[scopedType] = messageClasses;
+			classRegistry.set(scopedType, messageClasses);
 			// add scoped command handler.
 			scopeHandlers[scopeHandlers.length] = ModuleManager.scopedCommandMap(moduleName, handleCommandExecute, scopeName, type, commandClass);
 		}
@@ -227,7 +227,7 @@ class CommandMap
 	public function scopeUnmap(scopeName : String, type : String, commandClass : Class<Dynamic>) : Void 
 	{
 		var scopedType : String = scopeName + "_^~_" + type;
-		var messageClasses : Array<Class<Dynamic>> = classRegistry[scopedType];
+		var messageClasses : Array<Class<Dynamic>> = classRegistry.get(scopedType);
 		if( messageClasses != null )  {
 			var commandCount : Int = messageClasses.length;
 			var i : Int = 0;
@@ -276,8 +276,8 @@ class CommandMap
 	public function isMapped(type : String, commandClass : Class<Dynamic>) : Bool {
 		var retVal : Bool = false;
 		// = false;
-		if( classRegistry[type] != null )  {
-			var mappedClasses : Array<Class<Dynamic>> = classRegistry[type];
+		if( classRegistry.exists(type) )  {
+			var mappedClasses : Array<Class<Dynamic>> = classRegistry.get(type);
 			var classCaunt : Int = mappedClasses.length;
 			var i : Int = 0;
 			while(i < classCaunt) {
@@ -297,8 +297,8 @@ class CommandMap
 	 */
 	public function mappedCommandCount(type : String) : Int 
 	{
-		if(classRegistry[type] != null)  
-			return cast classRegistry[type].length;
+		if(classRegistry.exists(type))  
+			return cast classRegistry.get(type).length;
 		
 		return 0;
 	}
@@ -311,7 +311,7 @@ class CommandMap
 		var retVal : String = "";
 			retVal = "===================== CommandMap Mappings: =====================\n";
 		for( key in Reflect.fields(classRegistry) ) {
-			retVal += "SENDING MESSAGE:'" + key + "'	> EXECUTES > " + classRegistry[key] + "\n";
+			retVal += "SENDING MESSAGE:'" + key + "'	> EXECUTES > " + classRegistry.get(key) + "\n";
 		}
 
 		retVal += "================================================================\n";
@@ -338,9 +338,10 @@ class CommandMap
 	 * Dispose commandMap on disposeModule()
 	 * 
 	 */
-	public function dispose() : Void {
+	public function dispose() : Void 
+	{
 		//use namespace pureLegsCore;
-		for( type in Reflect.fields(classRegistry) ) {
+		for( type in classRegistry.keys() ) {
 			messenger.removeHandler(type, handleCommandExecute);
 		}
 
@@ -465,15 +466,13 @@ class CommandMap
 					var parameterCount : Int = 0;
 					
 					// find execute method.
-					var obj = Type.createEmptyInstance(commandClass);
-					var dFunc = Reflect.field( obj, "execute");
-					var hasExecute : Bool = Reflect.hasField( obj, "execute" );
+					var hasExecute : Bool = RttiHelper.hasMethod( commandClass, "execute" );
 						
-					var paramslist : Array<Dynamic> = RttiHelper.getFunctionFields( commandClass, "execute" );
+					var paramslist : Array<Dynamic> = RttiHelper.getMethodFields( commandClass, "execute" );
 					parameterCount =   paramslist.length;
-					
+					trace("\n\n\n\nnpppppppppppppppp:"+paramslist);
 					if(parameterCount == 1)  {
-						var p = paramslist[0]==null? Type.getClassName(Type.getClass(Dynamic)) : paramslist[0];
+						var p = (paramslist[0]==null) ? null : paramslist[0];
 						commandClassParamTypes.set(commandClass, p);
 					}
 					
@@ -501,7 +500,7 @@ class CommandMap
 			if(params)  
 			{
 				var testCommandClassIsOk : Bool = false;
-				if(commandClassParamTypes.get(commandClass) == null)
+				if( commandClassParamTypes.get(commandClass) == "*" || commandClassParamTypes.get(commandClass) == null )
 				{
 					testCommandClassIsOk = true;
 				}else{
@@ -517,7 +516,7 @@ class CommandMap
 	
 	// used for debugging
 	public function listMessageCommands(messageType : String) : Array<Class<Dynamic>> {
-		return classRegistry[messageType];
+		return classRegistry.get(messageType);
 	}
 
 }

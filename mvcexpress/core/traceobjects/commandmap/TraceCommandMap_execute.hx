@@ -35,7 +35,7 @@ class TraceCommandMap_execute extends TraceObj
 	}
 
 	override public function toString() : String {
-		return "©* " + MvcTraceActions.COMMANDMAP_EXECUTE + " > commandClass : " + commandClass + ", params : " + params + "     {" + moduleName + "}";
+		return "©* " + MvcTraceActions.COMMANDMAP_EXECUTE + " > commandClass : " +  commandClass  + ", params : " + params + "     {" + moduleName + "}";
 	}
 
 }

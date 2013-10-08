@@ -13,8 +13,9 @@ class LazyProxyTests  extends Tester
 
 	var lazyProxyModulA : LazyProxyModuleA;
 	
-	public function new (){
-		super();
+	public function new ()
+	{
+		super( );
 		testFunction("lazyProxy_lazyMaping_proxyNotInstantiated");
 		testFunction("lazyProxy_lazyMapingThenInjectingToProxy_proxyInstantiatedOnce");
 		testFunction("lazyProxy_lazyAndNormalMaping_fails");

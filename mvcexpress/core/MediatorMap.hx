@@ -6,6 +6,7 @@
 package mvcexpress.core;
 
 import haxe.ds.ObjectMap;
+import flash.utils.Object;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.interfaces.IMediatorMap;
@@ -33,7 +34,7 @@ class MediatorMap implements IMediatorMap {
 	var mediatorInjectRegistry : ObjectMap<Dynamic, Class<Dynamic>>;
 	/* of Class by Class */
 	// stores all mediators using use view object(mediator is mediating) as a key.
-	var mediatorRegistry : ObjectMap<Dynamic, Mediator>;
+	var mediatorRegistry : ObjectMap<Object, Mediator>;
 	/* of Mediator by Object */
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap) 
@@ -208,7 +209,7 @@ class MediatorMap implements IMediatorMap {
 			MvcExpress.debug(new TraceMediatorMap_unmediate(moduleName, viewObject));
 		#end
 		
-		trace(viewObject);
+//		trace(viewObject);
 		
 		// get object mediator
 		var mediator : Mediator = mediatorRegistry.get(viewObject);
@@ -285,16 +286,10 @@ class MediatorMap implements IMediatorMap {
 	public function dispose() : Void 
 	{
 		// unmediate all mediated view objects
-	//	trace(mediatorRegistry);
-	#if flash
-		for( viewObject in Reflect.fields(mediatorRegistry) ) {
+		for( viewObject in  mediatorRegistry.keys() ) {
+			//trace("unmediate==>"+ cast viewObject );
 			unmediate( viewObject );
 		}
-	#elseif js
-		for( viewObject in mediatorRegistry ) {
-			unmediate( viewObject );
-		}
-	#end
 
 		proxyMap = null;
 		messenger = null;
