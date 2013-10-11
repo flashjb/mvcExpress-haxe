@@ -1,5 +1,9 @@
+
 #if !macro
 #if (openfl_html5 && !flambe)
+
+
+
 
 import Main;
 import haxe.Resource;
@@ -127,6 +131,8 @@ class DocumentClass extends Main {}
 
 #else
 
+
+
 import Main;
 
 class ApplicationMain {
@@ -142,6 +148,8 @@ class ApplicationMain {
 
 #end
 #else
+
+
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -167,3 +175,4 @@ class DocumentClass {
 	
 }
 #end
+

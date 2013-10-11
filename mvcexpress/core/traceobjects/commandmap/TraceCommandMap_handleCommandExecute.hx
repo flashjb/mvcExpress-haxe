@@ -6,7 +6,6 @@
  */
 package mvcexpress.core.traceobjects.commandmap;
 
-import flash.display.DisplayObject;
 
 import mvcexpress.core.ModuleBase;
 import mvcexpress.core.traceobjects.MvcTraceActions;
@@ -21,7 +20,6 @@ class TraceCommandMap_handleCommandExecute extends TraceObj {
 	public var commandClass : Class<Dynamic>;
 	public var type : String;
 	public var params : Dynamic;
-	public var view : DisplayObject;
 	public var messageFromModule : ModuleBase;
 	public var messageFromMediator : Mediator;
 	public var messageFromProxy : Proxy;

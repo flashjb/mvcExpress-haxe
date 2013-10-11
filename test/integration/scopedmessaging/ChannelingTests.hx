@@ -16,7 +16,7 @@ class ChannelingTests extends Tester {
 	
 	public function new() 
 	{
-		super( false );
+		super( true );
 		testFunction( "channeling_moduleToModuleChanneling_addChannelHandler_sendsMessage" );
 		testFunction( "channeling_moduleToModuleChannelingRemoveHandler_sendMessageDoesNothing" );
 		testFunction( "channeling_moduleToModuleChanneling_addChannel2Handler_sendsMessage");

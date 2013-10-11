@@ -1,0 +1,12 @@
+{
+  "name": "mvcexpress",
+  "url" : "https://github.com/flashjb/mvcExpress-haxe/tree/master/mvcexpress",
+  "license": "MIT",
+  "tags": ["flash", "js"],
+  "description": "Haxe Port of mvcexpress library",
+  "version": "0.1.2",
+  "releasenote": "Initial version, dev in progress",
+  "contributors": ["flashjb"],
+  "dependencies": {
+  }
+}

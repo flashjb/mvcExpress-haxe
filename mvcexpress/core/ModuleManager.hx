@@ -76,7 +76,7 @@ class ModuleManager
 				moduleName = "module" + _moduleId;
 			}
 			retVal = ModuleBase.getModuleInstance(moduleName, autoInit);
-			moduleRegistry[moduleName] = retVal;
+			moduleRegistry.set(moduleName, retVal);
 			allModules[allModules.length] = retVal;
 			//
 		} else  {
@@ -213,8 +213,9 @@ class ModuleManager
 		if( scopePermission == null || !scopePermission.messageReceiving)  {
 			throw ("Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.");
 		}
+		
 		var scopeMesanger : Messenger = scopedMessengers[scopeName];
-		if( scopeMesanger != null )  {
+		if( scopeMesanger == null )  {
 			//use namespace pureLegsCore;
 			Messenger.allowInstantiation = true;
 			scopeMesanger = new Messenger("$scope_" + scopeName);

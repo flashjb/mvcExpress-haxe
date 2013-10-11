@@ -6,7 +6,6 @@
 package mvcexpress.core;
 
 import haxe.ds.ObjectMap;
-import flash.utils.Object;
 
 import mvcexpress.MvcExpress;
 import mvcexpress.core.interfaces.IMediatorMap;
@@ -34,7 +33,7 @@ class MediatorMap implements IMediatorMap {
 	var mediatorInjectRegistry : ObjectMap<Dynamic, Class<Dynamic>>;
 	/* of Class by Class */
 	// stores all mediators using use view object(mediator is mediating) as a key.
-	var mediatorRegistry : ObjectMap<Object, Mediator>;
+	var mediatorRegistry : ObjectMap<Dynamic, Mediator>;
 	/* of Mediator by Object */
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger, proxyMap : ProxyMap) 

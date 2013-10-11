@@ -16,14 +16,13 @@ import suites.mediatormap.MediatorMapTests;
 import integration.mediating.MediatingTests;
 import suites.commandmap.CommandMapTests;
 import integration.commandpooling.CommandPoolingTests;
-import integration.scopedmessaging.ChannelingTests;
 import suites.faturegetproxy.FeatureGetProxyTests;
+import integration.scopedmessaging.ChannelingTests;
 import integration.scopecontrol.ScopeControlTests;
 	 * 
 	*/
 import integration.scopedproxy.ScopedProxyTests;
 import mvcexpress.MvcExpress;
-
 
 class Main 
 {	
@@ -47,12 +46,12 @@ class Main
 		new MediatingTests();		// OK
 		new CommandMapTests();		// OK
 		new CommandPoolingTests();	// OK
-		new ChannelingTests();		// OK
 		new FeatureGetProxyTests();	// OK
+		new ChannelingTests();		// OK
+		new ScopeControlTests();	// OK
 	*/
 		new ScopedProxyTests();		// OK 
 	/*
-		new ScopeControlTests();	// OK
 			
 			
 	
@@ -64,3 +63,4 @@ class Main
 		new Main();
 	}
 }
+

@@ -27,7 +27,6 @@ import mvcexpress.mvc.PooledCommand;
 import mvcexpress.mvc.Proxy;
 import mvcexpress.utils.MvcExpressTools;
 import mvcexpress.utils.RttiHelper;
-import flash.utils.Object;
 
 class ProxyMap implements IProxyMap 
 {
@@ -43,7 +42,7 @@ class ProxyMap implements IProxyMap
 	static var classInjectRules : ObjectMap<Dynamic, Array<InjectRuleVO>> = new ObjectMap();
 	/* of Vector.<InjectRuleVO> by Class */
 	/** all objects ready for injection stored by key. (className + inject name) */
-	var injectObjectRegistry : Map<String, Object>;
+	var injectObjectRegistry : Map<String, Dynamic>;
 	/* of Proxy by String */
 	/** dictionary of (Vector of PendingInject), it holds array of pending data with proxies and mediators that has pending injections,  stored by needed injection key(className + inject name).  */
 	var pendingInjectionsRegistry : Map<String, Array<PendingInject>>;
@@ -58,7 +57,7 @@ class ProxyMap implements IProxyMap
 	/** CONSTRUCTOR */
 	public function new(moduleName : String, messenger : Messenger) 
 	{
-		injectObjectRegistry 		= new Map();
+		injectObjectRegistry 		= new Map<String, Dynamic>();
 		pendingInjectionsRegistry 	= new Map();
 		lazyProxyRegistry 			= new Map();
 		classConstRegistry 			= new Map<String, Dynamic>();

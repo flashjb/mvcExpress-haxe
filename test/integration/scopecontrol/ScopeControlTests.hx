@@ -33,6 +33,7 @@ class ScopeControlTests  extends Tester  {
 		testFunction("scopeControl_messageInHandleWithoutScopeRegister_fails");
 		testFunction("scopeControl_messageInCommandMapWithoutScopeRegister_fails");
 		testFunction("scopeControl_scopedInjectWithoutScopeRegister_fails");
+		
 		testFunction("scopeControl_messageOutWithScopeRegister_ok");
 		testFunction("scopeControl_messageInHandleWithScopeRegister_ok");
 		testFunction("scopeControl_messageInCommandMapWithScopeRegister_ok");
@@ -41,6 +42,7 @@ class ScopeControlTests  extends Tester  {
 		testFunction("scopeControl_messageInHandleWithScopeRegisterWithModuleRecreate_fails");
 		testFunction("scopeControl_messageInCommandMapWithScopeRegisterWithModuleRecreate_fails");
 		testFunction("scopeControl_scopedInjectWithScopeRegisterWithModuleRecreate_fails");
+		_inProgress = true;
 		testFunction("scopeControl_messageOutAndInWithScopeRegister_ok");
 		testFunction("scopeControl_injectedProxyChangeShouldBeHandled_ok");
 		

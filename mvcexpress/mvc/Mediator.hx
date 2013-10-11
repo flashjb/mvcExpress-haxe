@@ -23,7 +23,6 @@ import mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage;
 import mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage;
 import mvcexpress.utils.RttiHelper;
-import flash.utils.Function;
 
 @:rtti class Mediator 
 {

@@ -13,11 +13,11 @@ class ApplicationMain {
 	public static function main() {
 		var call_real = true;
 		
-		//nme.Lib.setPackage("Company Name", "Openfl", "com.example.openfl", "1.0.0");
+		//nme.Lib.setPackage("Company Name", "Starling-Haxe", "com.example.starling-haxe", "1.0.0");
 		
 		
 		var loaded:Int = flash.Lib.current.loaderInfo.bytesLoaded;
-		var total :Int = flash.Lib.current.loaderInfo.bytesTotal;
+		var total:Int = flash.Lib.current.loaderInfo.bytesTotal;
 		
 		flash.Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
 		flash.Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
@@ -33,14 +33,14 @@ class ApplicationMain {
 		
 		
 		#if !fdb
-			haxe.Log.trace = flashTrace;
+		haxe.Log.trace = flashTrace;
 		#end
 		
 		if (call_real)
 			begin();
 	}
 
-#if !fdb
+	#if !fdb
 	private static function flashTrace( v : Dynamic, ?pos : haxe.PosInfos ) {
 		var className = pos.className.substr(pos.className.lastIndexOf('.') + 1);
 		var message = className+"::"+pos.methodName+":"+pos.lineNumber+": " + v;
@@ -49,7 +49,7 @@ class ApplicationMain {
 			flash.external.ExternalInterface.call("console.log", message);
 		else untyped flash.Boot.__trace(v, pos);
     }
-#end
+	#end
 
 	private static function begin() {
 		var hasMain = false;

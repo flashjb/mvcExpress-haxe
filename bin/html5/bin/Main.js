@@ -6,104 +6,6 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var ApplicationMain = function() { }
-$hxClasses["ApplicationMain"] = ApplicationMain;
-ApplicationMain.__name__ = ["ApplicationMain"];
-ApplicationMain.completed = null;
-ApplicationMain.preloader = null;
-ApplicationMain.total = null;
-ApplicationMain.loaders = null;
-ApplicationMain.urlLoaders = null;
-ApplicationMain.main = function() {
-	ApplicationMain.completed = 0;
-	ApplicationMain.loaders = new haxe.ds.StringMap();
-	ApplicationMain.urlLoaders = new haxe.ds.StringMap();
-	ApplicationMain.total = 0;
-	flash.Lib.get_current().loaderInfo = flash.display.LoaderInfo.create(null);
-	try {
-		if(Reflect.hasField(js.Browser.window,"winParameters")) flash.Lib.get_current().loaderInfo.parameters = (Reflect.field(js.Browser.window,"winParameters"))();
-		flash.Lib.get_current().get_stage().loaderInfo = flash.Lib.get_current().loaderInfo;
-	} catch( e ) {
-	}
-	ApplicationMain.preloader = new NMEPreloader();
-	flash.Lib.get_current().addChild(ApplicationMain.preloader);
-	ApplicationMain.preloader.onInit();
-	var resourcePrefix = "NME_:bitmap_";
-	var _g = 0, _g1 = haxe.Resource.listNames();
-	while(_g < _g1.length) {
-		var resourceName = _g1[_g];
-		++_g;
-		if(StringTools.startsWith(resourceName,resourcePrefix)) {
-			var type = Type.resolveClass(StringTools.replace(resourceName.substring(resourcePrefix.length),"_","."));
-			if(type != null) {
-				ApplicationMain.total++;
-				var instance = Type.createInstance(type,[0,0,true,16777215,ApplicationMain.bitmapClass_onComplete]);
-			}
-		}
-	}
-	if(ApplicationMain.total == 0) ApplicationMain.begin(); else {
-		var $it0 = ApplicationMain.loaders.keys();
-		while( $it0.hasNext() ) {
-			var path = $it0.next();
-			var loader = ApplicationMain.loaders.get(path);
-			loader.contentLoaderInfo.addEventListener("complete",ApplicationMain.loader_onComplete);
-			loader.load(new flash.net.URLRequest(path));
-		}
-		var $it1 = ApplicationMain.urlLoaders.keys();
-		while( $it1.hasNext() ) {
-			var path = $it1.next();
-			var urlLoader = ApplicationMain.urlLoaders.get(path);
-			urlLoader.addEventListener("complete",ApplicationMain.loader_onComplete);
-			urlLoader.load(new flash.net.URLRequest(path));
-		}
-	}
-}
-ApplicationMain.begin = function() {
-	ApplicationMain.preloader.addEventListener(flash.events.Event.COMPLETE,ApplicationMain.preloader_onComplete);
-	ApplicationMain.preloader.onLoaded();
-}
-ApplicationMain.bitmapClass_onComplete = function(instance) {
-	ApplicationMain.completed++;
-	var classType = Type.getClass(instance);
-	classType.preload = instance;
-	if(ApplicationMain.completed == ApplicationMain.total) ApplicationMain.begin();
-}
-ApplicationMain.loader_onComplete = function(event) {
-	ApplicationMain.completed++;
-	ApplicationMain.preloader.onUpdate(ApplicationMain.completed,ApplicationMain.total);
-	if(ApplicationMain.completed == ApplicationMain.total) ApplicationMain.begin();
-}
-ApplicationMain.preloader_onComplete = function(event) {
-	ApplicationMain.preloader.removeEventListener(flash.events.Event.COMPLETE,ApplicationMain.preloader_onComplete);
-	flash.Lib.get_current().removeChild(ApplicationMain.preloader);
-	ApplicationMain.preloader = null;
-	if(Reflect.field(Main,"main") == null) {
-		var mainDisplayObj = Type.createInstance(DocumentClass,[]);
-		if(js.Boot.__instanceof(mainDisplayObj,flash.display.DisplayObject)) flash.Lib.get_current().addChild(mainDisplayObj);
-	} else Reflect.field(Main,"main").apply(Main,[]);
-}
-var Main = function() {
-	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
-	new suites.general.GeneralTests();
-	new integration.scopedproxy.ScopedProxyTests();
-};
-$hxClasses["Main"] = Main;
-Main.__name__ = ["Main"];
-Main.main = function() {
-	new Main();
-}
-Main.prototype = {
-	__class__: Main
-}
-var DocumentClass = function() {
-	Main.call(this);
-};
-$hxClasses["DocumentClass"] = DocumentClass;
-DocumentClass.__name__ = ["DocumentClass"];
-DocumentClass.__super__ = Main;
-DocumentClass.prototype = $extend(Main.prototype,{
-	__class__: DocumentClass
-});
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
 	this.r = new RegExp(r,opt);
@@ -236,13 +138,1128 @@ List.prototype = {
 	}
 	,__class__: List
 }
+var Main = function() {
+	mvcexpress.MvcExpress.debugFunction = haxe.Log.trace;
+	new suites.general.GeneralTests();
+	new integration.scopedproxy.ScopedProxyTests();
+};
+$hxClasses["Main"] = Main;
+Main.__name__ = ["Main"];
+Main.main = function() {
+	new Main();
+}
+Main.prototype = {
+	__class__: Main
+}
 var IMap = function() { }
 $hxClasses["IMap"] = IMap;
 IMap.__name__ = ["IMap"];
 IMap.prototype = {
 	__class__: IMap
 }
+var Reflect = function() { }
+$hxClasses["Reflect"] = Reflect;
+Reflect.__name__ = ["Reflect"];
+Reflect.hasField = function(o,field) {
+	return Object.prototype.hasOwnProperty.call(o,field);
+}
+Reflect.field = function(o,field) {
+	var v = null;
+	try {
+		v = o[field];
+	} catch( e ) {
+	}
+	return v;
+}
+Reflect.getProperty = function(o,field) {
+	var tmp;
+	return o == null?null:o.__properties__ && (tmp = o.__properties__["get_" + field])?o[tmp]():o[field];
+}
+Reflect.callMethod = function(o,func,args) {
+	return func.apply(o,args);
+}
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) a.push(f);
+		}
+	}
+	return a;
+}
+Reflect.isFunction = function(f) {
+	return typeof(f) == "function" && !(f.__name__ || f.__ename__);
+}
+Reflect.compareMethods = function(f1,f2) {
+	if(f1 == f2) return true;
+	if(!Reflect.isFunction(f1) || !Reflect.isFunction(f2)) return false;
+	return f1.scope == f2.scope && f1.method == f2.method && f1.method != null;
+}
+Reflect.deleteField = function(o,field) {
+	if(!Reflect.hasField(o,field)) return false;
+	delete(o[field]);
+	return true;
+}
+var Std = function() { }
+$hxClasses["Std"] = Std;
+Std.__name__ = ["Std"];
+Std.string = function(s) {
+	return js.Boot.__string_rec(s,"");
+}
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+}
+Std.parseFloat = function(x) {
+	return parseFloat(x);
+}
+var StringBuf = function() {
+	this.b = "";
+};
+$hxClasses["StringBuf"] = StringBuf;
+StringBuf.__name__ = ["StringBuf"];
+StringBuf.prototype = {
+	addSub: function(s,pos,len) {
+		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
+	}
+	,__class__: StringBuf
+}
+var StringTools = function() { }
+$hxClasses["StringTools"] = StringTools;
+StringTools.__name__ = ["StringTools"];
+StringTools.htmlEscape = function(s,quotes) {
+	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
+}
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+}
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	return c > 8 && c < 14 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) r++;
+	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
+	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
+}
+StringTools.hex = function(n,digits) {
+	var s = "";
+	var hexChars = "0123456789ABCDEF";
+	do {
+		s = hexChars.charAt(n & 15) + s;
+		n >>>= 4;
+	} while(n > 0);
+	if(digits != null) while(s.length < digits) s = "0" + s;
+	return s;
+}
+var Tester = function(inProgress) {
+	if(inProgress == null) inProgress = false;
+	this._inProgress = false;
+	this._currentTest = 0;
+	this._inProgress = inProgress;
+	haxe.Log.trace("\n\n*****************************\n -- " + Type.getClassName(Type.getClass(this)) + " -- \n*****************************",{ fileName : "Tester.hx", lineNumber : 9, className : "Tester", methodName : "new"});
+};
+$hxClasses["Tester"] = Tester;
+Tester.__name__ = ["Tester"];
+Tester.prototype = {
+	runAfterEveryTest: function() {
+	}
+	,runBeforeEveryTest: function() {
+	}
+	,testFunction: function(funcName) {
+		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + ": " + funcName + "\n*-------------------------*",{ fileName : "Tester.hx", lineNumber : 14, className : "Tester", methodName : "testFunction"});
+		if(this._inProgress) {
+			this.runBeforeEveryTest();
+			Reflect.field(this,funcName).apply(this,[]);
+			this.runAfterEveryTest();
+		} else {
+			try {
+				this.runBeforeEveryTest();
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR BEFORE >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 27, className : "Tester", methodName : "testFunction"});
+			}
+			try {
+				Reflect.field(this,funcName).apply(this,[]);
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 33, className : "Tester", methodName : "testFunction"});
+			}
+			try {
+				this.runAfterEveryTest();
+			} catch( e ) {
+				haxe.Log.trace("#@##@#$%#@ ERROR AFTER >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 39, className : "Tester", methodName : "testFunction"});
+			}
+		}
+	}
+	,__class__: Tester
+}
+var ValueType = { __ename__ : true, __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
+ValueType.TNull = ["TNull",0];
+ValueType.TNull.toString = $estr;
+ValueType.TNull.__enum__ = ValueType;
+ValueType.TInt = ["TInt",1];
+ValueType.TInt.toString = $estr;
+ValueType.TInt.__enum__ = ValueType;
+ValueType.TFloat = ["TFloat",2];
+ValueType.TFloat.toString = $estr;
+ValueType.TFloat.__enum__ = ValueType;
+ValueType.TBool = ["TBool",3];
+ValueType.TBool.toString = $estr;
+ValueType.TBool.__enum__ = ValueType;
+ValueType.TObject = ["TObject",4];
+ValueType.TObject.toString = $estr;
+ValueType.TObject.__enum__ = ValueType;
+ValueType.TFunction = ["TFunction",5];
+ValueType.TFunction.toString = $estr;
+ValueType.TFunction.__enum__ = ValueType;
+ValueType.TClass = function(c) { var $x = ["TClass",6,c]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TEnum = function(e) { var $x = ["TEnum",7,e]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TUnknown = ["TUnknown",8];
+ValueType.TUnknown.toString = $estr;
+ValueType.TUnknown.__enum__ = ValueType;
+var Type = function() { }
+$hxClasses["Type"] = Type;
+Type.__name__ = ["Type"];
+Type.getClass = function(o) {
+	if(o == null) return null;
+	return o.__class__;
+}
+Type.getSuperClass = function(c) {
+	return c.__super__;
+}
+Type.getClassName = function(c) {
+	var a = c.__name__;
+	return a.join(".");
+}
+Type.resolveClass = function(name) {
+	var cl = $hxClasses[name];
+	if(cl == null || !cl.__name__) return null;
+	return cl;
+}
+Type.createInstance = function(cl,args) {
+	switch(args.length) {
+	case 0:
+		return new cl();
+	case 1:
+		return new cl(args[0]);
+	case 2:
+		return new cl(args[0],args[1]);
+	case 3:
+		return new cl(args[0],args[1],args[2]);
+	case 4:
+		return new cl(args[0],args[1],args[2],args[3]);
+	case 5:
+		return new cl(args[0],args[1],args[2],args[3],args[4]);
+	case 6:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5]);
+	case 7:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6]);
+	case 8:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]);
+	default:
+		throw "Too many arguments";
+	}
+	return null;
+}
+Type.getClassFields = function(c) {
+	var a = Reflect.fields(c);
+	HxOverrides.remove(a,"__name__");
+	HxOverrides.remove(a,"__interfaces__");
+	HxOverrides.remove(a,"__properties__");
+	HxOverrides.remove(a,"__super__");
+	HxOverrides.remove(a,"prototype");
+	return a;
+}
+Type["typeof"] = function(v) {
+	var _g = typeof(v);
+	switch(_g) {
+	case "boolean":
+		return ValueType.TBool;
+	case "string":
+		return ValueType.TClass(String);
+	case "number":
+		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
+		return ValueType.TFloat;
+	case "object":
+		if(v == null) return ValueType.TNull;
+		var e = v.__enum__;
+		if(e != null) return ValueType.TEnum(e);
+		var c = v.__class__;
+		if(c != null) return ValueType.TClass(c);
+		return ValueType.TObject;
+	case "function":
+		if(v.__name__ || v.__ename__) return ValueType.TObject;
+		return ValueType.TFunction;
+	case "undefined":
+		return ValueType.TNull;
+	default:
+		return ValueType.TUnknown;
+	}
+}
+var XmlType = { __ename__ : true, __constructs__ : [] }
+var Xml = function() {
+};
+$hxClasses["Xml"] = Xml;
+Xml.__name__ = ["Xml"];
+Xml.Element = null;
+Xml.PCData = null;
+Xml.CData = null;
+Xml.Comment = null;
+Xml.DocType = null;
+Xml.ProcessingInstruction = null;
+Xml.Document = null;
+Xml.parse = function(str) {
+	return haxe.xml.Parser.parse(str);
+}
+Xml.createElement = function(name) {
+	var r = new Xml();
+	r.nodeType = Xml.Element;
+	r._children = new Array();
+	r._attributes = new haxe.ds.StringMap();
+	r.set_nodeName(name);
+	return r;
+}
+Xml.createPCData = function(data) {
+	var r = new Xml();
+	r.nodeType = Xml.PCData;
+	r.set_nodeValue(data);
+	return r;
+}
+Xml.createCData = function(data) {
+	var r = new Xml();
+	r.nodeType = Xml.CData;
+	r.set_nodeValue(data);
+	return r;
+}
+Xml.createComment = function(data) {
+	var r = new Xml();
+	r.nodeType = Xml.Comment;
+	r.set_nodeValue(data);
+	return r;
+}
+Xml.createDocType = function(data) {
+	var r = new Xml();
+	r.nodeType = Xml.DocType;
+	r.set_nodeValue(data);
+	return r;
+}
+Xml.createProcessingInstruction = function(data) {
+	var r = new Xml();
+	r.nodeType = Xml.ProcessingInstruction;
+	r.set_nodeValue(data);
+	return r;
+}
+Xml.createDocument = function() {
+	var r = new Xml();
+	r.nodeType = Xml.Document;
+	r._children = new Array();
+	return r;
+}
+Xml.prototype = {
+	toString: function() {
+		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
+		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
+		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
+		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
+		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
+		var s = new StringBuf();
+		if(this.nodeType == Xml.Element) {
+			s.b += "<";
+			s.b += Std.string(this._nodeName);
+			var $it0 = this._attributes.keys();
+			while( $it0.hasNext() ) {
+				var k = $it0.next();
+				s.b += " ";
+				s.b += Std.string(k);
+				s.b += "=\"";
+				s.b += Std.string(this._attributes.get(k));
+				s.b += "\"";
+			}
+			if(this._children.length == 0) {
+				s.b += "/>";
+				return s.b;
+			}
+			s.b += ">";
+		}
+		var $it1 = this.iterator();
+		while( $it1.hasNext() ) {
+			var x = $it1.next();
+			s.b += Std.string(x.toString());
+		}
+		if(this.nodeType == Xml.Element) {
+			s.b += "</";
+			s.b += Std.string(this._nodeName);
+			s.b += ">";
+		}
+		return s.b;
+	}
+	,addChild: function(x) {
+		if(this._children == null) throw "bad nodetype";
+		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
+		x._parent = this;
+		this._children.push(x);
+	}
+	,firstElement: function() {
+		if(this._children == null) throw "bad nodetype";
+		var cur = 0;
+		var l = this._children.length;
+		while(cur < l) {
+			var n = this._children[cur];
+			if(n.nodeType == Xml.Element) return n;
+			cur++;
+		}
+		return null;
+	}
+	,elementsNamed: function(name) {
+		if(this._children == null) throw "bad nodetype";
+		return { cur : 0, x : this._children, hasNext : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				var n = this.x[k];
+				if(n.nodeType == Xml.Element && n._nodeName == name) break;
+				k++;
+			}
+			this.cur = k;
+			return k < l;
+		}, next : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				var n = this.x[k];
+				k++;
+				if(n.nodeType == Xml.Element && n._nodeName == name) {
+					this.cur = k;
+					return n;
+				}
+			}
+			return null;
+		}};
+	}
+	,elements: function() {
+		if(this._children == null) throw "bad nodetype";
+		return { cur : 0, x : this._children, hasNext : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				if(this.x[k].nodeType == Xml.Element) break;
+				k += 1;
+			}
+			this.cur = k;
+			return k < l;
+		}, next : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				var n = this.x[k];
+				k += 1;
+				if(n.nodeType == Xml.Element) {
+					this.cur = k;
+					return n;
+				}
+			}
+			return null;
+		}};
+	}
+	,iterator: function() {
+		if(this._children == null) throw "bad nodetype";
+		return { cur : 0, x : this._children, hasNext : function() {
+			return this.cur < this.x.length;
+		}, next : function() {
+			return this.x[this.cur++];
+		}};
+	}
+	,exists: function(att) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._attributes.exists(att);
+	}
+	,set: function(att,value) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		this._attributes.set(att,value);
+	}
+	,get: function(att) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._attributes.get(att);
+	}
+	,set_nodeValue: function(v) {
+		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
+		return this._nodeValue = v;
+	}
+	,get_nodeValue: function() {
+		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
+		return this._nodeValue;
+	}
+	,set_nodeName: function(n) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._nodeName = n;
+	}
+	,get_nodeName: function() {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._nodeName;
+	}
+	,__class__: Xml
+}
+var haxe = {}
+haxe.Timer = function(time_ms) {
+	var me = this;
+	this.id = setInterval(function() {
+		me.run();
+	},time_ms);
+};
+$hxClasses["haxe.Timer"] = haxe.Timer;
+haxe.Timer.__name__ = ["haxe","Timer"];
+haxe.Timer.delay = function(f,time_ms) {
+	var t = new haxe.Timer(time_ms);
+	t.run = function() {
+		t.stop();
+		f();
+	};
+	return t;
+}
+haxe.Timer.stamp = function() {
+	return new Date().getTime() / 1000;
+}
+haxe.Timer.prototype = {
+	run: function() {
+		haxe.Log.trace("run",{ fileName : "Timer.hx", lineNumber : 98, className : "haxe.Timer", methodName : "run"});
+	}
+	,stop: function() {
+		if(this.id == null) return;
+		clearInterval(this.id);
+		this.id = null;
+	}
+	,__class__: haxe.Timer
+}
 var flash = {}
+flash.Lib = function(rootElement,width,height) {
+	this.mKilled = false;
+	this.__scr = rootElement;
+	if(this.__scr == null) throw "Root element not found";
+	this.__scr.style.setProperty("overflow","hidden","");
+	this.__scr.style.setProperty("position","absolute","");
+	if(this.__scr.style.getPropertyValue("width") != "100%") this.__scr.style.width = width + "px";
+	if(this.__scr.style.getPropertyValue("height") != "100%") this.__scr.style.height = height + "px";
+};
+$hxClasses["flash.Lib"] = flash.Lib;
+flash.Lib.__name__ = ["flash","Lib"];
+flash.Lib.__properties__ = {get_current:"get_current"}
+flash.Lib.current = null;
+flash.Lib.mCurrent = null;
+flash.Lib.mForce2DTransform = null;
+flash.Lib.mMainClassRoot = null;
+flash.Lib.mMe = null;
+flash.Lib.mStage = null;
+flash.Lib["as"] = function(v,c) {
+	return js.Boot.__instanceof(v,c)?v:null;
+}
+flash.Lib.attach = function(name) {
+	return new flash.display.MovieClip();
+}
+flash.Lib.getTimer = function() {
+	return (haxe.Timer.stamp() - flash.Lib.starttime) * 1000 | 0;
+}
+flash.Lib.getURL = function(request,target) {
+	window.open(request.url);
+}
+flash.Lib.nmeAppendSurface = function(surface,before,after) {
+	if(flash.Lib.mMe.__scr != null) {
+		surface.style.setProperty("position","absolute","");
+		surface.style.setProperty("left","0px","");
+		surface.style.setProperty("top","0px","");
+		surface.style.setProperty("transform-origin","0 0","");
+		surface.style.setProperty("-moz-transform-origin","0 0","");
+		surface.style.setProperty("-webkit-transform-origin","0 0","");
+		surface.style.setProperty("-o-transform-origin","0 0","");
+		surface.style.setProperty("-ms-transform-origin","0 0","");
+		try {
+			if(surface.localName == "canvas") surface.onmouseover = surface.onselectstart = function() {
+				return false;
+			};
+		} catch( e ) {
+		}
+		if(before != null) before.parentNode.insertBefore(surface,before); else if(after != null && after.nextSibling != null) after.parentNode.insertBefore(surface,after.nextSibling); else flash.Lib.mMe.__scr.appendChild(surface);
+	}
+}
+flash.Lib.nmeAppendText = function(surface,container,text,wrap,isHtml) {
+	var _g1 = 0, _g = surface.childNodes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		surface.removeChild(surface.childNodes[i]);
+	}
+	if(isHtml) container.innerHTML = text; else container.appendChild(js.Browser.document.createTextNode(text));
+	container.style.setProperty("position","relative","");
+	container.style.setProperty("cursor","default","");
+	if(!wrap) container.style.setProperty("white-space","nowrap","");
+	surface.appendChild(container);
+}
+flash.Lib.nmeBootstrap = function() {
+	if(flash.Lib.mMe == null) {
+		var target = js.Browser.document.getElementById("haxe:jeash");
+		if(target == null) target = js.Browser.document.createElement("div");
+		var agent = navigator.userAgent;
+		if(agent.indexOf("BlackBerry") > -1 && target.style.height == "100%") target.style.height = screen.height + "px";
+		if(agent.indexOf("Android") > -1) {
+			var version = Std.parseFloat(HxOverrides.substr(agent,agent.indexOf("Android") + 8,3));
+			if(version <= 2.3) flash.Lib.mForce2DTransform = true;
+		}
+		flash.Lib.Run(target,flash.Lib.nmeGetWidth(),flash.Lib.nmeGetHeight());
+	}
+}
+flash.Lib.nmeCopyStyle = function(src,tgt) {
+	tgt.id = src.id;
+	var _g = 0, _g1 = ["left","top","transform","transform-origin","-moz-transform","-moz-transform-origin","-webkit-transform","-webkit-transform-origin","-o-transform","-o-transform-origin","opacity","display"];
+	while(_g < _g1.length) {
+		var prop = _g1[_g];
+		++_g;
+		tgt.style.setProperty(prop,src.style.getPropertyValue(prop),"");
+	}
+}
+flash.Lib.nmeCreateSurfaceAnimationCSS = function(surface,data,template,templateFunc,fps,discrete,infinite) {
+	if(infinite == null) infinite = false;
+	if(discrete == null) discrete = false;
+	if(fps == null) fps = 25;
+	if(surface.id == null || surface.id == "") {
+		flash.Lib.trace("Failed to create a CSS Style tag for a surface without an id attribute");
+		return null;
+	}
+	var style = null;
+	if(surface.getAttribute("data-nme-anim") != null) style = js.Browser.document.getElementById(surface.getAttribute("data-nme-anim")); else {
+		style = flash.Lib.mMe.__scr.appendChild(js.Browser.document.createElement("style"));
+		style.sheet.id = "__nme_anim_" + surface.id + "__";
+		surface.setAttribute("data-nme-anim",style.sheet.id);
+	}
+	var keyframeStylesheetRule = "";
+	var _g1 = 0, _g = data.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var perc = i / (data.length - 1) * 100;
+		var frame = data[i];
+		keyframeStylesheetRule += perc + "% { " + template.execute(templateFunc(frame)) + " } ";
+	}
+	var animationDiscreteRule = discrete?"steps(::steps::, end)":"";
+	var animationInfiniteRule = infinite?"infinite":"";
+	var animationTpl = "";
+	var _g = 0, _g1 = ["animation","-moz-animation","-webkit-animation","-o-animation","-ms-animation"];
+	while(_g < _g1.length) {
+		var prefix = _g1[_g];
+		++_g;
+		animationTpl += prefix + ": ::id:: ::duration::s " + animationDiscreteRule + " " + animationInfiniteRule + "; ";
+	}
+	var animationStylesheetRule = new haxe.Template(animationTpl).execute({ id : surface.id, duration : data.length / fps, steps : 1});
+	var rules = style.sheet.rules != null?style.sheet.rules:style.sheet.cssRules;
+	var _g = 0, _g1 = ["","-moz-","-webkit-","-o-","-ms-"];
+	while(_g < _g1.length) {
+		var variant = _g1[_g];
+		++_g;
+		try {
+			style.sheet.insertRule("@" + variant + "keyframes " + surface.id + " {" + keyframeStylesheetRule + "}",rules.length);
+		} catch( e ) {
+		}
+	}
+	style.sheet.insertRule("#" + surface.id + " { " + animationStylesheetRule + " } ",rules.length);
+	return style;
+}
+flash.Lib.nmeDesignMode = function(mode) {
+	js.Browser.document.designMode = mode?"on":"off";
+}
+flash.Lib.nmeDisableFullScreen = function() {
+}
+flash.Lib.nmeDisableRightClick = function() {
+	if(flash.Lib.mMe != null) try {
+		flash.Lib.mMe.__scr.oncontextmenu = function() {
+			return false;
+		};
+	} catch( e ) {
+		flash.Lib.trace("Disable right click not supported in this browser.");
+	}
+}
+flash.Lib.nmeDrawClippedImage = function(surface,tgtCtx,clipRect) {
+	if(clipRect != null) {
+		if(clipRect.x < 0) {
+			clipRect.width += clipRect.x;
+			clipRect.x = 0;
+		}
+		if(clipRect.y < 0) {
+			clipRect.height += clipRect.y;
+			clipRect.y = 0;
+		}
+		if(clipRect.width > surface.width - clipRect.x) clipRect.width = surface.width - clipRect.x;
+		if(clipRect.height > surface.height - clipRect.y) clipRect.height = surface.height - clipRect.y;
+		tgtCtx.drawImage(surface,clipRect.x,clipRect.y,clipRect.width,clipRect.height,clipRect.x,clipRect.y,clipRect.width,clipRect.height);
+	} else tgtCtx.drawImage(surface,0,0);
+}
+flash.Lib.nmeDrawSurfaceRect = function(surface,tgt,x,y,rect) {
+	var tgtCtx = tgt.getContext("2d");
+	tgt.width = rect.width;
+	tgt.height = rect.height;
+	tgtCtx.drawImage(surface,rect.x,rect.y,rect.width,rect.height,0,0,rect.width,rect.height);
+	tgt.style.left = x + "px";
+	tgt.style.top = y + "px";
+}
+flash.Lib.nmeDrawToSurface = function(surface,tgt,matrix,alpha,clipRect,smoothing) {
+	if(smoothing == null) smoothing = true;
+	if(alpha == null) alpha = 1.0;
+	var srcCtx = surface.getContext("2d");
+	var tgtCtx = tgt.getContext("2d");
+	tgtCtx.globalAlpha = alpha;
+	flash.Lib.nmeSetImageSmoothing(tgtCtx,smoothing);
+	if(surface.width > 0 && surface.height > 0) {
+		if(matrix != null) {
+			tgtCtx.save();
+			if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1) tgtCtx.translate(matrix.tx,matrix.ty); else tgtCtx.setTransform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
+			flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
+			tgtCtx.restore();
+		} else flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
+	}
+}
+flash.Lib.nmeEnableFullScreen = function() {
+	if(flash.Lib.mMe != null) {
+		var origWidth = flash.Lib.mMe.__scr.style.getPropertyValue("width");
+		var origHeight = flash.Lib.mMe.__scr.style.getPropertyValue("height");
+		flash.Lib.mMe.__scr.style.setProperty("width","100%","");
+		flash.Lib.mMe.__scr.style.setProperty("height","100%","");
+		flash.Lib.nmeDisableFullScreen = function() {
+			flash.Lib.mMe.__scr.style.setProperty("width",origWidth,"");
+			flash.Lib.mMe.__scr.style.setProperty("height",origHeight,"");
+		};
+	}
+}
+flash.Lib.nmeEnableRightClick = function() {
+	if(flash.Lib.mMe != null) try {
+		flash.Lib.mMe.__scr.oncontextmenu = null;
+	} catch( e ) {
+		flash.Lib.trace("Enable right click not supported in this browser.");
+	}
+}
+flash.Lib.nmeFullScreenHeight = function() {
+	return js.Browser.window.innerHeight;
+}
+flash.Lib.nmeFullScreenWidth = function() {
+	return js.Browser.window.innerWidth;
+}
+flash.Lib.nmeGetHeight = function() {
+	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
+	return tgt != null && tgt.clientHeight > 0?tgt.clientHeight:500;
+}
+flash.Lib.nmeGetStage = function() {
+	if(flash.Lib.mStage == null) {
+		var width = flash.Lib.nmeGetWidth();
+		var height = flash.Lib.nmeGetHeight();
+		flash.Lib.mStage = new flash.display.Stage(width,height);
+	}
+	return flash.Lib.mStage;
+}
+flash.Lib.nmeGetWidth = function() {
+	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
+	return tgt != null && tgt.clientWidth > 0?tgt.clientWidth:500;
+}
+flash.Lib.nmeIsOnStage = function(surface) {
+	var p = surface;
+	while(p != null && p != flash.Lib.mMe.__scr) p = p.parentNode;
+	return p == flash.Lib.mMe.__scr;
+}
+flash.Lib.nmeParseColor = function(str,cb) {
+	var re = new EReg("rgb\\(([0-9]*), ?([0-9]*), ?([0-9]*)\\)","");
+	var hex = new EReg("#([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])","");
+	if(re.match(str)) {
+		var col = 0;
+		var _g = 1;
+		while(_g < 4) {
+			var pos = _g++;
+			var v = Std.parseInt(re.matched(pos));
+			col = cb(col,pos - 1,v);
+		}
+		return col;
+	} else if(hex.match(str)) {
+		var col = 0;
+		var _g = 1;
+		while(_g < 4) {
+			var pos = _g++;
+			var v = "0x" + hex.matched(pos) & 255;
+			v = cb(col,pos - 1,v);
+		}
+		return col;
+	} else throw "Cannot parse color '" + str + "'.";
+}
+flash.Lib.nmeRemoveSurface = function(surface) {
+	if(flash.Lib.mMe.__scr != null) {
+		var anim = surface.getAttribute("data-nme-anim");
+		if(anim != null) {
+			var style = js.Browser.document.getElementById(anim);
+			if(style != null) flash.Lib.mMe.__scr.removeChild(style);
+		}
+		if(surface.parentNode != null) surface.parentNode.removeChild(surface);
+	}
+	return surface;
+}
+flash.Lib.nmeSetSurfaceBorder = function(surface,color,size) {
+	surface.style.setProperty("border-color","#" + StringTools.hex(color),"");
+	surface.style.setProperty("border-style","solid","");
+	surface.style.setProperty("border-width",size + "px","");
+	surface.style.setProperty("border-collapse","collapse","");
+}
+flash.Lib.nmeSetSurfaceClipping = function(surface,rect) {
+}
+flash.Lib.nmeSetSurfaceFont = function(surface,font,bold,size,color,align,lineHeight) {
+	surface.style.setProperty("font-family",font,"");
+	surface.style.setProperty("font-weight",Std.string(bold),"");
+	surface.style.setProperty("color","#" + StringTools.hex(color),"");
+	surface.style.setProperty("font-size",size + "px","");
+	surface.style.setProperty("text-align",align,"");
+	surface.style.setProperty("line-height",lineHeight + "px","");
+}
+flash.Lib.nmeSetSurfaceOpacity = function(surface,alpha) {
+	surface.style.setProperty("opacity",Std.string(alpha),"");
+}
+flash.Lib.nmeSetSurfacePadding = function(surface,padding,margin,display) {
+	surface.style.setProperty("padding",padding + "px","");
+	surface.style.setProperty("margin",margin + "px","");
+	surface.style.setProperty("top",padding + 2 + "px","");
+	surface.style.setProperty("right",padding + 1 + "px","");
+	surface.style.setProperty("left",padding + 1 + "px","");
+	surface.style.setProperty("bottom",padding + 1 + "px","");
+	surface.style.setProperty("display",display?"inline":"block","");
+}
+flash.Lib.nmeSetSurfaceTransform = function(surface,matrix) {
+	if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1 && surface.getAttribute("data-nme-anim") == null) {
+		surface.style.left = matrix.tx + "px";
+		surface.style.top = matrix.ty + "px";
+		surface.style.setProperty("transform","","");
+		surface.style.setProperty("-moz-transform","","");
+		surface.style.setProperty("-webkit-transform","","");
+		surface.style.setProperty("-o-transform","","");
+		surface.style.setProperty("-ms-transform","","");
+	} else {
+		surface.style.left = "0px";
+		surface.style.top = "0px";
+		surface.style.setProperty("transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
+		surface.style.setProperty("-moz-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + "px, " + matrix.ty + "px)","");
+		if(!flash.Lib.mForce2DTransform) surface.style.setProperty("-webkit-transform","matrix3d(" + matrix.a + ", " + matrix.b + ", " + "0, 0, " + matrix.c + ", " + matrix.d + ", " + "0, 0, 0, 0, 1, 0, " + matrix.tx + ", " + matrix.ty + ", " + "0, 1" + ")",""); else surface.style.setProperty("-webkit-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
+		surface.style.setProperty("-o-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
+		surface.style.setProperty("-ms-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
+	}
+}
+flash.Lib.nmeSetSurfaceZIndexAfter = function(surface1,surface2) {
+	if(surface1 != null && surface2 != null) {
+		if(surface1.parentNode != surface2.parentNode && surface2.parentNode != null) surface2.parentNode.appendChild(surface1);
+		if(surface2.parentNode != null) {
+			var nextSibling = surface2.nextSibling;
+			if(surface1.previousSibling != surface2) {
+				var swap = flash.Lib.nmeRemoveSurface(surface1);
+				if(nextSibling == null) surface2.parentNode.appendChild(swap); else surface2.parentNode.insertBefore(swap,nextSibling);
+			}
+		}
+	}
+}
+flash.Lib.nmeSwapSurface = function(surface1,surface2) {
+	var parent1 = surface1.parentNode;
+	var parent2 = surface2.parentNode;
+	if(parent1 != null && parent2 != null) {
+		if(parent1 == parent2) {
+			var next1 = surface1.nextSibling;
+			var next2 = surface2.nextSibling;
+			if(next1 == surface2) parent1.insertBefore(surface2,surface1); else if(next2 == surface1) parent1.insertBefore(surface1,surface2); else {
+				parent1.replaceChild(surface2,surface1);
+				if(next2 != null) parent1.insertBefore(surface1,next2); else parent1.appendChild(surface1);
+			}
+		} else {
+			var next2 = surface2.nextSibling;
+			parent1.replaceChild(surface2,surface1);
+			if(next2 != null) parent2.insertBefore(surface1,next2); else parent2.appendChild(surface1);
+		}
+	}
+}
+flash.Lib.nmeSetContentEditable = function(surface,contentEditable) {
+	if(contentEditable == null) contentEditable = true;
+	surface.setAttribute("contentEditable",contentEditable?"true":"false");
+}
+flash.Lib.nmeSetCursor = function(type) {
+	if(flash.Lib.mMe != null) flash.Lib.mMe.__scr.style.cursor = (function($this) {
+		var $r;
+		switch( (type)[1] ) {
+		case 0:
+			$r = "pointer";
+			break;
+		case 1:
+			$r = "text";
+			break;
+		default:
+			$r = "default";
+		}
+		return $r;
+	}(this));
+}
+flash.Lib.nmeSetImageSmoothing = function(context,enabled) {
+	var _g = 0, _g1 = ["imageSmoothingEnabled","mozImageSmoothingEnabled","webkitImageSmoothingEnabled"];
+	while(_g < _g1.length) {
+		var variant = _g1[_g];
+		++_g;
+		context[variant] = enabled;
+	}
+}
+flash.Lib.nmeSetSurfaceAlign = function(surface,align) {
+	surface.style.setProperty("text-align",align,"");
+}
+flash.Lib.nmeSetSurfaceId = function(surface,name) {
+	var regex = new EReg("[^a-zA-Z0-9\\-]","g");
+	surface.id = regex.replace(name,"_");
+}
+flash.Lib.nmeSetSurfaceRotation = function(surface,rotate) {
+	surface.style.setProperty("transform","rotate(" + rotate + "deg)","");
+	surface.style.setProperty("-moz-transform","rotate(" + rotate + "deg)","");
+	surface.style.setProperty("-webkit-transform","rotate(" + rotate + "deg)","");
+	surface.style.setProperty("-o-transform","rotate(" + rotate + "deg)","");
+	surface.style.setProperty("-ms-transform","rotate(" + rotate + "deg)","");
+}
+flash.Lib.nmeSetSurfaceScale = function(surface,scale) {
+	surface.style.setProperty("transform","scale(" + scale + ")","");
+	surface.style.setProperty("-moz-transform","scale(" + scale + ")","");
+	surface.style.setProperty("-webkit-transform","scale(" + scale + ")","");
+	surface.style.setProperty("-o-transform","scale(" + scale + ")","");
+	surface.style.setProperty("-ms-transform","scale(" + scale + ")","");
+}
+flash.Lib.nmeSetSurfaceSpritesheetAnimation = function(surface,spec,fps) {
+	if(spec.length == 0) return surface;
+	var div = js.Browser.document.createElement("div");
+	div.style.backgroundImage = "url(" + surface.toDataURL("image/png") + ")";
+	div.id = surface.id;
+	var keyframeTpl = new haxe.Template("background-position: ::left::px ::top::px; width: ::width::px; height: ::height::px; ");
+	var templateFunc = function(frame) {
+		return { left : -frame.x, top : -frame.y, width : frame.width, height : frame.height};
+	};
+	flash.Lib.nmeCreateSurfaceAnimationCSS(div,spec,keyframeTpl,templateFunc,fps,true,true);
+	if(flash.Lib.nmeIsOnStage(surface)) {
+		flash.Lib.nmeAppendSurface(div);
+		flash.Lib.nmeCopyStyle(surface,div);
+		flash.Lib.nmeSwapSurface(surface,div);
+		flash.Lib.nmeRemoveSurface(surface);
+	} else flash.Lib.nmeCopyStyle(surface,div);
+	return div;
+}
+flash.Lib.nmeSetSurfaceVisible = function(surface,visible) {
+	if(visible) surface.style.setProperty("display","block",""); else surface.style.setProperty("display","none","");
+}
+flash.Lib.nmeSetTextDimensions = function(surface,width,height,align) {
+	surface.style.setProperty("width",width + "px","");
+	surface.style.setProperty("height",height + "px","");
+	surface.style.setProperty("overflow","hidden","");
+	surface.style.setProperty("text-align",align,"");
+}
+flash.Lib.nmeSurfaceHitTest = function(surface,x,y) {
+	var _g1 = 0, _g = surface.childNodes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var node = surface.childNodes[i];
+		if(x >= node.offsetLeft && x <= node.offsetLeft + node.offsetWidth && y >= node.offsetTop && y <= node.offsetTop + node.offsetHeight) return true;
+	}
+	return false;
+}
+flash.Lib.preventDefaultTouchMove = function() {
+	js.Browser.document.addEventListener("touchmove",function(evt) {
+		evt.preventDefault();
+	},false);
+}
+flash.Lib.Run = function(tgt,width,height) {
+	flash.Lib.mMe = new flash.Lib(tgt,width,height);
+	var _g1 = 0, _g = tgt.attributes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var attr = tgt.attributes.item(i);
+		if(StringTools.startsWith(attr.name,"data-")) {
+			if(attr.name == "data-" + "framerate") flash.Lib.nmeGetStage().set_frameRate(Std.parseFloat(attr.value));
+		}
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_DIV_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	}
+	if(Reflect.hasField(js.Browser.window,"on" + "devicemotion")) js.Browser.window.addEventListener("devicemotion",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	if(Reflect.hasField(js.Browser.window,"on" + "orientationchange")) js.Browser.window.addEventListener("orientationchange",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	var _g = 0, _g1 = flash.Lib.HTML_WINDOW_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		js.Browser.window.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),false);
+	}
+	if(tgt.style.backgroundColor != null && tgt.style.backgroundColor != "") flash.Lib.nmeGetStage().set_backgroundColor(flash.Lib.nmeParseColor(tgt.style.backgroundColor,function(res,pos,cur) {
+		return pos == 0?res | cur << 16:pos == 1?res | cur << 8:pos == 2?res | cur:(function($this) {
+			var $r;
+			throw "pos should be 0-2";
+			return $r;
+		}(this));
+	})); else flash.Lib.nmeGetStage().set_backgroundColor(16777215);
+	flash.Lib.get_current().get_graphics().beginFill(flash.Lib.nmeGetStage().get_backgroundColor());
+	flash.Lib.get_current().get_graphics().drawRect(0,0,width,height);
+	flash.Lib.nmeSetSurfaceId(flash.Lib.get_current().get_graphics().nmeSurface,"Root MovieClip");
+	flash.Lib.nmeGetStage().nmeUpdateNextWake();
+	return flash.Lib.mMe;
+}
+flash.Lib.setUserScalable = function(isScalable) {
+	if(isScalable == null) isScalable = true;
+	var meta = js.Browser.document.createElement("meta");
+	meta.name = "viewport";
+	meta.content = "user-scalable=" + (isScalable?"yes":"no");
+}
+flash.Lib.trace = function(arg) {
+	if(window.console != null) window.console.log(arg);
+}
+flash.Lib.addCallback = function(functionName,closure) {
+	flash.Lib.mMe.__scr[functionName] = closure;
+}
+flash.Lib.get_current = function() {
+	if(flash.Lib.mMainClassRoot == null) {
+		flash.Lib.mMainClassRoot = new flash.display.MovieClip();
+		flash.Lib.mCurrent = flash.Lib.mMainClassRoot;
+		flash.Lib.nmeGetStage().addChild(flash.Lib.mCurrent);
+	}
+	return flash.Lib.mMainClassRoot;
+}
+flash.Lib.prototype = {
+	__class__: flash.Lib
+}
+flash._Lib = {}
+flash._Lib.CursorType = { __ename__ : true, __constructs__ : ["Pointer","Text","Default"] }
+flash._Lib.CursorType.Pointer = ["Pointer",0];
+flash._Lib.CursorType.Pointer.toString = $estr;
+flash._Lib.CursorType.Pointer.__enum__ = flash._Lib.CursorType;
+flash._Lib.CursorType.Text = ["Text",1];
+flash._Lib.CursorType.Text.toString = $estr;
+flash._Lib.CursorType.Text.__enum__ = flash._Lib.CursorType;
+flash._Lib.CursorType.Default = ["Default",2];
+flash._Lib.CursorType.Default.toString = $estr;
+flash._Lib.CursorType.Default.__enum__ = flash._Lib.CursorType;
+flash._Vector = {}
+flash._Vector.Vector_Impl_ = function() { }
+$hxClasses["flash._Vector.Vector_Impl_"] = flash._Vector.Vector_Impl_;
+flash._Vector.Vector_Impl_.__name__ = ["flash","_Vector","Vector_Impl_"];
+flash._Vector.Vector_Impl_.__properties__ = {set_fixed:"set_fixed",get_fixed:"get_fixed",set_length:"set_length",get_length:"get_length"}
+flash._Vector.Vector_Impl_._new = function(length,fixed) {
+	return new Array();
+}
+flash._Vector.Vector_Impl_.concat = function(this1,a) {
+	return this1.concat(a);
+}
+flash._Vector.Vector_Impl_.copy = function(this1) {
+	return this1.slice();
+}
+flash._Vector.Vector_Impl_.iterator = function(this1) {
+	return HxOverrides.iter(this1);
+}
+flash._Vector.Vector_Impl_.join = function(this1,sep) {
+	return this1.join(sep);
+}
+flash._Vector.Vector_Impl_.pop = function(this1) {
+	return this1.pop();
+}
+flash._Vector.Vector_Impl_.push = function(this1,x) {
+	return this1.push(x);
+}
+flash._Vector.Vector_Impl_.reverse = function(this1) {
+	this1.reverse();
+}
+flash._Vector.Vector_Impl_.shift = function(this1) {
+	return this1.shift();
+}
+flash._Vector.Vector_Impl_.unshift = function(this1,x) {
+	this1.unshift(x);
+}
+flash._Vector.Vector_Impl_.slice = function(this1,pos,end) {
+	return this1.slice(pos,end);
+}
+flash._Vector.Vector_Impl_.sort = function(this1,f) {
+	this1.sort(f);
+}
+flash._Vector.Vector_Impl_.splice = function(this1,pos,len) {
+	return this1.splice(pos,len);
+}
+flash._Vector.Vector_Impl_.toString = function(this1) {
+	return this1.toString();
+}
+flash._Vector.Vector_Impl_.indexOf = function(this1,x,from) {
+	if(from == null) from = 0;
+	var _g1 = from, _g = this1.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(this1[i] == x) return i;
+	}
+	return -1;
+}
+flash._Vector.Vector_Impl_.lastIndexOf = function(this1,x,from) {
+	if(from == null) from = 0;
+	var i = this1.length - 1;
+	while(i >= from) {
+		if(this1[i] == x) return i;
+		i--;
+	}
+	return -1;
+}
+flash._Vector.Vector_Impl_.ofArray = function(a) {
+	return flash._Vector.Vector_Impl_.concat(flash._Vector.Vector_Impl_._new(),a);
+}
+flash._Vector.Vector_Impl_.convert = function(v) {
+	return v;
+}
+flash._Vector.Vector_Impl_.fromArray = function(a) {
+	return a;
+}
+flash._Vector.Vector_Impl_.toArray = function(this1) {
+	return this1;
+}
+flash._Vector.Vector_Impl_.get_length = function(this1) {
+	return this1.length;
+}
+flash._Vector.Vector_Impl_.set_length = function(this1,value) {
+	if(value < this1.length) this1 = this1.slice(0,value);
+	while(value > this1.length) this1.push(null);
+	return value;
+}
+flash._Vector.Vector_Impl_.get_fixed = function(this1) {
+	return false;
+}
+flash._Vector.Vector_Impl_.set_fixed = function(this1,value) {
+	return value;
+}
+flash.accessibility = {}
+flash.accessibility.AccessibilityProperties = function() {
+	this.description = "";
+	this.forceSimple = false;
+	this.name = "";
+	this.noAutoLabeling = false;
+	this.shortcut = "";
+	this.silent = false;
+};
+$hxClasses["flash.accessibility.AccessibilityProperties"] = flash.accessibility.AccessibilityProperties;
+flash.accessibility.AccessibilityProperties.__name__ = ["flash","accessibility","AccessibilityProperties"];
+flash.accessibility.AccessibilityProperties.prototype = {
+	__class__: flash.accessibility.AccessibilityProperties
+}
 flash.events = {}
 flash.events.IEventDispatcher = function() { }
 $hxClasses["flash.events.IEventDispatcher"] = flash.events.IEventDispatcher;
@@ -971,1594 +1988,6 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 	,__class__: flash.display.DisplayObject
 	,__properties__: {set_filters:"set_filters",get_filters:"get_filters",set_height:"set_height",get_height:"get_height",set_mask:"set_mask",get_mask:"get_mask",get_mouseX:"get_mouseX",get_mouseY:"get_mouseY",set_nmeCombinedVisible:"set_nmeCombinedVisible",set_parent:"set_parent",set_rotation:"set_rotation",get_rotation:"get_rotation",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scrollRect:"set_scrollRect",get_scrollRect:"get_scrollRect",get_stage:"get_stage",set_transform:"set_transform",set_visible:"set_visible",get_visible:"get_visible",set_width:"set_width",get_width:"get_width",set_x:"set_x",get_x:"get_x",set_y:"set_y",get_y:"get_y",get__bottommostSurface:"get__bottommostSurface",get__boundsInvalid:"get__boundsInvalid",get__matrixChainInvalid:"get__matrixChainInvalid",get__matrixInvalid:"get__matrixInvalid",get__topmostSurface:"get__topmostSurface"}
 });
-flash.display.InteractiveObject = function() {
-	flash.display.DisplayObject.call(this);
-	this.tabEnabled = false;
-	this.mouseEnabled = true;
-	this.doubleClickEnabled = true;
-	this.set_tabIndex(0);
-};
-$hxClasses["flash.display.InteractiveObject"] = flash.display.InteractiveObject;
-flash.display.InteractiveObject.__name__ = ["flash","display","InteractiveObject"];
-flash.display.InteractiveObject.__super__ = flash.display.DisplayObject;
-flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.prototype,{
-	set_tabIndex: function(inIndex) {
-		return this.nmeTabIndex = inIndex;
-	}
-	,get_tabIndex: function() {
-		return this.nmeTabIndex;
-	}
-	,toString: function() {
-		return "[InteractiveObject name=" + this.name + " id=" + this._nmeId + "]";
-	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
-	}
-	,__class__: flash.display.InteractiveObject
-	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_tabIndex:"set_tabIndex",get_tabIndex:"get_tabIndex"})
-});
-flash.display.DisplayObjectContainer = function() {
-	this.nmeChildren = new Array();
-	this.mouseChildren = true;
-	this.tabChildren = true;
-	flash.display.InteractiveObject.call(this);
-	this.nmeCombinedAlpha = this.alpha;
-};
-$hxClasses["flash.display.DisplayObjectContainer"] = flash.display.DisplayObjectContainer;
-flash.display.DisplayObjectContainer.__name__ = ["flash","display","DisplayObjectContainer"];
-flash.display.DisplayObjectContainer.__super__ = flash.display.InteractiveObject;
-flash.display.DisplayObjectContainer.prototype = $extend(flash.display.InteractiveObject.prototype,{
-	set_scrollRect: function(inValue) {
-		inValue = flash.display.InteractiveObject.prototype.set_scrollRect.call(this,inValue);
-		this.nmeUnifyChildrenWithDOM();
-		return inValue;
-	}
-	,set_visible: function(inVal) {
-		this.set_nmeCombinedVisible(this.parent != null?this.parent.nmeCombinedVisible && inVal:inVal);
-		return flash.display.InteractiveObject.prototype.set_visible.call(this,inVal);
-	}
-	,get_numChildren: function() {
-		return this.nmeChildren.length;
-	}
-	,set_nmeCombinedVisible: function(inVal) {
-		if(inVal != this.nmeCombinedVisible) {
-			var _g = 0, _g1 = this.nmeChildren;
-			while(_g < _g1.length) {
-				var child = _g1[_g];
-				++_g;
-				child.set_nmeCombinedVisible(child.get_visible() && inVal);
-			}
-		}
-		return flash.display.InteractiveObject.prototype.set_nmeCombinedVisible.call(this,inVal);
-	}
-	,set_filters: function(filters) {
-		flash.display.InteractiveObject.prototype.set_filters.call(this,filters);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			child.set_filters(filters);
-		}
-		return filters;
-	}
-	,__contains: function(child) {
-		if(child == null) return false;
-		if(this == child) return true;
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c == child || c.__contains(child)) return true;
-		}
-		return false;
-	}
-	,validateBounds: function() {
-		if(this.get__boundsInvalid()) {
-			flash.display.InteractiveObject.prototype.validateBounds.call(this);
-			var _g = 0, _g1 = this.nmeChildren;
-			while(_g < _g1.length) {
-				var obj = _g1[_g];
-				++_g;
-				if(obj.get_visible()) {
-					var r = obj.getBounds(this);
-					if(r.width != 0 || r.height != 0) {
-						if(this.nmeBoundsRect.width == 0 && this.nmeBoundsRect.height == 0) this.nmeBoundsRect = r.clone(); else this.nmeBoundsRect.extendBounds(r);
-					}
-				}
-			}
-			if(this.scale9Grid != null) {
-				this.nmeBoundsRect.width *= this.nmeScaleX;
-				this.nmeBoundsRect.height *= this.nmeScaleY;
-				this.nmeWidth = this.nmeBoundsRect.width;
-				this.nmeHeight = this.nmeBoundsRect.height;
-			} else {
-				this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-				this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
-			}
-		}
-	}
-	,toString: function() {
-		return "[DisplayObjectContainer name=" + this.name + " id=" + this._nmeId + "]";
-	}
-	,swapChildrenAt: function(child1,child2) {
-		var swap = this.nmeChildren[child1];
-		this.nmeChildren[child1] = this.nmeChildren[child2];
-		this.nmeChildren[child2] = swap;
-		swap = null;
-	}
-	,swapChildren: function(child1,child2) {
-		var c1 = -1;
-		var c2 = -1;
-		var swap;
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(this.nmeChildren[i] == child1) c1 = i; else if(this.nmeChildren[i] == child2) c2 = i;
-		}
-		if(c1 != -1 && c2 != -1) {
-			swap = this.nmeChildren[c1];
-			this.nmeChildren[c1] = this.nmeChildren[c2];
-			this.nmeChildren[c2] = swap;
-			swap = null;
-			this.nmeSwapSurface(c1,c2);
-			child1.nmeUnifyChildrenWithDOM();
-			child2.nmeUnifyChildrenWithDOM();
-		}
-	}
-	,setChildIndex: function(child,index) {
-		if(index > this.nmeChildren.length) throw "Invalid index position " + index;
-		var oldIndex = this.getChildIndex(child);
-		if(oldIndex < 0) {
-			var msg = "setChildIndex : object " + child.name + " not found.";
-			if(child.parent == this) {
-				var realindex = -1;
-				var _g1 = 0, _g = this.nmeChildren.length;
-				while(_g1 < _g) {
-					var i = _g1++;
-					if(this.nmeChildren[i] == child) {
-						realindex = i;
-						break;
-					}
-				}
-				if(realindex != -1) msg += "Internal error: Real child index was " + Std.string(realindex); else msg += "Internal error: Child was not in nmeChildren array!";
-			}
-			throw msg;
-		}
-		if(index < oldIndex) {
-			var i = oldIndex;
-			while(i > index) {
-				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i - 1]);
-				i--;
-			}
-		} else if(oldIndex < index) {
-			var i = oldIndex;
-			while(i < index) {
-				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i + 1]);
-				i++;
-			}
-		}
-	}
-	,removeChildAt: function(index) {
-		if(index >= 0 && index < this.nmeChildren.length) return this.nmeRemoveChild(this.nmeChildren[index]);
-		throw "removeChildAt(" + index + ") : none found?";
-	}
-	,removeChild: function(inChild) {
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child == inChild) return (function($this) {
-				var $r;
-				child.nmeRemoveFromStage();
-				child.set_parent(null);
-				$r = child;
-				return $r;
-			}(this));
-		}
-		throw "removeChild : none found?";
-	}
-	,nmeUnifyChildrenWithDOM: function(lastMoveObj) {
-		var obj = flash.display.InteractiveObject.prototype.nmeUnifyChildrenWithDOM.call(this,lastMoveObj);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			obj = child.nmeUnifyChildrenWithDOM(obj);
-			if(child.get_scrollRect() != null) obj = child;
-		}
-		return obj;
-	}
-	,nmeSwapSurface: function(c1,c2) {
-		if(this.nmeChildren[c1] == null) throw "Null element at index " + c1 + " length " + this.nmeChildren.length;
-		if(this.nmeChildren[c2] == null) throw "Null element at index " + c2 + " length " + this.nmeChildren.length;
-		var gfx1 = this.nmeChildren[c1].nmeGetGraphics();
-		var gfx2 = this.nmeChildren[c2].nmeGetGraphics();
-		if(gfx1 != null && gfx2 != null) {
-			var surface1 = this.nmeChildren[c1].nmeScrollRect == null?gfx1.nmeSurface:this.nmeChildren[c1].nmeGetSrWindow();
-			var surface2 = this.nmeChildren[c2].nmeScrollRect == null?gfx2.nmeSurface:this.nmeChildren[c2].nmeGetSrWindow();
-			if(surface1 != null && surface2 != null) flash.Lib.nmeSwapSurface(surface1,surface2);
-		}
-	}
-	,nmeRender: function(inMask,clipRect) {
-		if(!this.nmeVisible) return;
-		if(clipRect == null && this.nmeScrollRect != null) clipRect = this.nmeScrollRect;
-		flash.display.InteractiveObject.prototype.nmeRender.call(this,inMask,clipRect);
-		this.nmeCombinedAlpha = this.parent != null?this.parent.nmeCombinedAlpha * this.alpha:this.alpha;
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child.nmeVisible) {
-				if(clipRect != null) {
-					if((child._nmeRenderFlags & 4) != 0 || (child._nmeRenderFlags & 8) != 0) child.nmeValidateMatrix();
-				}
-				child.nmeRender(inMask,clipRect);
-			}
-		}
-		if(this.nmeAddedChildren) {
-			this.nmeUnifyChildrenWithDOM();
-			this.nmeAddedChildren = false;
-		}
-	}
-	,nmeRemoveFromStage: function() {
-		flash.display.InteractiveObject.prototype.nmeRemoveFromStage.call(this);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			child.nmeRemoveFromStage();
-		}
-	}
-	,nmeRemoveChild: function(child) {
-		child.nmeRemoveFromStage();
-		child.set_parent(null);
-		return child;
-	}
-	,nmeInvalidateMatrix: function(local) {
-		if(local == null) local = false;
-		if(!((this._nmeRenderFlags & 8) != 0) && !((this._nmeRenderFlags & 4) != 0)) {
-			var _g = 0, _g1 = this.nmeChildren;
-			while(_g < _g1.length) {
-				var child = _g1[_g];
-				++_g;
-				child.nmeInvalidateMatrix();
-			}
-		}
-		flash.display.InteractiveObject.prototype.nmeInvalidateMatrix.call(this,local);
-	}
-	,nmeGetObjectsUnderPoint: function(point,stack) {
-		var l = this.nmeChildren.length - 1;
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
-			if(result != null) stack.push(result);
-		}
-	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(!this.get_visible()) return null;
-		var l = this.nmeChildren.length - 1;
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var result = null;
-			if(this.mouseEnabled) result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
-			if(result != null) return this.mouseChildren?result:this;
-		}
-		return flash.display.InteractiveObject.prototype.nmeGetObjectUnderPoint.call(this,point);
-	}
-	,nmeBroadcast: function(event) {
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			child.nmeBroadcast(event);
-		}
-		this.dispatchEvent(event);
-	}
-	,nmeAddToStage: function(newParent,beforeSibling) {
-		flash.display.InteractiveObject.prototype.nmeAddToStage.call(this,newParent,beforeSibling);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child.nmeGetGraphics() == null || !child.nmeIsOnStage()) child.nmeAddToStage(this);
-		}
-	}
-	,getObjectsUnderPoint: function(point) {
-		var result = new Array();
-		this.nmeGetObjectsUnderPoint(point,result);
-		return result;
-	}
-	,getChildIndex: function(inChild) {
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(this.nmeChildren[i] == inChild) return i;
-		}
-		return -1;
-	}
-	,getChildByName: function(inName) {
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child.name == inName) return child;
-		}
-		return null;
-	}
-	,getChildAt: function(index) {
-		if(index >= 0 && index < this.nmeChildren.length) return this.nmeChildren[index];
-		throw "getChildAt : index out of bounds " + index + "/" + this.nmeChildren.length;
-		return null;
-	}
-	,contains: function(child) {
-		return this.__contains(child);
-	}
-	,addChildAt: function(object,index) {
-		if(index > this.nmeChildren.length || index < 0) throw "Invalid index position " + index;
-		this.nmeAddedChildren = true;
-		if(object.parent == this) {
-			this.setChildIndex(object,index);
-			return object;
-		}
-		if(index == this.nmeChildren.length) return this.addChild(object); else {
-			if(this.nmeIsOnStage()) object.nmeAddToStage(this,this.nmeChildren[index]);
-			this.nmeChildren.splice(index,0,object);
-			object.set_parent(this);
-		}
-		return object;
-	}
-	,addChild: function(object) {
-		if(object == null) throw "DisplayObjectContainer asked to add null child object";
-		if(object == this) throw "Adding to self";
-		this.nmeAddedChildren = true;
-		if(object.parent == this) {
-			this.setChildIndex(object,this.nmeChildren.length - 1);
-			return object;
-		}
-		object.set_parent(this);
-		if(this.nmeIsOnStage()) object.nmeAddToStage(this);
-		if(this.nmeChildren == null) this.nmeChildren = new Array();
-		this.nmeChildren.push(object);
-		return object;
-	}
-	,__removeChild: function(child) {
-		HxOverrides.remove(this.nmeChildren,child);
-	}
-	,__class__: flash.display.DisplayObjectContainer
-	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{get_numChildren:"get_numChildren"})
-});
-flash.display.Sprite = function() {
-	flash.display.DisplayObjectContainer.call(this);
-	this.nmeGraphics = new flash.display.Graphics();
-	this.buttonMode = false;
-};
-$hxClasses["flash.display.Sprite"] = flash.display.Sprite;
-flash.display.Sprite.__name__ = ["flash","display","Sprite"];
-flash.display.Sprite.__super__ = flash.display.DisplayObjectContainer;
-flash.display.Sprite.prototype = $extend(flash.display.DisplayObjectContainer.prototype,{
-	set_useHandCursor: function(cursor) {
-		if(cursor == this.useHandCursor) return cursor;
-		if(this.nmeCursorCallbackOver != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
-		if(this.nmeCursorCallbackOut != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
-		if(!cursor) flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default); else {
-			this.nmeCursorCallbackOver = function(_) {
-				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Pointer);
-			};
-			this.nmeCursorCallbackOut = function(_) {
-				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default);
-			};
-			this.addEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
-			this.addEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
-		}
-		this.useHandCursor = cursor;
-		return cursor;
-	}
-	,get_graphics: function() {
-		return this.nmeGraphics;
-	}
-	,get_dropTarget: function() {
-		return this.nmeDropTarget;
-	}
-	,toString: function() {
-		return "[Sprite name=" + this.name + " id=" + this._nmeId + "]";
-	}
-	,stopDrag: function() {
-		if(this.nmeIsOnStage()) {
-			this.get_stage().nmeStopDrag(this);
-			var l = this.parent.nmeChildren.length - 1;
-			var obj = this.get_stage();
-			var _g1 = 0, _g = this.parent.nmeChildren.length;
-			while(_g1 < _g) {
-				var i = _g1++;
-				var result = this.parent.nmeChildren[l - i].nmeGetObjectUnderPoint(new flash.geom.Point(this.get_stage().get_mouseX(),this.get_stage().get_mouseY()));
-				if(result != null) obj = result;
-			}
-			if(obj != this) this.nmeDropTarget = obj; else this.nmeDropTarget = this.get_stage();
-		}
-	}
-	,startDrag: function(lockCenter,bounds) {
-		if(lockCenter == null) lockCenter = false;
-		if(this.nmeIsOnStage()) this.get_stage().nmeStartDrag(this,lockCenter,bounds);
-	}
-	,nmeGetGraphics: function() {
-		return this.nmeGraphics;
-	}
-	,__class__: flash.display.Sprite
-	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{get_dropTarget:"get_dropTarget",get_graphics:"get_graphics",set_useHandCursor:"set_useHandCursor"})
-});
-var NMEPreloader = function() {
-	flash.display.Sprite.call(this);
-	var backgroundColor = this.getBackgroundColor();
-	var r = backgroundColor >> 16 & 255;
-	var g = backgroundColor >> 8 & 255;
-	var b = backgroundColor & 255;
-	var perceivedLuminosity = 0.299 * r + 0.587 * g + 0.114 * b;
-	var color = 0;
-	if(perceivedLuminosity < 70) color = 16777215;
-	var x = 30;
-	var height = 9;
-	var y = this.getHeight() / 2 - height / 2;
-	var width = this.getWidth() - x * 2;
-	var padding = 3;
-	this.outline = new flash.display.Sprite();
-	this.outline.get_graphics().lineStyle(1,color,0.15,true);
-	this.outline.get_graphics().drawRoundRect(0,0,width,height,padding * 2,padding * 2);
-	this.outline.set_x(x);
-	this.outline.set_y(y);
-	this.addChild(this.outline);
-	this.progress = new flash.display.Sprite();
-	this.progress.get_graphics().beginFill(color,0.35);
-	this.progress.get_graphics().drawRect(0,0,width - padding * 2,height - padding * 2);
-	this.progress.set_x(x + padding);
-	this.progress.set_y(y + padding);
-	this.progress.set_scaleX(0);
-	this.addChild(this.progress);
-};
-$hxClasses["NMEPreloader"] = NMEPreloader;
-NMEPreloader.__name__ = ["NMEPreloader"];
-NMEPreloader.__super__ = flash.display.Sprite;
-NMEPreloader.prototype = $extend(flash.display.Sprite.prototype,{
-	onUpdate: function(bytesLoaded,bytesTotal) {
-		var percentLoaded = bytesLoaded / bytesTotal;
-		if(percentLoaded > 1) percentLoaded == 1;
-		this.progress.set_scaleX(percentLoaded);
-	}
-	,onLoaded: function() {
-		this.dispatchEvent(new flash.events.Event(flash.events.Event.COMPLETE));
-	}
-	,onInit: function() {
-	}
-	,getWidth: function() {
-		var width = 560;
-		if(width > 0) return width; else return flash.Lib.get_current().get_stage().get_stageWidth();
-	}
-	,getHeight: function() {
-		var height = 560;
-		if(height > 0) return height; else return flash.Lib.get_current().get_stage().get_stageHeight();
-	}
-	,getBackgroundColor: function() {
-		return 16777215;
-	}
-	,__class__: NMEPreloader
-});
-var Reflect = function() { }
-$hxClasses["Reflect"] = Reflect;
-Reflect.__name__ = ["Reflect"];
-Reflect.hasField = function(o,field) {
-	return Object.prototype.hasOwnProperty.call(o,field);
-}
-Reflect.field = function(o,field) {
-	var v = null;
-	try {
-		v = o[field];
-	} catch( e ) {
-	}
-	return v;
-}
-Reflect.getProperty = function(o,field) {
-	var tmp;
-	return o == null?null:o.__properties__ && (tmp = o.__properties__["get_" + field])?o[tmp]():o[field];
-}
-Reflect.callMethod = function(o,func,args) {
-	return func.apply(o,args);
-}
-Reflect.fields = function(o) {
-	var a = [];
-	if(o != null) {
-		var hasOwnProperty = Object.prototype.hasOwnProperty;
-		for( var f in o ) {
-		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) a.push(f);
-		}
-	}
-	return a;
-}
-Reflect.isFunction = function(f) {
-	return typeof(f) == "function" && !(f.__name__ || f.__ename__);
-}
-Reflect.compareMethods = function(f1,f2) {
-	if(f1 == f2) return true;
-	if(!Reflect.isFunction(f1) || !Reflect.isFunction(f2)) return false;
-	return f1.scope == f2.scope && f1.method == f2.method && f1.method != null;
-}
-Reflect.deleteField = function(o,field) {
-	if(!Reflect.hasField(o,field)) return false;
-	delete(o[field]);
-	return true;
-}
-var Std = function() { }
-$hxClasses["Std"] = Std;
-Std.__name__ = ["Std"];
-Std.string = function(s) {
-	return js.Boot.__string_rec(s,"");
-}
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
-}
-Std.parseFloat = function(x) {
-	return parseFloat(x);
-}
-var StringBuf = function() {
-	this.b = "";
-};
-$hxClasses["StringBuf"] = StringBuf;
-StringBuf.__name__ = ["StringBuf"];
-StringBuf.prototype = {
-	addSub: function(s,pos,len) {
-		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
-	}
-	,__class__: StringBuf
-}
-var StringTools = function() { }
-$hxClasses["StringTools"] = StringTools;
-StringTools.__name__ = ["StringTools"];
-StringTools.urlEncode = function(s) {
-	return encodeURIComponent(s);
-}
-StringTools.urlDecode = function(s) {
-	return decodeURIComponent(s.split("+").join(" "));
-}
-StringTools.htmlEscape = function(s,quotes) {
-	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
-}
-StringTools.startsWith = function(s,start) {
-	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
-}
-StringTools.isSpace = function(s,pos) {
-	var c = HxOverrides.cca(s,pos);
-	return c > 8 && c < 14 || c == 32;
-}
-StringTools.ltrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,r)) r++;
-	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
-}
-StringTools.rtrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
-	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
-}
-StringTools.trim = function(s) {
-	return StringTools.ltrim(StringTools.rtrim(s));
-}
-StringTools.replace = function(s,sub,by) {
-	return s.split(sub).join(by);
-}
-StringTools.hex = function(n,digits) {
-	var s = "";
-	var hexChars = "0123456789ABCDEF";
-	do {
-		s = hexChars.charAt(n & 15) + s;
-		n >>>= 4;
-	} while(n > 0);
-	if(digits != null) while(s.length < digits) s = "0" + s;
-	return s;
-}
-var Tester = function(inProgress) {
-	if(inProgress == null) inProgress = false;
-	this._inProgress = false;
-	this._currentTest = 0;
-	this._inProgress = inProgress;
-	haxe.Log.trace("\n\n*****************************\n -- " + Type.getClassName(Type.getClass(this)) + " -- \n*****************************",{ fileName : "Tester.hx", lineNumber : 9, className : "Tester", methodName : "new"});
-};
-$hxClasses["Tester"] = Tester;
-Tester.__name__ = ["Tester"];
-Tester.prototype = {
-	runAfterEveryTest: function() {
-	}
-	,runBeforeEveryTest: function() {
-	}
-	,testFunction: function(funcName) {
-		haxe.Log.trace("\n*-------------------------*\n* current Test = " + ++this._currentTest + ": " + funcName + "\n*-------------------------*",{ fileName : "Tester.hx", lineNumber : 14, className : "Tester", methodName : "testFunction"});
-		if(this._inProgress) {
-			this.runBeforeEveryTest();
-			Reflect.field(this,funcName).apply(this,[]);
-			this.runAfterEveryTest();
-		} else {
-			try {
-				this.runBeforeEveryTest();
-			} catch( e ) {
-				haxe.Log.trace("#@##@#$%#@ ERROR BEFORE >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 27, className : "Tester", methodName : "testFunction"});
-			}
-			try {
-				Reflect.field(this,funcName).apply(this,[]);
-			} catch( e ) {
-				haxe.Log.trace("#@##@#$%#@ ERROR >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 33, className : "Tester", methodName : "testFunction"});
-			}
-			try {
-				this.runAfterEveryTest();
-			} catch( e ) {
-				haxe.Log.trace("#@##@#$%#@ ERROR AFTER >>>>>>>>>>>>>> " + Std.string(e),{ fileName : "Tester.hx", lineNumber : 39, className : "Tester", methodName : "testFunction"});
-			}
-		}
-	}
-	,__class__: Tester
-}
-var ValueType = $hxClasses["ValueType"] = { __ename__ : true, __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
-ValueType.TNull = ["TNull",0];
-ValueType.TNull.toString = $estr;
-ValueType.TNull.__enum__ = ValueType;
-ValueType.TInt = ["TInt",1];
-ValueType.TInt.toString = $estr;
-ValueType.TInt.__enum__ = ValueType;
-ValueType.TFloat = ["TFloat",2];
-ValueType.TFloat.toString = $estr;
-ValueType.TFloat.__enum__ = ValueType;
-ValueType.TBool = ["TBool",3];
-ValueType.TBool.toString = $estr;
-ValueType.TBool.__enum__ = ValueType;
-ValueType.TObject = ["TObject",4];
-ValueType.TObject.toString = $estr;
-ValueType.TObject.__enum__ = ValueType;
-ValueType.TFunction = ["TFunction",5];
-ValueType.TFunction.toString = $estr;
-ValueType.TFunction.__enum__ = ValueType;
-ValueType.TClass = function(c) { var $x = ["TClass",6,c]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
-ValueType.TEnum = function(e) { var $x = ["TEnum",7,e]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
-ValueType.TUnknown = ["TUnknown",8];
-ValueType.TUnknown.toString = $estr;
-ValueType.TUnknown.__enum__ = ValueType;
-var Type = function() { }
-$hxClasses["Type"] = Type;
-Type.__name__ = ["Type"];
-Type.getClass = function(o) {
-	if(o == null) return null;
-	return o.__class__;
-}
-Type.getSuperClass = function(c) {
-	return c.__super__;
-}
-Type.getClassName = function(c) {
-	var a = c.__name__;
-	return a.join(".");
-}
-Type.resolveClass = function(name) {
-	var cl = $hxClasses[name];
-	if(cl == null || !cl.__name__) return null;
-	return cl;
-}
-Type.resolveEnum = function(name) {
-	var e = $hxClasses[name];
-	if(e == null || !e.__ename__) return null;
-	return e;
-}
-Type.createInstance = function(cl,args) {
-	switch(args.length) {
-	case 0:
-		return new cl();
-	case 1:
-		return new cl(args[0]);
-	case 2:
-		return new cl(args[0],args[1]);
-	case 3:
-		return new cl(args[0],args[1],args[2]);
-	case 4:
-		return new cl(args[0],args[1],args[2],args[3]);
-	case 5:
-		return new cl(args[0],args[1],args[2],args[3],args[4]);
-	case 6:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5]);
-	case 7:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6]);
-	case 8:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]);
-	default:
-		throw "Too many arguments";
-	}
-	return null;
-}
-Type.getClassFields = function(c) {
-	var a = Reflect.fields(c);
-	HxOverrides.remove(a,"__name__");
-	HxOverrides.remove(a,"__interfaces__");
-	HxOverrides.remove(a,"__properties__");
-	HxOverrides.remove(a,"__super__");
-	HxOverrides.remove(a,"prototype");
-	return a;
-}
-Type["typeof"] = function(v) {
-	var _g = typeof(v);
-	switch(_g) {
-	case "boolean":
-		return ValueType.TBool;
-	case "string":
-		return ValueType.TClass(String);
-	case "number":
-		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
-		return ValueType.TFloat;
-	case "object":
-		if(v == null) return ValueType.TNull;
-		var e = v.__enum__;
-		if(e != null) return ValueType.TEnum(e);
-		var c = v.__class__;
-		if(c != null) return ValueType.TClass(c);
-		return ValueType.TObject;
-	case "function":
-		if(v.__name__ || v.__ename__) return ValueType.TObject;
-		return ValueType.TFunction;
-	case "undefined":
-		return ValueType.TNull;
-	default:
-		return ValueType.TUnknown;
-	}
-}
-var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
-var Xml = function() {
-};
-$hxClasses["Xml"] = Xml;
-Xml.__name__ = ["Xml"];
-Xml.Element = null;
-Xml.PCData = null;
-Xml.CData = null;
-Xml.Comment = null;
-Xml.DocType = null;
-Xml.ProcessingInstruction = null;
-Xml.Document = null;
-Xml.parse = function(str) {
-	return haxe.xml.Parser.parse(str);
-}
-Xml.createElement = function(name) {
-	var r = new Xml();
-	r.nodeType = Xml.Element;
-	r._children = new Array();
-	r._attributes = new haxe.ds.StringMap();
-	r.set_nodeName(name);
-	return r;
-}
-Xml.createPCData = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.PCData;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createCData = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.CData;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createComment = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.Comment;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createDocType = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.DocType;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createProcessingInstruction = function(data) {
-	var r = new Xml();
-	r.nodeType = Xml.ProcessingInstruction;
-	r.set_nodeValue(data);
-	return r;
-}
-Xml.createDocument = function() {
-	var r = new Xml();
-	r.nodeType = Xml.Document;
-	r._children = new Array();
-	return r;
-}
-Xml.prototype = {
-	toString: function() {
-		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
-		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
-		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
-		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
-		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
-		var s = new StringBuf();
-		if(this.nodeType == Xml.Element) {
-			s.b += "<";
-			s.b += Std.string(this._nodeName);
-			var $it0 = this._attributes.keys();
-			while( $it0.hasNext() ) {
-				var k = $it0.next();
-				s.b += " ";
-				s.b += Std.string(k);
-				s.b += "=\"";
-				s.b += Std.string(this._attributes.get(k));
-				s.b += "\"";
-			}
-			if(this._children.length == 0) {
-				s.b += "/>";
-				return s.b;
-			}
-			s.b += ">";
-		}
-		var $it1 = this.iterator();
-		while( $it1.hasNext() ) {
-			var x = $it1.next();
-			s.b += Std.string(x.toString());
-		}
-		if(this.nodeType == Xml.Element) {
-			s.b += "</";
-			s.b += Std.string(this._nodeName);
-			s.b += ">";
-		}
-		return s.b;
-	}
-	,addChild: function(x) {
-		if(this._children == null) throw "bad nodetype";
-		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
-		x._parent = this;
-		this._children.push(x);
-	}
-	,firstElement: function() {
-		if(this._children == null) throw "bad nodetype";
-		var cur = 0;
-		var l = this._children.length;
-		while(cur < l) {
-			var n = this._children[cur];
-			if(n.nodeType == Xml.Element) return n;
-			cur++;
-		}
-		return null;
-	}
-	,elementsNamed: function(name) {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				if(n.nodeType == Xml.Element && n._nodeName == name) break;
-				k++;
-			}
-			this.cur = k;
-			return k < l;
-		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k++;
-				if(n.nodeType == Xml.Element && n._nodeName == name) {
-					this.cur = k;
-					return n;
-				}
-			}
-			return null;
-		}};
-	}
-	,elements: function() {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				if(this.x[k].nodeType == Xml.Element) break;
-				k += 1;
-			}
-			this.cur = k;
-			return k < l;
-		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k += 1;
-				if(n.nodeType == Xml.Element) {
-					this.cur = k;
-					return n;
-				}
-			}
-			return null;
-		}};
-	}
-	,iterator: function() {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			return this.cur < this.x.length;
-		}, next : function() {
-			return this.x[this.cur++];
-		}};
-	}
-	,exists: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.exists(att);
-	}
-	,set: function(att,value) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		this._attributes.set(att,value);
-	}
-	,get: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.get(att);
-	}
-	,set_nodeValue: function(v) {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue = v;
-	}
-	,get_nodeValue: function() {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue;
-	}
-	,set_nodeName: function(n) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName = n;
-	}
-	,get_nodeName: function() {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName;
-	}
-	,__class__: Xml
-}
-var haxe = {}
-haxe.Timer = function(time_ms) {
-	var me = this;
-	this.id = setInterval(function() {
-		me.run();
-	},time_ms);
-};
-$hxClasses["haxe.Timer"] = haxe.Timer;
-haxe.Timer.__name__ = ["haxe","Timer"];
-haxe.Timer.delay = function(f,time_ms) {
-	var t = new haxe.Timer(time_ms);
-	t.run = function() {
-		t.stop();
-		f();
-	};
-	return t;
-}
-haxe.Timer.stamp = function() {
-	return new Date().getTime() / 1000;
-}
-haxe.Timer.prototype = {
-	run: function() {
-		haxe.Log.trace("run",{ fileName : "Timer.hx", lineNumber : 98, className : "haxe.Timer", methodName : "run"});
-	}
-	,stop: function() {
-		if(this.id == null) return;
-		clearInterval(this.id);
-		this.id = null;
-	}
-	,__class__: haxe.Timer
-}
-flash.Lib = function(rootElement,width,height) {
-	this.mKilled = false;
-	this.__scr = rootElement;
-	if(this.__scr == null) throw "Root element not found";
-	this.__scr.style.setProperty("overflow","hidden","");
-	this.__scr.style.setProperty("position","absolute","");
-	if(this.__scr.style.getPropertyValue("width") != "100%") this.__scr.style.width = width + "px";
-	if(this.__scr.style.getPropertyValue("height") != "100%") this.__scr.style.height = height + "px";
-};
-$hxClasses["flash.Lib"] = flash.Lib;
-flash.Lib.__name__ = ["flash","Lib"];
-flash.Lib.__properties__ = {get_current:"get_current"}
-flash.Lib.current = null;
-flash.Lib.mCurrent = null;
-flash.Lib.mForce2DTransform = null;
-flash.Lib.mMainClassRoot = null;
-flash.Lib.mMe = null;
-flash.Lib.mStage = null;
-flash.Lib["as"] = function(v,c) {
-	return js.Boot.__instanceof(v,c)?v:null;
-}
-flash.Lib.attach = function(name) {
-	return new flash.display.MovieClip();
-}
-flash.Lib.getTimer = function() {
-	return (haxe.Timer.stamp() - flash.Lib.starttime) * 1000 | 0;
-}
-flash.Lib.getURL = function(request,target) {
-	window.open(request.url);
-}
-flash.Lib.nmeAppendSurface = function(surface,before,after) {
-	if(flash.Lib.mMe.__scr != null) {
-		surface.style.setProperty("position","absolute","");
-		surface.style.setProperty("left","0px","");
-		surface.style.setProperty("top","0px","");
-		surface.style.setProperty("transform-origin","0 0","");
-		surface.style.setProperty("-moz-transform-origin","0 0","");
-		surface.style.setProperty("-webkit-transform-origin","0 0","");
-		surface.style.setProperty("-o-transform-origin","0 0","");
-		surface.style.setProperty("-ms-transform-origin","0 0","");
-		try {
-			if(surface.localName == "canvas") surface.onmouseover = surface.onselectstart = function() {
-				return false;
-			};
-		} catch( e ) {
-		}
-		if(before != null) before.parentNode.insertBefore(surface,before); else if(after != null && after.nextSibling != null) after.parentNode.insertBefore(surface,after.nextSibling); else flash.Lib.mMe.__scr.appendChild(surface);
-	}
-}
-flash.Lib.nmeAppendText = function(surface,container,text,wrap,isHtml) {
-	var _g1 = 0, _g = surface.childNodes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		surface.removeChild(surface.childNodes[i]);
-	}
-	if(isHtml) container.innerHTML = text; else container.appendChild(js.Browser.document.createTextNode(text));
-	container.style.setProperty("position","relative","");
-	container.style.setProperty("cursor","default","");
-	if(!wrap) container.style.setProperty("white-space","nowrap","");
-	surface.appendChild(container);
-}
-flash.Lib.nmeBootstrap = function() {
-	if(flash.Lib.mMe == null) {
-		var target = js.Browser.document.getElementById("haxe:jeash");
-		if(target == null) target = js.Browser.document.createElement("div");
-		var agent = navigator.userAgent;
-		if(agent.indexOf("BlackBerry") > -1 && target.style.height == "100%") target.style.height = screen.height + "px";
-		if(agent.indexOf("Android") > -1) {
-			var version = Std.parseFloat(HxOverrides.substr(agent,agent.indexOf("Android") + 8,3));
-			if(version <= 2.3) flash.Lib.mForce2DTransform = true;
-		}
-		flash.Lib.Run(target,flash.Lib.nmeGetWidth(),flash.Lib.nmeGetHeight());
-	}
-}
-flash.Lib.nmeCopyStyle = function(src,tgt) {
-	tgt.id = src.id;
-	var _g = 0, _g1 = ["left","top","transform","transform-origin","-moz-transform","-moz-transform-origin","-webkit-transform","-webkit-transform-origin","-o-transform","-o-transform-origin","opacity","display"];
-	while(_g < _g1.length) {
-		var prop = _g1[_g];
-		++_g;
-		tgt.style.setProperty(prop,src.style.getPropertyValue(prop),"");
-	}
-}
-flash.Lib.nmeCreateSurfaceAnimationCSS = function(surface,data,template,templateFunc,fps,discrete,infinite) {
-	if(infinite == null) infinite = false;
-	if(discrete == null) discrete = false;
-	if(fps == null) fps = 25;
-	if(surface.id == null || surface.id == "") {
-		flash.Lib.trace("Failed to create a CSS Style tag for a surface without an id attribute");
-		return null;
-	}
-	var style = null;
-	if(surface.getAttribute("data-nme-anim") != null) style = js.Browser.document.getElementById(surface.getAttribute("data-nme-anim")); else {
-		style = flash.Lib.mMe.__scr.appendChild(js.Browser.document.createElement("style"));
-		style.sheet.id = "__nme_anim_" + surface.id + "__";
-		surface.setAttribute("data-nme-anim",style.sheet.id);
-	}
-	var keyframeStylesheetRule = "";
-	var _g1 = 0, _g = data.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var perc = i / (data.length - 1) * 100;
-		var frame = data[i];
-		keyframeStylesheetRule += perc + "% { " + template.execute(templateFunc(frame)) + " } ";
-	}
-	var animationDiscreteRule = discrete?"steps(::steps::, end)":"";
-	var animationInfiniteRule = infinite?"infinite":"";
-	var animationTpl = "";
-	var _g = 0, _g1 = ["animation","-moz-animation","-webkit-animation","-o-animation","-ms-animation"];
-	while(_g < _g1.length) {
-		var prefix = _g1[_g];
-		++_g;
-		animationTpl += prefix + ": ::id:: ::duration::s " + animationDiscreteRule + " " + animationInfiniteRule + "; ";
-	}
-	var animationStylesheetRule = new haxe.Template(animationTpl).execute({ id : surface.id, duration : data.length / fps, steps : 1});
-	var rules = style.sheet.rules != null?style.sheet.rules:style.sheet.cssRules;
-	var _g = 0, _g1 = ["","-moz-","-webkit-","-o-","-ms-"];
-	while(_g < _g1.length) {
-		var variant = _g1[_g];
-		++_g;
-		try {
-			style.sheet.insertRule("@" + variant + "keyframes " + surface.id + " {" + keyframeStylesheetRule + "}",rules.length);
-		} catch( e ) {
-		}
-	}
-	style.sheet.insertRule("#" + surface.id + " { " + animationStylesheetRule + " } ",rules.length);
-	return style;
-}
-flash.Lib.nmeDesignMode = function(mode) {
-	js.Browser.document.designMode = mode?"on":"off";
-}
-flash.Lib.nmeDisableFullScreen = function() {
-}
-flash.Lib.nmeDisableRightClick = function() {
-	if(flash.Lib.mMe != null) try {
-		flash.Lib.mMe.__scr.oncontextmenu = function() {
-			return false;
-		};
-	} catch( e ) {
-		flash.Lib.trace("Disable right click not supported in this browser.");
-	}
-}
-flash.Lib.nmeDrawClippedImage = function(surface,tgtCtx,clipRect) {
-	if(clipRect != null) {
-		if(clipRect.x < 0) {
-			clipRect.width += clipRect.x;
-			clipRect.x = 0;
-		}
-		if(clipRect.y < 0) {
-			clipRect.height += clipRect.y;
-			clipRect.y = 0;
-		}
-		if(clipRect.width > surface.width - clipRect.x) clipRect.width = surface.width - clipRect.x;
-		if(clipRect.height > surface.height - clipRect.y) clipRect.height = surface.height - clipRect.y;
-		tgtCtx.drawImage(surface,clipRect.x,clipRect.y,clipRect.width,clipRect.height,clipRect.x,clipRect.y,clipRect.width,clipRect.height);
-	} else tgtCtx.drawImage(surface,0,0);
-}
-flash.Lib.nmeDrawSurfaceRect = function(surface,tgt,x,y,rect) {
-	var tgtCtx = tgt.getContext("2d");
-	tgt.width = rect.width;
-	tgt.height = rect.height;
-	tgtCtx.drawImage(surface,rect.x,rect.y,rect.width,rect.height,0,0,rect.width,rect.height);
-	tgt.style.left = x + "px";
-	tgt.style.top = y + "px";
-}
-flash.Lib.nmeDrawToSurface = function(surface,tgt,matrix,alpha,clipRect,smoothing) {
-	if(smoothing == null) smoothing = true;
-	if(alpha == null) alpha = 1.0;
-	var srcCtx = surface.getContext("2d");
-	var tgtCtx = tgt.getContext("2d");
-	tgtCtx.globalAlpha = alpha;
-	flash.Lib.nmeSetImageSmoothing(tgtCtx,smoothing);
-	if(surface.width > 0 && surface.height > 0) {
-		if(matrix != null) {
-			tgtCtx.save();
-			if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1) tgtCtx.translate(matrix.tx,matrix.ty); else tgtCtx.setTransform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
-			flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
-			tgtCtx.restore();
-		} else flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
-	}
-}
-flash.Lib.nmeEnableFullScreen = function() {
-	if(flash.Lib.mMe != null) {
-		var origWidth = flash.Lib.mMe.__scr.style.getPropertyValue("width");
-		var origHeight = flash.Lib.mMe.__scr.style.getPropertyValue("height");
-		flash.Lib.mMe.__scr.style.setProperty("width","100%","");
-		flash.Lib.mMe.__scr.style.setProperty("height","100%","");
-		flash.Lib.nmeDisableFullScreen = function() {
-			flash.Lib.mMe.__scr.style.setProperty("width",origWidth,"");
-			flash.Lib.mMe.__scr.style.setProperty("height",origHeight,"");
-		};
-	}
-}
-flash.Lib.nmeEnableRightClick = function() {
-	if(flash.Lib.mMe != null) try {
-		flash.Lib.mMe.__scr.oncontextmenu = null;
-	} catch( e ) {
-		flash.Lib.trace("Enable right click not supported in this browser.");
-	}
-}
-flash.Lib.nmeFullScreenHeight = function() {
-	return js.Browser.window.innerHeight;
-}
-flash.Lib.nmeFullScreenWidth = function() {
-	return js.Browser.window.innerWidth;
-}
-flash.Lib.nmeGetHeight = function() {
-	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
-	return tgt != null && tgt.clientHeight > 0?tgt.clientHeight:500;
-}
-flash.Lib.nmeGetStage = function() {
-	if(flash.Lib.mStage == null) {
-		var width = flash.Lib.nmeGetWidth();
-		var height = flash.Lib.nmeGetHeight();
-		flash.Lib.mStage = new flash.display.Stage(width,height);
-	}
-	return flash.Lib.mStage;
-}
-flash.Lib.nmeGetWidth = function() {
-	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
-	return tgt != null && tgt.clientWidth > 0?tgt.clientWidth:500;
-}
-flash.Lib.nmeIsOnStage = function(surface) {
-	var p = surface;
-	while(p != null && p != flash.Lib.mMe.__scr) p = p.parentNode;
-	return p == flash.Lib.mMe.__scr;
-}
-flash.Lib.nmeParseColor = function(str,cb) {
-	var re = new EReg("rgb\\(([0-9]*), ?([0-9]*), ?([0-9]*)\\)","");
-	var hex = new EReg("#([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])","");
-	if(re.match(str)) {
-		var col = 0;
-		var _g = 1;
-		while(_g < 4) {
-			var pos = _g++;
-			var v = Std.parseInt(re.matched(pos));
-			col = cb(col,pos - 1,v);
-		}
-		return col;
-	} else if(hex.match(str)) {
-		var col = 0;
-		var _g = 1;
-		while(_g < 4) {
-			var pos = _g++;
-			var v = "0x" + hex.matched(pos) & 255;
-			v = cb(col,pos - 1,v);
-		}
-		return col;
-	} else throw "Cannot parse color '" + str + "'.";
-}
-flash.Lib.nmeRemoveSurface = function(surface) {
-	if(flash.Lib.mMe.__scr != null) {
-		var anim = surface.getAttribute("data-nme-anim");
-		if(anim != null) {
-			var style = js.Browser.document.getElementById(anim);
-			if(style != null) flash.Lib.mMe.__scr.removeChild(style);
-		}
-		if(surface.parentNode != null) surface.parentNode.removeChild(surface);
-	}
-	return surface;
-}
-flash.Lib.nmeSetSurfaceBorder = function(surface,color,size) {
-	surface.style.setProperty("border-color","#" + StringTools.hex(color),"");
-	surface.style.setProperty("border-style","solid","");
-	surface.style.setProperty("border-width",size + "px","");
-	surface.style.setProperty("border-collapse","collapse","");
-}
-flash.Lib.nmeSetSurfaceClipping = function(surface,rect) {
-}
-flash.Lib.nmeSetSurfaceFont = function(surface,font,bold,size,color,align,lineHeight) {
-	surface.style.setProperty("font-family",font,"");
-	surface.style.setProperty("font-weight",Std.string(bold),"");
-	surface.style.setProperty("color","#" + StringTools.hex(color),"");
-	surface.style.setProperty("font-size",size + "px","");
-	surface.style.setProperty("text-align",align,"");
-	surface.style.setProperty("line-height",lineHeight + "px","");
-}
-flash.Lib.nmeSetSurfaceOpacity = function(surface,alpha) {
-	surface.style.setProperty("opacity",Std.string(alpha),"");
-}
-flash.Lib.nmeSetSurfacePadding = function(surface,padding,margin,display) {
-	surface.style.setProperty("padding",padding + "px","");
-	surface.style.setProperty("margin",margin + "px","");
-	surface.style.setProperty("top",padding + 2 + "px","");
-	surface.style.setProperty("right",padding + 1 + "px","");
-	surface.style.setProperty("left",padding + 1 + "px","");
-	surface.style.setProperty("bottom",padding + 1 + "px","");
-	surface.style.setProperty("display",display?"inline":"block","");
-}
-flash.Lib.nmeSetSurfaceTransform = function(surface,matrix) {
-	if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1 && surface.getAttribute("data-nme-anim") == null) {
-		surface.style.left = matrix.tx + "px";
-		surface.style.top = matrix.ty + "px";
-		surface.style.setProperty("transform","","");
-		surface.style.setProperty("-moz-transform","","");
-		surface.style.setProperty("-webkit-transform","","");
-		surface.style.setProperty("-o-transform","","");
-		surface.style.setProperty("-ms-transform","","");
-	} else {
-		surface.style.left = "0px";
-		surface.style.top = "0px";
-		surface.style.setProperty("transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
-		surface.style.setProperty("-moz-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + "px, " + matrix.ty + "px)","");
-		if(!flash.Lib.mForce2DTransform) surface.style.setProperty("-webkit-transform","matrix3d(" + matrix.a + ", " + matrix.b + ", " + "0, 0, " + matrix.c + ", " + matrix.d + ", " + "0, 0, 0, 0, 1, 0, " + matrix.tx + ", " + matrix.ty + ", " + "0, 1" + ")",""); else surface.style.setProperty("-webkit-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
-		surface.style.setProperty("-o-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
-		surface.style.setProperty("-ms-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
-	}
-}
-flash.Lib.nmeSetSurfaceZIndexAfter = function(surface1,surface2) {
-	if(surface1 != null && surface2 != null) {
-		if(surface1.parentNode != surface2.parentNode && surface2.parentNode != null) surface2.parentNode.appendChild(surface1);
-		if(surface2.parentNode != null) {
-			var nextSibling = surface2.nextSibling;
-			if(surface1.previousSibling != surface2) {
-				var swap = flash.Lib.nmeRemoveSurface(surface1);
-				if(nextSibling == null) surface2.parentNode.appendChild(swap); else surface2.parentNode.insertBefore(swap,nextSibling);
-			}
-		}
-	}
-}
-flash.Lib.nmeSwapSurface = function(surface1,surface2) {
-	var parent1 = surface1.parentNode;
-	var parent2 = surface2.parentNode;
-	if(parent1 != null && parent2 != null) {
-		if(parent1 == parent2) {
-			var next1 = surface1.nextSibling;
-			var next2 = surface2.nextSibling;
-			if(next1 == surface2) parent1.insertBefore(surface2,surface1); else if(next2 == surface1) parent1.insertBefore(surface1,surface2); else {
-				parent1.replaceChild(surface2,surface1);
-				if(next2 != null) parent1.insertBefore(surface1,next2); else parent1.appendChild(surface1);
-			}
-		} else {
-			var next2 = surface2.nextSibling;
-			parent1.replaceChild(surface2,surface1);
-			if(next2 != null) parent2.insertBefore(surface1,next2); else parent2.appendChild(surface1);
-		}
-	}
-}
-flash.Lib.nmeSetContentEditable = function(surface,contentEditable) {
-	if(contentEditable == null) contentEditable = true;
-	surface.setAttribute("contentEditable",contentEditable?"true":"false");
-}
-flash.Lib.nmeSetCursor = function(type) {
-	if(flash.Lib.mMe != null) flash.Lib.mMe.__scr.style.cursor = (function($this) {
-		var $r;
-		switch( (type)[1] ) {
-		case 0:
-			$r = "pointer";
-			break;
-		case 1:
-			$r = "text";
-			break;
-		default:
-			$r = "default";
-		}
-		return $r;
-	}(this));
-}
-flash.Lib.nmeSetImageSmoothing = function(context,enabled) {
-	var _g = 0, _g1 = ["imageSmoothingEnabled","mozImageSmoothingEnabled","webkitImageSmoothingEnabled"];
-	while(_g < _g1.length) {
-		var variant = _g1[_g];
-		++_g;
-		context[variant] = enabled;
-	}
-}
-flash.Lib.nmeSetSurfaceAlign = function(surface,align) {
-	surface.style.setProperty("text-align",align,"");
-}
-flash.Lib.nmeSetSurfaceId = function(surface,name) {
-	var regex = new EReg("[^a-zA-Z0-9\\-]","g");
-	surface.id = regex.replace(name,"_");
-}
-flash.Lib.nmeSetSurfaceRotation = function(surface,rotate) {
-	surface.style.setProperty("transform","rotate(" + rotate + "deg)","");
-	surface.style.setProperty("-moz-transform","rotate(" + rotate + "deg)","");
-	surface.style.setProperty("-webkit-transform","rotate(" + rotate + "deg)","");
-	surface.style.setProperty("-o-transform","rotate(" + rotate + "deg)","");
-	surface.style.setProperty("-ms-transform","rotate(" + rotate + "deg)","");
-}
-flash.Lib.nmeSetSurfaceScale = function(surface,scale) {
-	surface.style.setProperty("transform","scale(" + scale + ")","");
-	surface.style.setProperty("-moz-transform","scale(" + scale + ")","");
-	surface.style.setProperty("-webkit-transform","scale(" + scale + ")","");
-	surface.style.setProperty("-o-transform","scale(" + scale + ")","");
-	surface.style.setProperty("-ms-transform","scale(" + scale + ")","");
-}
-flash.Lib.nmeSetSurfaceSpritesheetAnimation = function(surface,spec,fps) {
-	if(spec.length == 0) return surface;
-	var div = js.Browser.document.createElement("div");
-	div.style.backgroundImage = "url(" + surface.toDataURL("image/png") + ")";
-	div.id = surface.id;
-	var keyframeTpl = new haxe.Template("background-position: ::left::px ::top::px; width: ::width::px; height: ::height::px; ");
-	var templateFunc = function(frame) {
-		return { left : -frame.x, top : -frame.y, width : frame.width, height : frame.height};
-	};
-	flash.Lib.nmeCreateSurfaceAnimationCSS(div,spec,keyframeTpl,templateFunc,fps,true,true);
-	if(flash.Lib.nmeIsOnStage(surface)) {
-		flash.Lib.nmeAppendSurface(div);
-		flash.Lib.nmeCopyStyle(surface,div);
-		flash.Lib.nmeSwapSurface(surface,div);
-		flash.Lib.nmeRemoveSurface(surface);
-	} else flash.Lib.nmeCopyStyle(surface,div);
-	return div;
-}
-flash.Lib.nmeSetSurfaceVisible = function(surface,visible) {
-	if(visible) surface.style.setProperty("display","block",""); else surface.style.setProperty("display","none","");
-}
-flash.Lib.nmeSetTextDimensions = function(surface,width,height,align) {
-	surface.style.setProperty("width",width + "px","");
-	surface.style.setProperty("height",height + "px","");
-	surface.style.setProperty("overflow","hidden","");
-	surface.style.setProperty("text-align",align,"");
-}
-flash.Lib.nmeSurfaceHitTest = function(surface,x,y) {
-	var _g1 = 0, _g = surface.childNodes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var node = surface.childNodes[i];
-		if(x >= node.offsetLeft && x <= node.offsetLeft + node.offsetWidth && y >= node.offsetTop && y <= node.offsetTop + node.offsetHeight) return true;
-	}
-	return false;
-}
-flash.Lib.preventDefaultTouchMove = function() {
-	js.Browser.document.addEventListener("touchmove",function(evt) {
-		evt.preventDefault();
-	},false);
-}
-flash.Lib.Run = function(tgt,width,height) {
-	flash.Lib.mMe = new flash.Lib(tgt,width,height);
-	var _g1 = 0, _g = tgt.attributes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var attr = tgt.attributes.item(i);
-		if(StringTools.startsWith(attr.name,"data-")) {
-			if(attr.name == "data-" + "framerate") flash.Lib.nmeGetStage().set_frameRate(Std.parseFloat(attr.value));
-		}
-	}
-	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	}
-	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	}
-	var _g = 0, _g1 = flash.Lib.HTML_DIV_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	}
-	if(Reflect.hasField(js.Browser.window,"on" + "devicemotion")) js.Browser.window.addEventListener("devicemotion",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	if(Reflect.hasField(js.Browser.window,"on" + "orientationchange")) js.Browser.window.addEventListener("orientationchange",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	var _g = 0, _g1 = flash.Lib.HTML_WINDOW_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		js.Browser.window.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),false);
-	}
-	if(tgt.style.backgroundColor != null && tgt.style.backgroundColor != "") flash.Lib.nmeGetStage().set_backgroundColor(flash.Lib.nmeParseColor(tgt.style.backgroundColor,function(res,pos,cur) {
-		return pos == 0?res | cur << 16:pos == 1?res | cur << 8:pos == 2?res | cur:(function($this) {
-			var $r;
-			throw "pos should be 0-2";
-			return $r;
-		}(this));
-	})); else flash.Lib.nmeGetStage().set_backgroundColor(16777215);
-	flash.Lib.get_current().get_graphics().beginFill(flash.Lib.nmeGetStage().get_backgroundColor());
-	flash.Lib.get_current().get_graphics().drawRect(0,0,width,height);
-	flash.Lib.nmeSetSurfaceId(flash.Lib.get_current().get_graphics().nmeSurface,"Root MovieClip");
-	flash.Lib.nmeGetStage().nmeUpdateNextWake();
-	return flash.Lib.mMe;
-}
-flash.Lib.setUserScalable = function(isScalable) {
-	if(isScalable == null) isScalable = true;
-	var meta = js.Browser.document.createElement("meta");
-	meta.name = "viewport";
-	meta.content = "user-scalable=" + (isScalable?"yes":"no");
-}
-flash.Lib.trace = function(arg) {
-	if(window.console != null) window.console.log(arg);
-}
-flash.Lib.addCallback = function(functionName,closure) {
-	flash.Lib.mMe.__scr[functionName] = closure;
-}
-flash.Lib.get_current = function() {
-	if(flash.Lib.mMainClassRoot == null) {
-		flash.Lib.mMainClassRoot = new flash.display.MovieClip();
-		flash.Lib.mCurrent = flash.Lib.mMainClassRoot;
-		flash.Lib.nmeGetStage().addChild(flash.Lib.mCurrent);
-	}
-	return flash.Lib.mMainClassRoot;
-}
-flash.Lib.prototype = {
-	__class__: flash.Lib
-}
-flash._Lib = {}
-flash._Lib.CursorType = $hxClasses["flash._Lib.CursorType"] = { __ename__ : true, __constructs__ : ["Pointer","Text","Default"] }
-flash._Lib.CursorType.Pointer = ["Pointer",0];
-flash._Lib.CursorType.Pointer.toString = $estr;
-flash._Lib.CursorType.Pointer.__enum__ = flash._Lib.CursorType;
-flash._Lib.CursorType.Text = ["Text",1];
-flash._Lib.CursorType.Text.toString = $estr;
-flash._Lib.CursorType.Text.__enum__ = flash._Lib.CursorType;
-flash._Lib.CursorType.Default = ["Default",2];
-flash._Lib.CursorType.Default.toString = $estr;
-flash._Lib.CursorType.Default.__enum__ = flash._Lib.CursorType;
-flash._Vector = {}
-flash._Vector.Vector_Impl_ = function() { }
-$hxClasses["flash._Vector.Vector_Impl_"] = flash._Vector.Vector_Impl_;
-flash._Vector.Vector_Impl_.__name__ = ["flash","_Vector","Vector_Impl_"];
-flash._Vector.Vector_Impl_.__properties__ = {set_fixed:"set_fixed",get_fixed:"get_fixed",set_length:"set_length",get_length:"get_length"}
-flash._Vector.Vector_Impl_._new = function(length,fixed) {
-	return new Array();
-}
-flash._Vector.Vector_Impl_.concat = function(this1,a) {
-	return this1.concat(a);
-}
-flash._Vector.Vector_Impl_.copy = function(this1) {
-	return this1.slice();
-}
-flash._Vector.Vector_Impl_.iterator = function(this1) {
-	return HxOverrides.iter(this1);
-}
-flash._Vector.Vector_Impl_.join = function(this1,sep) {
-	return this1.join(sep);
-}
-flash._Vector.Vector_Impl_.pop = function(this1) {
-	return this1.pop();
-}
-flash._Vector.Vector_Impl_.push = function(this1,x) {
-	return this1.push(x);
-}
-flash._Vector.Vector_Impl_.reverse = function(this1) {
-	this1.reverse();
-}
-flash._Vector.Vector_Impl_.shift = function(this1) {
-	return this1.shift();
-}
-flash._Vector.Vector_Impl_.unshift = function(this1,x) {
-	this1.unshift(x);
-}
-flash._Vector.Vector_Impl_.slice = function(this1,pos,end) {
-	return this1.slice(pos,end);
-}
-flash._Vector.Vector_Impl_.sort = function(this1,f) {
-	this1.sort(f);
-}
-flash._Vector.Vector_Impl_.splice = function(this1,pos,len) {
-	return this1.splice(pos,len);
-}
-flash._Vector.Vector_Impl_.toString = function(this1) {
-	return this1.toString();
-}
-flash._Vector.Vector_Impl_.indexOf = function(this1,x,from) {
-	if(from == null) from = 0;
-	var _g1 = from, _g = this1.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(this1[i] == x) return i;
-	}
-	return -1;
-}
-flash._Vector.Vector_Impl_.lastIndexOf = function(this1,x,from) {
-	if(from == null) from = 0;
-	var i = this1.length - 1;
-	while(i >= from) {
-		if(this1[i] == x) return i;
-		i--;
-	}
-	return -1;
-}
-flash._Vector.Vector_Impl_.ofArray = function(a) {
-	return flash._Vector.Vector_Impl_.concat(flash._Vector.Vector_Impl_._new(),a);
-}
-flash._Vector.Vector_Impl_.convert = function(v) {
-	return v;
-}
-flash._Vector.Vector_Impl_.fromArray = function(a) {
-	return a;
-}
-flash._Vector.Vector_Impl_.toArray = function(this1) {
-	return this1;
-}
-flash._Vector.Vector_Impl_.get_length = function(this1) {
-	return this1.length;
-}
-flash._Vector.Vector_Impl_.set_length = function(this1,value) {
-	if(value < this1.length) this1 = this1.slice(0,value);
-	while(value > this1.length) this1.push(null);
-	return value;
-}
-flash._Vector.Vector_Impl_.get_fixed = function(this1) {
-	return false;
-}
-flash._Vector.Vector_Impl_.set_fixed = function(this1,value) {
-	return value;
-}
-flash.accessibility = {}
-flash.accessibility.AccessibilityProperties = function() {
-	this.description = "";
-	this.forceSimple = false;
-	this.name = "";
-	this.noAutoLabeling = false;
-	this.shortcut = "";
-	this.silent = false;
-};
-$hxClasses["flash.accessibility.AccessibilityProperties"] = flash.accessibility.AccessibilityProperties;
-flash.accessibility.AccessibilityProperties.__name__ = ["flash","accessibility","AccessibilityProperties"];
-flash.accessibility.AccessibilityProperties.prototype = {
-	__class__: flash.accessibility.AccessibilityProperties
-}
 flash.display.Bitmap = function(inBitmapData,inPixelSnapping,inSmoothing) {
 	if(inSmoothing == null) inSmoothing = false;
 	flash.display.DisplayObject.call(this);
@@ -3427,7 +2856,7 @@ flash.display._BitmapData.MinstdGenerator.prototype = {
 flash.display.BitmapDataChannel = function() { }
 $hxClasses["flash.display.BitmapDataChannel"] = flash.display.BitmapDataChannel;
 flash.display.BitmapDataChannel.__name__ = ["flash","display","BitmapDataChannel"];
-flash.display.BlendMode = $hxClasses["flash.display.BlendMode"] = { __ename__ : true, __constructs__ : ["ADD","ALPHA","DARKEN","DIFFERENCE","ERASE","HARDLIGHT","INVERT","LAYER","LIGHTEN","MULTIPLY","NORMAL","OVERLAY","SCREEN","SUBTRACT"] }
+flash.display.BlendMode = { __ename__ : true, __constructs__ : ["ADD","ALPHA","DARKEN","DIFFERENCE","ERASE","HARDLIGHT","INVERT","LAYER","LIGHTEN","MULTIPLY","NORMAL","OVERLAY","SCREEN","SUBTRACT"] }
 flash.display.BlendMode.ADD = ["ADD",0];
 flash.display.BlendMode.ADD.toString = $estr;
 flash.display.BlendMode.ADD.__enum__ = flash.display.BlendMode;
@@ -3470,7 +2899,7 @@ flash.display.BlendMode.SCREEN.__enum__ = flash.display.BlendMode;
 flash.display.BlendMode.SUBTRACT = ["SUBTRACT",13];
 flash.display.BlendMode.SUBTRACT.toString = $estr;
 flash.display.BlendMode.SUBTRACT.__enum__ = flash.display.BlendMode;
-flash.display.CapsStyle = $hxClasses["flash.display.CapsStyle"] = { __ename__ : true, __constructs__ : ["NONE","ROUND","SQUARE"] }
+flash.display.CapsStyle = { __ename__ : true, __constructs__ : ["NONE","ROUND","SQUARE"] }
 flash.display.CapsStyle.NONE = ["NONE",0];
 flash.display.CapsStyle.NONE.toString = $estr;
 flash.display.CapsStyle.NONE.__enum__ = flash.display.CapsStyle;
@@ -3480,7 +2909,373 @@ flash.display.CapsStyle.ROUND.__enum__ = flash.display.CapsStyle;
 flash.display.CapsStyle.SQUARE = ["SQUARE",2];
 flash.display.CapsStyle.SQUARE.toString = $estr;
 flash.display.CapsStyle.SQUARE.__enum__ = flash.display.CapsStyle;
-flash.display.GradientType = $hxClasses["flash.display.GradientType"] = { __ename__ : true, __constructs__ : ["RADIAL","LINEAR"] }
+flash.display.InteractiveObject = function() {
+	flash.display.DisplayObject.call(this);
+	this.tabEnabled = false;
+	this.mouseEnabled = true;
+	this.doubleClickEnabled = true;
+	this.set_tabIndex(0);
+};
+$hxClasses["flash.display.InteractiveObject"] = flash.display.InteractiveObject;
+flash.display.InteractiveObject.__name__ = ["flash","display","InteractiveObject"];
+flash.display.InteractiveObject.__super__ = flash.display.DisplayObject;
+flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.prototype,{
+	set_tabIndex: function(inIndex) {
+		return this.nmeTabIndex = inIndex;
+	}
+	,get_tabIndex: function() {
+		return this.nmeTabIndex;
+	}
+	,toString: function() {
+		return "[InteractiveObject name=" + this.name + " id=" + this._nmeId + "]";
+	}
+	,nmeGetObjectUnderPoint: function(point) {
+		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
+	}
+	,__class__: flash.display.InteractiveObject
+	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_tabIndex:"set_tabIndex",get_tabIndex:"get_tabIndex"})
+});
+flash.display.DisplayObjectContainer = function() {
+	this.nmeChildren = new Array();
+	this.mouseChildren = true;
+	this.tabChildren = true;
+	flash.display.InteractiveObject.call(this);
+	this.nmeCombinedAlpha = this.alpha;
+};
+$hxClasses["flash.display.DisplayObjectContainer"] = flash.display.DisplayObjectContainer;
+flash.display.DisplayObjectContainer.__name__ = ["flash","display","DisplayObjectContainer"];
+flash.display.DisplayObjectContainer.__super__ = flash.display.InteractiveObject;
+flash.display.DisplayObjectContainer.prototype = $extend(flash.display.InteractiveObject.prototype,{
+	set_scrollRect: function(inValue) {
+		inValue = flash.display.InteractiveObject.prototype.set_scrollRect.call(this,inValue);
+		this.nmeUnifyChildrenWithDOM();
+		return inValue;
+	}
+	,set_visible: function(inVal) {
+		this.set_nmeCombinedVisible(this.parent != null?this.parent.nmeCombinedVisible && inVal:inVal);
+		return flash.display.InteractiveObject.prototype.set_visible.call(this,inVal);
+	}
+	,get_numChildren: function() {
+		return this.nmeChildren.length;
+	}
+	,set_nmeCombinedVisible: function(inVal) {
+		if(inVal != this.nmeCombinedVisible) {
+			var _g = 0, _g1 = this.nmeChildren;
+			while(_g < _g1.length) {
+				var child = _g1[_g];
+				++_g;
+				child.set_nmeCombinedVisible(child.get_visible() && inVal);
+			}
+		}
+		return flash.display.InteractiveObject.prototype.set_nmeCombinedVisible.call(this,inVal);
+	}
+	,set_filters: function(filters) {
+		flash.display.InteractiveObject.prototype.set_filters.call(this,filters);
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.set_filters(filters);
+		}
+		return filters;
+	}
+	,__contains: function(child) {
+		if(child == null) return false;
+		if(this == child) return true;
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c == child || c.__contains(child)) return true;
+		}
+		return false;
+	}
+	,validateBounds: function() {
+		if(this.get__boundsInvalid()) {
+			flash.display.InteractiveObject.prototype.validateBounds.call(this);
+			var _g = 0, _g1 = this.nmeChildren;
+			while(_g < _g1.length) {
+				var obj = _g1[_g];
+				++_g;
+				if(obj.get_visible()) {
+					var r = obj.getBounds(this);
+					if(r.width != 0 || r.height != 0) {
+						if(this.nmeBoundsRect.width == 0 && this.nmeBoundsRect.height == 0) this.nmeBoundsRect = r.clone(); else this.nmeBoundsRect.extendBounds(r);
+					}
+				}
+			}
+			if(this.scale9Grid != null) {
+				this.nmeBoundsRect.width *= this.nmeScaleX;
+				this.nmeBoundsRect.height *= this.nmeScaleY;
+				this.nmeWidth = this.nmeBoundsRect.width;
+				this.nmeHeight = this.nmeBoundsRect.height;
+			} else {
+				this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
+				this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
+			}
+		}
+	}
+	,toString: function() {
+		return "[DisplayObjectContainer name=" + this.name + " id=" + this._nmeId + "]";
+	}
+	,swapChildrenAt: function(child1,child2) {
+		var swap = this.nmeChildren[child1];
+		this.nmeChildren[child1] = this.nmeChildren[child2];
+		this.nmeChildren[child2] = swap;
+		swap = null;
+	}
+	,swapChildren: function(child1,child2) {
+		var c1 = -1;
+		var c2 = -1;
+		var swap;
+		var _g1 = 0, _g = this.nmeChildren.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(this.nmeChildren[i] == child1) c1 = i; else if(this.nmeChildren[i] == child2) c2 = i;
+		}
+		if(c1 != -1 && c2 != -1) {
+			swap = this.nmeChildren[c1];
+			this.nmeChildren[c1] = this.nmeChildren[c2];
+			this.nmeChildren[c2] = swap;
+			swap = null;
+			this.nmeSwapSurface(c1,c2);
+			child1.nmeUnifyChildrenWithDOM();
+			child2.nmeUnifyChildrenWithDOM();
+		}
+	}
+	,setChildIndex: function(child,index) {
+		if(index > this.nmeChildren.length) throw "Invalid index position " + index;
+		var oldIndex = this.getChildIndex(child);
+		if(oldIndex < 0) {
+			var msg = "setChildIndex : object " + child.name + " not found.";
+			if(child.parent == this) {
+				var realindex = -1;
+				var _g1 = 0, _g = this.nmeChildren.length;
+				while(_g1 < _g) {
+					var i = _g1++;
+					if(this.nmeChildren[i] == child) {
+						realindex = i;
+						break;
+					}
+				}
+				if(realindex != -1) msg += "Internal error: Real child index was " + Std.string(realindex); else msg += "Internal error: Child was not in nmeChildren array!";
+			}
+			throw msg;
+		}
+		if(index < oldIndex) {
+			var i = oldIndex;
+			while(i > index) {
+				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i - 1]);
+				i--;
+			}
+		} else if(oldIndex < index) {
+			var i = oldIndex;
+			while(i < index) {
+				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i + 1]);
+				i++;
+			}
+		}
+	}
+	,removeChildAt: function(index) {
+		if(index >= 0 && index < this.nmeChildren.length) return this.nmeRemoveChild(this.nmeChildren[index]);
+		throw "removeChildAt(" + index + ") : none found?";
+	}
+	,removeChild: function(inChild) {
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child == inChild) return (function($this) {
+				var $r;
+				child.nmeRemoveFromStage();
+				child.set_parent(null);
+				if($this.getChildIndex(child) >= 0) throw "Not removed properly";
+				$r = child;
+				return $r;
+			}(this));
+		}
+		throw "removeChild : none found?";
+	}
+	,nmeUnifyChildrenWithDOM: function(lastMoveObj) {
+		var obj = flash.display.InteractiveObject.prototype.nmeUnifyChildrenWithDOM.call(this,lastMoveObj);
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			obj = child.nmeUnifyChildrenWithDOM(obj);
+			if(child.get_scrollRect() != null) obj = child;
+		}
+		return obj;
+	}
+	,nmeSwapSurface: function(c1,c2) {
+		if(this.nmeChildren[c1] == null) throw "Null element at index " + c1 + " length " + this.nmeChildren.length;
+		if(this.nmeChildren[c2] == null) throw "Null element at index " + c2 + " length " + this.nmeChildren.length;
+		var gfx1 = this.nmeChildren[c1].nmeGetGraphics();
+		var gfx2 = this.nmeChildren[c2].nmeGetGraphics();
+		if(gfx1 != null && gfx2 != null) {
+			var surface1 = this.nmeChildren[c1].nmeScrollRect == null?gfx1.nmeSurface:this.nmeChildren[c1].nmeGetSrWindow();
+			var surface2 = this.nmeChildren[c2].nmeScrollRect == null?gfx2.nmeSurface:this.nmeChildren[c2].nmeGetSrWindow();
+			if(surface1 != null && surface2 != null) flash.Lib.nmeSwapSurface(surface1,surface2);
+		}
+	}
+	,nmeRender: function(inMask,clipRect) {
+		if(!this.nmeVisible) return;
+		if(clipRect == null && this.nmeScrollRect != null) clipRect = this.nmeScrollRect;
+		flash.display.InteractiveObject.prototype.nmeRender.call(this,inMask,clipRect);
+		this.nmeCombinedAlpha = this.parent != null?this.parent.nmeCombinedAlpha * this.alpha:this.alpha;
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child.nmeVisible) {
+				if(clipRect != null) {
+					if((child._nmeRenderFlags & 4) != 0 || (child._nmeRenderFlags & 8) != 0) child.nmeValidateMatrix();
+				}
+				child.nmeRender(inMask,clipRect);
+			}
+		}
+		if(this.nmeAddedChildren) {
+			this.nmeUnifyChildrenWithDOM();
+			this.nmeAddedChildren = false;
+		}
+	}
+	,nmeRemoveFromStage: function() {
+		flash.display.InteractiveObject.prototype.nmeRemoveFromStage.call(this);
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.nmeRemoveFromStage();
+		}
+	}
+	,nmeRemoveChild: function(child) {
+		child.nmeRemoveFromStage();
+		child.set_parent(null);
+		if(this.getChildIndex(child) >= 0) throw "Not removed properly";
+		return child;
+	}
+	,nmeInvalidateMatrix: function(local) {
+		if(local == null) local = false;
+		if(!((this._nmeRenderFlags & 8) != 0) && !((this._nmeRenderFlags & 4) != 0)) {
+			var _g = 0, _g1 = this.nmeChildren;
+			while(_g < _g1.length) {
+				var child = _g1[_g];
+				++_g;
+				child.nmeInvalidateMatrix();
+			}
+		}
+		flash.display.InteractiveObject.prototype.nmeInvalidateMatrix.call(this,local);
+	}
+	,nmeGetObjectsUnderPoint: function(point,stack) {
+		var l = this.nmeChildren.length - 1;
+		var _g1 = 0, _g = this.nmeChildren.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
+			if(result != null) stack.push(result);
+		}
+	}
+	,nmeGetObjectUnderPoint: function(point) {
+		if(!this.get_visible()) return null;
+		var l = this.nmeChildren.length - 1;
+		var _g1 = 0, _g = this.nmeChildren.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var result = null;
+			if(this.mouseEnabled) result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
+			if(result != null) return this.mouseChildren?result:this;
+		}
+		return flash.display.InteractiveObject.prototype.nmeGetObjectUnderPoint.call(this,point);
+	}
+	,nmeBroadcast: function(event) {
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.nmeBroadcast(event);
+		}
+		this.dispatchEvent(event);
+	}
+	,nmeAddToStage: function(newParent,beforeSibling) {
+		flash.display.InteractiveObject.prototype.nmeAddToStage.call(this,newParent,beforeSibling);
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child.nmeGetGraphics() == null || !child.nmeIsOnStage()) child.nmeAddToStage(this);
+		}
+	}
+	,getObjectsUnderPoint: function(point) {
+		var result = new Array();
+		this.nmeGetObjectsUnderPoint(point,result);
+		return result;
+	}
+	,getChildIndex: function(inChild) {
+		var _g1 = 0, _g = this.nmeChildren.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(this.nmeChildren[i] == inChild) return i;
+		}
+		return -1;
+	}
+	,getChildByName: function(inName) {
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child.name == inName) return child;
+		}
+		return null;
+	}
+	,getChildAt: function(index) {
+		if(index >= 0 && index < this.nmeChildren.length) return this.nmeChildren[index];
+		throw "getChildAt : index out of bounds " + index + "/" + this.nmeChildren.length;
+		return null;
+	}
+	,contains: function(child) {
+		return this.__contains(child);
+	}
+	,addChildAt: function(object,index) {
+		if(index > this.nmeChildren.length || index < 0) throw "Invalid index position " + index;
+		this.nmeAddedChildren = true;
+		if(object.parent == this) {
+			this.setChildIndex(object,index);
+			return object;
+		}
+		if(index == this.nmeChildren.length) return this.addChild(object); else {
+			if(this.nmeIsOnStage()) object.nmeAddToStage(this,this.nmeChildren[index]);
+			this.nmeChildren.splice(index,0,object);
+			object.set_parent(this);
+		}
+		return object;
+	}
+	,addChild: function(object) {
+		if(object == null) throw "DisplayObjectContainer asked to add null child object";
+		if(object == this) throw "Adding to self";
+		this.nmeAddedChildren = true;
+		if(object.parent == this) {
+			this.setChildIndex(object,this.nmeChildren.length - 1);
+			return object;
+		}
+		var _g = 0, _g1 = this.nmeChildren;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child == object) throw "Internal error: child already existed at index " + this.getChildIndex(object);
+		}
+		object.set_parent(this);
+		if(this.nmeIsOnStage()) object.nmeAddToStage(this);
+		if(this.nmeChildren == null) this.nmeChildren = new Array();
+		this.nmeChildren.push(object);
+		return object;
+	}
+	,__removeChild: function(child) {
+		HxOverrides.remove(this.nmeChildren,child);
+	}
+	,__class__: flash.display.DisplayObjectContainer
+	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{get_numChildren:"get_numChildren"})
+});
+flash.display.GradientType = { __ename__ : true, __constructs__ : ["RADIAL","LINEAR"] }
 flash.display.GradientType.RADIAL = ["RADIAL",0];
 flash.display.GradientType.RADIAL.toString = $estr;
 flash.display.GradientType.RADIAL.__enum__ = flash.display.GradientType;
@@ -4303,7 +4098,7 @@ flash.display.LineJob.__name__ = ["flash","display","LineJob"];
 flash.display.LineJob.prototype = {
 	__class__: flash.display.LineJob
 }
-flash.display.PointInPathMode = $hxClasses["flash.display.PointInPathMode"] = { __ename__ : true, __constructs__ : ["USER_SPACE","DEVICE_SPACE"] }
+flash.display.PointInPathMode = { __ename__ : true, __constructs__ : ["USER_SPACE","DEVICE_SPACE"] }
 flash.display.PointInPathMode.USER_SPACE = ["USER_SPACE",0];
 flash.display.PointInPathMode.USER_SPACE.toString = $estr;
 flash.display.PointInPathMode.USER_SPACE.__enum__ = flash.display.PointInPathMode;
@@ -4392,7 +4187,7 @@ flash.display.GraphicsPath.prototype = {
 flash.display.GraphicsPathCommand = function() { }
 $hxClasses["flash.display.GraphicsPathCommand"] = flash.display.GraphicsPathCommand;
 flash.display.GraphicsPathCommand.__name__ = ["flash","display","GraphicsPathCommand"];
-flash.display.GraphicsPathWinding = $hxClasses["flash.display.GraphicsPathWinding"] = { __ename__ : true, __constructs__ : ["EVEN_ODD","NON_ZERO"] }
+flash.display.GraphicsPathWinding = { __ename__ : true, __constructs__ : ["EVEN_ODD","NON_ZERO"] }
 flash.display.GraphicsPathWinding.EVEN_ODD = ["EVEN_ODD",0];
 flash.display.GraphicsPathWinding.EVEN_ODD.toString = $estr;
 flash.display.GraphicsPathWinding.EVEN_ODD.__enum__ = flash.display.GraphicsPathWinding;
@@ -4435,7 +4230,7 @@ flash.display.GraphicsStroke.__interfaces__ = [flash.display.IGraphicsStroke,fla
 flash.display.GraphicsStroke.prototype = {
 	__class__: flash.display.GraphicsStroke
 }
-flash.display.GraphicsDataType = $hxClasses["flash.display.GraphicsDataType"] = { __ename__ : true, __constructs__ : ["STROKE","SOLID","GRADIENT","PATH"] }
+flash.display.GraphicsDataType = { __ename__ : true, __constructs__ : ["STROKE","SOLID","GRADIENT","PATH"] }
 flash.display.GraphicsDataType.STROKE = ["STROKE",0];
 flash.display.GraphicsDataType.STROKE.toString = $estr;
 flash.display.GraphicsDataType.STROKE.__enum__ = flash.display.GraphicsDataType;
@@ -4448,21 +4243,21 @@ flash.display.GraphicsDataType.GRADIENT.__enum__ = flash.display.GraphicsDataTyp
 flash.display.GraphicsDataType.PATH = ["PATH",3];
 flash.display.GraphicsDataType.PATH.toString = $estr;
 flash.display.GraphicsDataType.PATH.__enum__ = flash.display.GraphicsDataType;
-flash.display.GraphicsFillType = $hxClasses["flash.display.GraphicsFillType"] = { __ename__ : true, __constructs__ : ["SOLID_FILL","GRADIENT_FILL"] }
+flash.display.GraphicsFillType = { __ename__ : true, __constructs__ : ["SOLID_FILL","GRADIENT_FILL"] }
 flash.display.GraphicsFillType.SOLID_FILL = ["SOLID_FILL",0];
 flash.display.GraphicsFillType.SOLID_FILL.toString = $estr;
 flash.display.GraphicsFillType.SOLID_FILL.__enum__ = flash.display.GraphicsFillType;
 flash.display.GraphicsFillType.GRADIENT_FILL = ["GRADIENT_FILL",1];
 flash.display.GraphicsFillType.GRADIENT_FILL.toString = $estr;
 flash.display.GraphicsFillType.GRADIENT_FILL.__enum__ = flash.display.GraphicsFillType;
-flash.display.InterpolationMethod = $hxClasses["flash.display.InterpolationMethod"] = { __ename__ : true, __constructs__ : ["RGB","LINEAR_RGB"] }
+flash.display.InterpolationMethod = { __ename__ : true, __constructs__ : ["RGB","LINEAR_RGB"] }
 flash.display.InterpolationMethod.RGB = ["RGB",0];
 flash.display.InterpolationMethod.RGB.toString = $estr;
 flash.display.InterpolationMethod.RGB.__enum__ = flash.display.InterpolationMethod;
 flash.display.InterpolationMethod.LINEAR_RGB = ["LINEAR_RGB",1];
 flash.display.InterpolationMethod.LINEAR_RGB.toString = $estr;
 flash.display.InterpolationMethod.LINEAR_RGB.__enum__ = flash.display.InterpolationMethod;
-flash.display.JointStyle = $hxClasses["flash.display.JointStyle"] = { __ename__ : true, __constructs__ : ["MITER","ROUND","BEVEL"] }
+flash.display.JointStyle = { __ename__ : true, __constructs__ : ["MITER","ROUND","BEVEL"] }
 flash.display.JointStyle.MITER = ["MITER",0];
 flash.display.JointStyle.MITER.toString = $estr;
 flash.display.JointStyle.MITER.__enum__ = flash.display.JointStyle;
@@ -4472,7 +4267,7 @@ flash.display.JointStyle.ROUND.__enum__ = flash.display.JointStyle;
 flash.display.JointStyle.BEVEL = ["BEVEL",2];
 flash.display.JointStyle.BEVEL.toString = $estr;
 flash.display.JointStyle.BEVEL.__enum__ = flash.display.JointStyle;
-flash.display.LineScaleMode = $hxClasses["flash.display.LineScaleMode"] = { __ename__ : true, __constructs__ : ["HORIZONTAL","NONE","NORMAL","VERTICAL"] }
+flash.display.LineScaleMode = { __ename__ : true, __constructs__ : ["HORIZONTAL","NONE","NORMAL","VERTICAL"] }
 flash.display.LineScaleMode.HORIZONTAL = ["HORIZONTAL",0];
 flash.display.LineScaleMode.HORIZONTAL.toString = $estr;
 flash.display.LineScaleMode.HORIZONTAL.__enum__ = flash.display.LineScaleMode;
@@ -4485,6 +4280,65 @@ flash.display.LineScaleMode.NORMAL.__enum__ = flash.display.LineScaleMode;
 flash.display.LineScaleMode.VERTICAL = ["VERTICAL",3];
 flash.display.LineScaleMode.VERTICAL.toString = $estr;
 flash.display.LineScaleMode.VERTICAL.__enum__ = flash.display.LineScaleMode;
+flash.display.Sprite = function() {
+	flash.display.DisplayObjectContainer.call(this);
+	this.nmeGraphics = new flash.display.Graphics();
+	this.buttonMode = false;
+};
+$hxClasses["flash.display.Sprite"] = flash.display.Sprite;
+flash.display.Sprite.__name__ = ["flash","display","Sprite"];
+flash.display.Sprite.__super__ = flash.display.DisplayObjectContainer;
+flash.display.Sprite.prototype = $extend(flash.display.DisplayObjectContainer.prototype,{
+	set_useHandCursor: function(cursor) {
+		if(cursor == this.useHandCursor) return cursor;
+		if(this.nmeCursorCallbackOver != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
+		if(this.nmeCursorCallbackOut != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
+		if(!cursor) flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default); else {
+			this.nmeCursorCallbackOver = function(_) {
+				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Pointer);
+			};
+			this.nmeCursorCallbackOut = function(_) {
+				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default);
+			};
+			this.addEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
+			this.addEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
+		}
+		this.useHandCursor = cursor;
+		return cursor;
+	}
+	,get_graphics: function() {
+		return this.nmeGraphics;
+	}
+	,get_dropTarget: function() {
+		return this.nmeDropTarget;
+	}
+	,toString: function() {
+		return "[Sprite name=" + this.name + " id=" + this._nmeId + "]";
+	}
+	,stopDrag: function() {
+		if(this.nmeIsOnStage()) {
+			this.get_stage().nmeStopDrag(this);
+			var l = this.parent.nmeChildren.length - 1;
+			var obj = this.get_stage();
+			var _g1 = 0, _g = this.parent.nmeChildren.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				var result = this.parent.nmeChildren[l - i].nmeGetObjectUnderPoint(new flash.geom.Point(this.get_stage().get_mouseX(),this.get_stage().get_mouseY()));
+				if(result != null) obj = result;
+			}
+			if(obj != this) this.nmeDropTarget = obj; else this.nmeDropTarget = this.get_stage();
+		}
+	}
+	,startDrag: function(lockCenter,bounds) {
+		if(lockCenter == null) lockCenter = false;
+		if(this.nmeIsOnStage()) this.get_stage().nmeStartDrag(this,lockCenter,bounds);
+	}
+	,nmeGetGraphics: function() {
+		return this.nmeGraphics;
+	}
+	,__class__: flash.display.Sprite
+	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{get_dropTarget:"get_dropTarget",get_graphics:"get_graphics",set_useHandCursor:"set_useHandCursor"})
+});
 flash.display.Loader = function() {
 	flash.display.Sprite.call(this);
 	this.contentLoaderInfo = flash.display.LoaderInfo.create(this);
@@ -4656,7 +4510,7 @@ flash.display.MovieClip.prototype = $extend(flash.display.Sprite.prototype,{
 	,__class__: flash.display.MovieClip
 	,__properties__: $extend(flash.display.Sprite.prototype.__properties__,{get_currentFrame:"get_currentFrame",get_framesLoaded:"get_framesLoaded",get_totalFrames:"get_totalFrames"})
 });
-flash.display.PixelSnapping = $hxClasses["flash.display.PixelSnapping"] = { __ename__ : true, __constructs__ : ["NEVER","AUTO","ALWAYS"] }
+flash.display.PixelSnapping = { __ename__ : true, __constructs__ : ["NEVER","AUTO","ALWAYS"] }
 flash.display.PixelSnapping.NEVER = ["NEVER",0];
 flash.display.PixelSnapping.NEVER.toString = $estr;
 flash.display.PixelSnapping.NEVER.__enum__ = flash.display.PixelSnapping;
@@ -4690,7 +4544,7 @@ flash.display.Shape.prototype = $extend(flash.display.DisplayObject.prototype,{
 	,__class__: flash.display.Shape
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{get_graphics:"get_graphics"})
 });
-flash.display.SpreadMethod = $hxClasses["flash.display.SpreadMethod"] = { __ename__ : true, __constructs__ : ["REPEAT","REFLECT","PAD"] }
+flash.display.SpreadMethod = { __ename__ : true, __constructs__ : ["REPEAT","REFLECT","PAD"] }
 flash.display.SpreadMethod.REPEAT = ["REPEAT",0];
 flash.display.SpreadMethod.REPEAT.toString = $estr;
 flash.display.SpreadMethod.REPEAT.__enum__ = flash.display.SpreadMethod;
@@ -5226,7 +5080,7 @@ flash.display._Stage.TouchInfo.__name__ = ["flash","display","_Stage","TouchInfo
 flash.display._Stage.TouchInfo.prototype = {
 	__class__: flash.display._Stage.TouchInfo
 }
-flash.display.StageAlign = $hxClasses["flash.display.StageAlign"] = { __ename__ : true, __constructs__ : ["TOP_RIGHT","TOP_LEFT","TOP","RIGHT","LEFT","BOTTOM_RIGHT","BOTTOM_LEFT","BOTTOM"] }
+flash.display.StageAlign = { __ename__ : true, __constructs__ : ["TOP_RIGHT","TOP_LEFT","TOP","RIGHT","LEFT","BOTTOM_RIGHT","BOTTOM_LEFT","BOTTOM"] }
 flash.display.StageAlign.TOP_RIGHT = ["TOP_RIGHT",0];
 flash.display.StageAlign.TOP_RIGHT.toString = $estr;
 flash.display.StageAlign.TOP_RIGHT.__enum__ = flash.display.StageAlign;
@@ -5251,7 +5105,7 @@ flash.display.StageAlign.BOTTOM_LEFT.__enum__ = flash.display.StageAlign;
 flash.display.StageAlign.BOTTOM = ["BOTTOM",7];
 flash.display.StageAlign.BOTTOM.toString = $estr;
 flash.display.StageAlign.BOTTOM.__enum__ = flash.display.StageAlign;
-flash.display.StageDisplayState = $hxClasses["flash.display.StageDisplayState"] = { __ename__ : true, __constructs__ : ["NORMAL","FULL_SCREEN","FULL_SCREEN_INTERACTIVE"] }
+flash.display.StageDisplayState = { __ename__ : true, __constructs__ : ["NORMAL","FULL_SCREEN","FULL_SCREEN_INTERACTIVE"] }
 flash.display.StageDisplayState.NORMAL = ["NORMAL",0];
 flash.display.StageDisplayState.NORMAL.toString = $estr;
 flash.display.StageDisplayState.NORMAL.__enum__ = flash.display.StageDisplayState;
@@ -5264,7 +5118,7 @@ flash.display.StageDisplayState.FULL_SCREEN_INTERACTIVE.__enum__ = flash.display
 flash.display.StageQuality = function() { }
 $hxClasses["flash.display.StageQuality"] = flash.display.StageQuality;
 flash.display.StageQuality.__name__ = ["flash","display","StageQuality"];
-flash.display.StageScaleMode = $hxClasses["flash.display.StageScaleMode"] = { __ename__ : true, __constructs__ : ["SHOW_ALL","NO_SCALE","NO_BORDER","EXACT_FIT"] }
+flash.display.StageScaleMode = { __ename__ : true, __constructs__ : ["SHOW_ALL","NO_SCALE","NO_BORDER","EXACT_FIT"] }
 flash.display.StageScaleMode.SHOW_ALL = ["SHOW_ALL",0];
 flash.display.StageScaleMode.SHOW_ALL.toString = $estr;
 flash.display.StageScaleMode.SHOW_ALL.__enum__ = flash.display.StageScaleMode;
@@ -5305,29 +5159,6 @@ flash.errors.IOError.__super__ = flash.errors.Error;
 flash.errors.IOError.prototype = $extend(flash.errors.Error.prototype,{
 	__class__: flash.errors.IOError
 });
-flash.events.TextEvent = function(type,bubbles,cancelable,text) {
-	if(text == null) text = "";
-	if(cancelable == null) cancelable = false;
-	if(bubbles == null) bubbles = false;
-	flash.events.Event.call(this,type,bubbles,cancelable);
-	this.text = text;
-};
-$hxClasses["flash.events.TextEvent"] = flash.events.TextEvent;
-flash.events.TextEvent.__name__ = ["flash","events","TextEvent"];
-flash.events.TextEvent.__super__ = flash.events.Event;
-flash.events.TextEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.TextEvent
-});
-flash.events.ErrorEvent = function(type,bubbles,cancelable,text) {
-	flash.events.TextEvent.call(this,type,bubbles,cancelable);
-	this.text = text;
-};
-$hxClasses["flash.events.ErrorEvent"] = flash.events.ErrorEvent;
-flash.events.ErrorEvent.__name__ = ["flash","events","ErrorEvent"];
-flash.events.ErrorEvent.__super__ = flash.events.TextEvent;
-flash.events.ErrorEvent.prototype = $extend(flash.events.TextEvent.prototype,{
-	__class__: flash.events.ErrorEvent
-});
 flash.events.Listener = function(inListener,inUseCapture,inPriority) {
 	this.mListner = inListener;
 	this.mUseCapture = inUseCapture;
@@ -5363,19 +5194,6 @@ flash.events.FocusEvent.__name__ = ["flash","events","FocusEvent"];
 flash.events.FocusEvent.__super__ = flash.events.Event;
 flash.events.FocusEvent.prototype = $extend(flash.events.Event.prototype,{
 	__class__: flash.events.FocusEvent
-});
-flash.events.HTTPStatusEvent = function(type,bubbles,cancelable,status) {
-	if(status == null) status = 0;
-	if(cancelable == null) cancelable = false;
-	if(bubbles == null) bubbles = false;
-	this.status = status;
-	flash.events.Event.call(this,type,bubbles,cancelable);
-};
-$hxClasses["flash.events.HTTPStatusEvent"] = flash.events.HTTPStatusEvent;
-flash.events.HTTPStatusEvent.__name__ = ["flash","events","HTTPStatusEvent"];
-flash.events.HTTPStatusEvent.__super__ = flash.events.Event;
-flash.events.HTTPStatusEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.HTTPStatusEvent
 });
 flash.events.IOErrorEvent = function(type,bubbles,cancelable,inText) {
 	if(inText == null) inText = "";
@@ -5416,34 +5234,6 @@ flash.events.KeyboardEvent.__name__ = ["flash","events","KeyboardEvent"];
 flash.events.KeyboardEvent.__super__ = flash.events.Event;
 flash.events.KeyboardEvent.prototype = $extend(flash.events.Event.prototype,{
 	__class__: flash.events.KeyboardEvent
-});
-flash.events.ProgressEvent = function(type,bubbles,cancelable,bytesLoaded,bytesTotal) {
-	if(bytesTotal == null) bytesTotal = 0;
-	if(bytesLoaded == null) bytesLoaded = 0;
-	if(cancelable == null) cancelable = false;
-	if(bubbles == null) bubbles = false;
-	flash.events.Event.call(this,type,bubbles,cancelable);
-	this.bytesLoaded = bytesLoaded;
-	this.bytesTotal = bytesTotal;
-};
-$hxClasses["flash.events.ProgressEvent"] = flash.events.ProgressEvent;
-flash.events.ProgressEvent.__name__ = ["flash","events","ProgressEvent"];
-flash.events.ProgressEvent.__super__ = flash.events.Event;
-flash.events.ProgressEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.ProgressEvent
-});
-flash.events.SecurityErrorEvent = function(type,bubbles,cancelable,text) {
-	if(text == null) text = "";
-	if(cancelable == null) cancelable = false;
-	if(bubbles == null) bubbles = false;
-	flash.events.ErrorEvent.call(this,type,bubbles,cancelable);
-	this.text = text;
-};
-$hxClasses["flash.events.SecurityErrorEvent"] = flash.events.SecurityErrorEvent;
-flash.events.SecurityErrorEvent.__name__ = ["flash","events","SecurityErrorEvent"];
-flash.events.SecurityErrorEvent.__super__ = flash.events.ErrorEvent;
-flash.events.SecurityErrorEvent.prototype = $extend(flash.events.ErrorEvent.prototype,{
-	__class__: flash.events.SecurityErrorEvent
 });
 flash.events.TouchEvent = function(type,bubbles,cancelable,localX,localY,relatedObject,ctrlKey,altKey,shiftKey,buttonDown,delta,commandKey,clickCount) {
 	if(clickCount == null) clickCount = 0;
@@ -6084,367 +5874,7 @@ flash.geom.Transform.prototype = {
 	,__class__: flash.geom.Transform
 	,__properties__: {set_colorTransform:"set_colorTransform",get_concatenatedMatrix:"get_concatenatedMatrix",set_matrix:"set_matrix",get_matrix:"get_matrix",get_pixelBounds:"get_pixelBounds"}
 }
-flash.media = {}
-flash.media.Sound = function(stream,context) {
-	flash.events.EventDispatcher.call(this,this);
-	this.bytesLoaded = 0;
-	this.bytesTotal = 0;
-	this.id3 = null;
-	this.isBuffering = false;
-	this.length = 0;
-	this.url = null;
-	this.nmeSoundChannels = new haxe.ds.IntMap();
-	this.nmeSoundIdx = 0;
-	if(stream != null) this.load(stream,context);
-};
-$hxClasses["flash.media.Sound"] = flash.media.Sound;
-flash.media.Sound.__name__ = ["flash","media","Sound"];
-flash.media.Sound.nmeCanPlayMime = function(mime) {
-	var audio = js.Browser.document.createElement("audio");
-	var playable = function(ok) {
-		if(ok != "" && ok != "no") return true; else return false;
-	};
-	return playable(audio.canPlayType(mime,null));
-}
-flash.media.Sound.nmeCanPlayType = function(extension) {
-	var mime = flash.media.Sound.nmeMimeForExtension(extension);
-	if(mime == null) return false;
-	return flash.media.Sound.nmeCanPlayMime(mime);
-}
-flash.media.Sound.nmeMimeForExtension = function(extension) {
-	var mime = null;
-	switch(extension) {
-	case "mp3":
-		mime = "audio/mpeg";
-		break;
-	case "ogg":
-		mime = "audio/ogg; codecs=\"vorbis\"";
-		break;
-	case "wav":
-		mime = "audio/wav; codecs=\"1\"";
-		break;
-	case "aac":
-		mime = "audio/mp4; codecs=\"mp4a.40.2\"";
-		break;
-	default:
-		mime = null;
-	}
-	return mime;
-}
-flash.media.Sound.__super__ = flash.events.EventDispatcher;
-flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	nmeOnSoundLoaded: function(evt) {
-		this.nmeRemoveEventListeners();
-		var evt1 = new flash.events.Event(flash.events.Event.COMPLETE);
-		this.dispatchEvent(evt1);
-	}
-	,nmeOnSoundLoadError: function(evt) {
-		this.nmeRemoveEventListeners();
-		var evt1 = new flash.events.IOErrorEvent(flash.events.IOErrorEvent.IO_ERROR);
-		this.dispatchEvent(evt1);
-	}
-	,play: function(startTime,loops,sndTransform) {
-		if(loops == null) loops = 0;
-		if(startTime == null) startTime = 0.0;
-		if(this.nmeStreamUrl == null) return null;
-		var self = this;
-		var curIdx = this.nmeSoundIdx;
-		var removeRef = function() {
-			self.nmeSoundChannels.remove(curIdx);
-		};
-		var channel = flash.media.SoundChannel.nmeCreate(this.nmeStreamUrl,startTime,loops,sndTransform,removeRef);
-		this.nmeSoundChannels.set(curIdx,channel);
-		this.nmeSoundIdx++;
-		var audio = channel.nmeAudio;
-		return channel;
-	}
-	,nmeRemoveEventListeners: function() {
-		this.nmeSoundCache.removeEventListener(flash.events.Event.COMPLETE,$bind(this,this.nmeOnSoundLoaded),false);
-		this.nmeSoundCache.removeEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.nmeOnSoundLoadError),false);
-	}
-	,nmeLoad: function(stream,context,mime) {
-		if(mime == null) mime = "";
-		this.nmeStreamUrl = stream.url;
-		try {
-			this.nmeSoundCache = new flash.net.URLLoader();
-			this.nmeAddEventListeners();
-			this.nmeSoundCache.load(stream);
-		} catch( e ) {
-		}
-	}
-	,nmeAddEventListeners: function() {
-		this.nmeSoundCache.addEventListener(flash.events.Event.COMPLETE,$bind(this,this.nmeOnSoundLoaded));
-		this.nmeSoundCache.addEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.nmeOnSoundLoadError));
-	}
-	,load: function(stream,context) {
-		this.nmeLoad(stream,context);
-	}
-	,close: function() {
-	}
-	,__class__: flash.media.Sound
-});
-flash.media.SoundChannel = function() {
-	flash.events.EventDispatcher.call(this,this);
-	this.ChannelId = -1;
-	this.leftPeak = 0.;
-	this.position = 0.;
-	this.rightPeak = 0.;
-	this.nmeAudioCurrentLoop = 1;
-	this.nmeAudioTotalLoops = 1;
-};
-$hxClasses["flash.media.SoundChannel"] = flash.media.SoundChannel;
-flash.media.SoundChannel.__name__ = ["flash","media","SoundChannel"];
-flash.media.SoundChannel.nmeCreate = function(src,startTime,loops,sndTransform,removeRef) {
-	if(loops == null) loops = 0;
-	if(startTime == null) startTime = 0.0;
-	var channel = new flash.media.SoundChannel();
-	channel.nmeAudio = js.Browser.document.createElement("audio");
-	channel.nmeRemoveRef = removeRef;
-	channel.nmeAudio.addEventListener("ended",$bind(channel,channel.__onSoundChannelFinished),false);
-	channel.nmeAudio.addEventListener("seeked",$bind(channel,channel.__onSoundSeeked),false);
-	channel.nmeAudio.addEventListener("stalled",$bind(channel,channel.__onStalled),false);
-	channel.nmeAudio.addEventListener("progress",$bind(channel,channel.__onProgress),false);
-	if(loops > 0) {
-		channel.nmeAudioTotalLoops = loops;
-		channel.nmeAudio.loop = true;
-	}
-	channel.nmeStartTime = startTime;
-	if(startTime > 0.) {
-		var onLoad = null;
-		onLoad = function(_) {
-			channel.nmeAudio.currentTime = channel.nmeStartTime;
-			channel.nmeAudio.play();
-			channel.nmeAudio.removeEventListener("canplaythrough",onLoad,false);
-		};
-		channel.nmeAudio.addEventListener("canplaythrough",onLoad,false);
-	} else channel.nmeAudio.autoplay = true;
-	channel.nmeAudio.src = src;
-	return channel;
-}
-flash.media.SoundChannel.__super__ = flash.events.EventDispatcher;
-flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	set_soundTransform: function(v) {
-		this.nmeAudio.volume = v.volume;
-		return this.soundTransform = v;
-	}
-	,__onStalled: function(evt) {
-		if(this.nmeAudio != null) this.nmeAudio.load();
-	}
-	,__onSoundSeeked: function(evt) {
-		if(this.nmeAudioCurrentLoop >= this.nmeAudioTotalLoops) {
-			this.nmeAudio.loop = false;
-			this.stop();
-		} else this.nmeAudioCurrentLoop++;
-	}
-	,__onSoundChannelFinished: function(evt) {
-		if(this.nmeAudioCurrentLoop >= this.nmeAudioTotalLoops) {
-			this.nmeAudio.removeEventListener("ended",$bind(this,this.__onSoundChannelFinished),false);
-			this.nmeAudio.removeEventListener("seeked",$bind(this,this.__onSoundSeeked),false);
-			this.nmeAudio.removeEventListener("stalled",$bind(this,this.__onStalled),false);
-			this.nmeAudio.removeEventListener("progress",$bind(this,this.__onProgress),false);
-			this.nmeAudio = null;
-			var evt1 = new flash.events.Event(flash.events.Event.COMPLETE);
-			evt1.target = this;
-			this.dispatchEvent(evt1);
-			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
-		} else {
-			this.nmeAudio.currentTime = this.nmeStartTime;
-			this.nmeAudio.play();
-		}
-	}
-	,__onProgress: function(evt) {
-	}
-	,stop: function() {
-		if(this.nmeAudio != null) {
-			this.nmeAudio.pause();
-			this.nmeAudio = null;
-			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
-		}
-	}
-	,__class__: flash.media.SoundChannel
-	,__properties__: {set_soundTransform:"set_soundTransform"}
-});
-flash.media.SoundLoaderContext = function(bufferTime,checkPolicyFile) {
-	if(checkPolicyFile == null) checkPolicyFile = false;
-	if(bufferTime == null) bufferTime = 0;
-	this.bufferTime = bufferTime;
-	this.checkPolicyFile = checkPolicyFile;
-};
-$hxClasses["flash.media.SoundLoaderContext"] = flash.media.SoundLoaderContext;
-flash.media.SoundLoaderContext.__name__ = ["flash","media","SoundLoaderContext"];
-flash.media.SoundLoaderContext.prototype = {
-	__class__: flash.media.SoundLoaderContext
-}
-flash.media.SoundTransform = function(vol,panning) {
-	if(panning == null) panning = 0;
-	if(vol == null) vol = 1;
-	this.volume = vol;
-	this.pan = panning;
-	this.leftToLeft = 0;
-	this.leftToRight = 0;
-	this.rightToLeft = 0;
-	this.rightToRight = 0;
-};
-$hxClasses["flash.media.SoundTransform"] = flash.media.SoundTransform;
-flash.media.SoundTransform.__name__ = ["flash","media","SoundTransform"];
-flash.media.SoundTransform.prototype = {
-	__class__: flash.media.SoundTransform
-}
 flash.net = {}
-flash.net.URLLoader = function(request) {
-	flash.events.EventDispatcher.call(this);
-	this.bytesLoaded = 0;
-	this.bytesTotal = 0;
-	this.set_dataFormat(flash.net.URLLoaderDataFormat.TEXT);
-	if(request != null) this.load(request);
-};
-$hxClasses["flash.net.URLLoader"] = flash.net.URLLoader;
-flash.net.URLLoader.__name__ = ["flash","net","URLLoader"];
-flash.net.URLLoader.__super__ = flash.events.EventDispatcher;
-flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	onStatus: function(status) {
-		var evt = new flash.events.HTTPStatusEvent(flash.events.HTTPStatusEvent.HTTP_STATUS,false,false,status);
-		evt.currentTarget = this;
-		this.dispatchEvent(evt);
-	}
-	,onSecurityError: function(msg) {
-		var evt = new flash.events.SecurityErrorEvent(flash.events.SecurityErrorEvent.SECURITY_ERROR);
-		evt.text = msg;
-		evt.currentTarget = this;
-		this.dispatchEvent(evt);
-	}
-	,onProgress: function(event) {
-		var evt = new flash.events.ProgressEvent(flash.events.ProgressEvent.PROGRESS);
-		evt.currentTarget = this;
-		evt.bytesLoaded = event.loaded;
-		evt.bytesTotal = event.total;
-		this.dispatchEvent(evt);
-	}
-	,onOpen: function() {
-		var evt = new flash.events.Event(flash.events.Event.OPEN);
-		evt.currentTarget = this;
-		this.dispatchEvent(evt);
-	}
-	,onError: function(msg) {
-		var evt = new flash.events.IOErrorEvent(flash.events.IOErrorEvent.IO_ERROR);
-		evt.text = msg;
-		evt.currentTarget = this;
-		this.dispatchEvent(evt);
-	}
-	,onData: function(_) {
-		var content = this.getData();
-		var _g = this;
-		switch( (_g.dataFormat)[1] ) {
-		case 0:
-			this.data = flash.utils.ByteArray.nmeOfBuffer(content);
-			break;
-		default:
-			this.data = Std.string(content);
-		}
-		var evt = new flash.events.Event(flash.events.Event.COMPLETE);
-		evt.currentTarget = this;
-		this.dispatchEvent(evt);
-	}
-	,requestUrl: function(url,method,data,requestHeaders) {
-		var xmlHttpRequest = new XMLHttpRequest();
-		this.registerEvents(xmlHttpRequest);
-		var uri = "";
-		if(js.Boot.__instanceof(data,flash.utils.ByteArray)) {
-			var data1 = data;
-			var _g = this;
-			switch( (_g.dataFormat)[1] ) {
-			case 0:
-				uri = data1.data.buffer;
-				break;
-			default:
-				uri = data1.readUTFBytes(data1.length);
-			}
-		} else if(js.Boot.__instanceof(data,flash.net.URLVariables)) {
-			var data1 = data;
-			var _g = 0, _g1 = Reflect.fields(data1);
-			while(_g < _g1.length) {
-				var p = _g1[_g];
-				++_g;
-				if(uri.length != 0) uri += "&";
-				uri += StringTools.urlEncode(p) + "=" + StringTools.urlEncode(Reflect.field(data1,p));
-			}
-		} else if(data != null) uri = data.toString();
-		try {
-			if(method == "GET" && uri != null && uri != "") {
-				var question = url.split("?").length <= 1;
-				xmlHttpRequest.open(method,url + (question?"?":"&") + Std.string(uri),true);
-				uri = "";
-			} else xmlHttpRequest.open(method,url,true);
-		} catch( e ) {
-			this.onError(e.toString());
-			return;
-		}
-		var _g = this;
-		switch( (_g.dataFormat)[1] ) {
-		case 0:
-			xmlHttpRequest.responseType = "arraybuffer";
-			break;
-		default:
-		}
-		var _g1 = 0;
-		while(_g1 < requestHeaders.length) {
-			var header = requestHeaders[_g1];
-			++_g1;
-			xmlHttpRequest.setRequestHeader(header.name,header.value);
-		}
-		xmlHttpRequest.send(uri);
-		this.onOpen();
-		this.getData = function() {
-			if(xmlHttpRequest.response != null) return xmlHttpRequest.response; else return xmlHttpRequest.responseText;
-		};
-	}
-	,registerEvents: function(subject) {
-		var self = this;
-		if(typeof XMLHttpRequestProgressEvent != "undefined") subject.addEventListener("progress",$bind(this,this.onProgress),false);
-		subject.onreadystatechange = function() {
-			if(subject.readyState != 4) return;
-			var s = (function($this) {
-				var $r;
-				try {
-					$r = subject.status;
-				} catch( e ) {
-					$r = null;
-				}
-				return $r;
-			}(this));
-			if(s == undefined) s = null;
-			if(s != null) self.onStatus(s);
-			if(s != null && s >= 200 && s < 400) self.onData(subject.response); else if(s == null) self.onError("Failed to connect or resolve host"); else if(s == 12029) self.onError("Failed to connect to host"); else if(s == 12007) self.onError("Unknown host"); else if(s == 0) {
-				self.onError("Unable to make request (may be blocked due to cross-domain permissions)");
-				self.onSecurityError("Unable to make request (may be blocked due to cross-domain permissions)");
-			} else self.onError("Http Error #" + subject.status);
-		};
-	}
-	,load: function(request) {
-		this.requestUrl(request.url,request.method,request.data,request.formatRequestHeaders());
-	}
-	,getData: function() {
-		return null;
-	}
-	,close: function() {
-	}
-	,set_dataFormat: function(inputVal) {
-		if(inputVal == flash.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(js.Browser.window,"ArrayBuffer")) this.dataFormat = flash.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
-		return this.dataFormat;
-	}
-	,__class__: flash.net.URLLoader
-	,__properties__: {set_dataFormat:"set_dataFormat"}
-});
-flash.net.URLLoaderDataFormat = $hxClasses["flash.net.URLLoaderDataFormat"] = { __ename__ : true, __constructs__ : ["BINARY","TEXT","VARIABLES"] }
-flash.net.URLLoaderDataFormat.BINARY = ["BINARY",0];
-flash.net.URLLoaderDataFormat.BINARY.toString = $estr;
-flash.net.URLLoaderDataFormat.BINARY.__enum__ = flash.net.URLLoaderDataFormat;
-flash.net.URLLoaderDataFormat.TEXT = ["TEXT",1];
-flash.net.URLLoaderDataFormat.TEXT.toString = $estr;
-flash.net.URLLoaderDataFormat.TEXT.__enum__ = flash.net.URLLoaderDataFormat;
-flash.net.URLLoaderDataFormat.VARIABLES = ["VARIABLES",2];
-flash.net.URLLoaderDataFormat.VARIABLES.toString = $estr;
-flash.net.URLLoaderDataFormat.VARIABLES.__enum__ = flash.net.URLLoaderDataFormat;
 flash.net.URLRequest = function(inURL) {
 	if(inURL != null) this.url = inURL;
 	this.requestHeaders = [];
@@ -6480,42 +5910,6 @@ flash.net.URLRequestHeader.prototype = {
 flash.net.URLRequestMethod = function() { }
 $hxClasses["flash.net.URLRequestMethod"] = flash.net.URLRequestMethod;
 flash.net.URLRequestMethod.__name__ = ["flash","net","URLRequestMethod"];
-flash.net.URLVariables = function(inEncoded) {
-	if(inEncoded != null) this.decode(inEncoded);
-};
-$hxClasses["flash.net.URLVariables"] = flash.net.URLVariables;
-flash.net.URLVariables.__name__ = ["flash","net","URLVariables"];
-flash.net.URLVariables.prototype = {
-	toString: function() {
-		var result = new Array();
-		var fields = Reflect.fields(this);
-		var _g = 0;
-		while(_g < fields.length) {
-			var f = fields[_g];
-			++_g;
-			result.push(StringTools.urlEncode(f) + "=" + StringTools.urlEncode(Reflect.field(this,f)));
-		}
-		return result.join("&");
-	}
-	,decode: function(inVars) {
-		var fields = Reflect.fields(this);
-		var _g = 0;
-		while(_g < fields.length) {
-			var f = fields[_g];
-			++_g;
-			Reflect.deleteField(this,f);
-		}
-		var fields1 = inVars.split(";").join("&").split("&");
-		var _g = 0;
-		while(_g < fields1.length) {
-			var f = fields1[_g];
-			++_g;
-			var eq = f.indexOf("=");
-			if(eq > 0) this[StringTools.urlDecode(HxOverrides.substr(f,0,eq))] = StringTools.urlDecode(HxOverrides.substr(f,eq + 1,null)); else if(eq != 0) this[StringTools.urlDecode(f)] = "";
-		}
-	}
-	,__class__: flash.net.URLVariables
-}
 flash.system = {}
 flash.system.ApplicationDomain = function(parentDomain) {
 	if(parentDomain != null) this.parentDomain = parentDomain; else this.parentDomain = flash.system.ApplicationDomain.currentDomain;
@@ -6970,7 +6364,7 @@ flash.utils.Uuid.random = function(size) {
 flash.utils.Uuid.uuid = function() {
 	return flash.utils.Uuid.random(8) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(12);
 }
-haxe.StackItem = $hxClasses["haxe.StackItem"] = { __ename__ : true, __constructs__ : ["CFunction","Module","FilePos","Method","Lambda"] }
+haxe.StackItem = { __ename__ : true, __constructs__ : ["CFunction","Module","FilePos","Method","Lambda"] }
 haxe.StackItem.CFunction = ["CFunction",0];
 haxe.StackItem.CFunction.toString = $estr;
 haxe.StackItem.CFunction.__enum__ = haxe.StackItem;
@@ -7036,22 +6430,8 @@ haxe.Log.__name__ = ["haxe","Log"];
 haxe.Log.trace = function(v,infos) {
 	js.Boot.__trace(v,infos);
 }
-haxe.Resource = function() { }
-$hxClasses["haxe.Resource"] = haxe.Resource;
-haxe.Resource.__name__ = ["haxe","Resource"];
-haxe.Resource.content = null;
-haxe.Resource.listNames = function() {
-	var names = new Array();
-	var _g = 0, _g1 = haxe.Resource.content;
-	while(_g < _g1.length) {
-		var x = _g1[_g];
-		++_g;
-		names.push(x.name);
-	}
-	return names;
-}
 haxe._Template = {}
-haxe._Template.TemplateExpr = $hxClasses["haxe._Template.TemplateExpr"] = { __ename__ : true, __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] }
+haxe._Template.TemplateExpr = { __ename__ : true, __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] }
 haxe._Template.TemplateExpr.OpVar = function(v) { var $x = ["OpVar",0,v]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
 haxe._Template.TemplateExpr.OpExpr = function(expr) { var $x = ["OpExpr",1,expr]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
 haxe._Template.TemplateExpr.OpIf = function(expr,eif,eelse) { var $x = ["OpIf",2,expr,eif,eelse]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
@@ -7432,38 +6812,6 @@ haxe.Template.prototype = {
 	,__class__: haxe.Template
 }
 haxe.ds = {}
-haxe.ds.IntMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.IntMap"] = haxe.ds.IntMap;
-haxe.ds.IntMap.__name__ = ["haxe","ds","IntMap"];
-haxe.ds.IntMap.__interfaces__ = [IMap];
-haxe.ds.IntMap.prototype = {
-	iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) {
-		if(this.h.hasOwnProperty(key)) a.push(key | 0);
-		}
-		return HxOverrides.iter(a);
-	}
-	,remove: function(key) {
-		if(!this.h.hasOwnProperty(key)) return false;
-		delete(this.h[key]);
-		return true;
-	}
-	,set: function(key,value) {
-		this.h[key] = value;
-	}
-	,__class__: haxe.ds.IntMap
-}
 haxe.ds.ObjectMap = function() {
 	this.h = { };
 	this.h.__keys__ = { };
@@ -7563,7 +6911,7 @@ haxe.io.Eof.prototype = {
 	,__class__: haxe.io.Eof
 }
 haxe.rtti = {}
-haxe.rtti.CType = $hxClasses["haxe.rtti.CType"] = { __ename__ : true, __constructs__ : ["CUnknown","CEnum","CClass","CTypedef","CFunction","CAnonymous","CDynamic","CAbstract"] }
+haxe.rtti.CType = { __ename__ : true, __constructs__ : ["CUnknown","CEnum","CClass","CTypedef","CFunction","CAnonymous","CDynamic","CAbstract"] }
 haxe.rtti.CType.CUnknown = ["CUnknown",0];
 haxe.rtti.CType.CUnknown.toString = $estr;
 haxe.rtti.CType.CUnknown.__enum__ = haxe.rtti.CType;
@@ -7574,7 +6922,7 @@ haxe.rtti.CType.CFunction = function(args,ret) { var $x = ["CFunction",4,args,re
 haxe.rtti.CType.CAnonymous = function(fields) { var $x = ["CAnonymous",5,fields]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
 haxe.rtti.CType.CDynamic = function(t) { var $x = ["CDynamic",6,t]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
 haxe.rtti.CType.CAbstract = function(name,params) { var $x = ["CAbstract",7,name,params]; $x.__enum__ = haxe.rtti.CType; $x.toString = $estr; return $x; }
-haxe.rtti.Rights = $hxClasses["haxe.rtti.Rights"] = { __ename__ : true, __constructs__ : ["RNormal","RNo","RCall","RMethod","RDynamic","RInline"] }
+haxe.rtti.Rights = { __ename__ : true, __constructs__ : ["RNormal","RNo","RCall","RMethod","RDynamic","RInline"] }
 haxe.rtti.Rights.RNormal = ["RNormal",0];
 haxe.rtti.Rights.RNormal.toString = $estr;
 haxe.rtti.Rights.RNormal.__enum__ = haxe.rtti.Rights;
@@ -7591,7 +6939,7 @@ haxe.rtti.Rights.RDynamic.__enum__ = haxe.rtti.Rights;
 haxe.rtti.Rights.RInline = ["RInline",5];
 haxe.rtti.Rights.RInline.toString = $estr;
 haxe.rtti.Rights.RInline.__enum__ = haxe.rtti.Rights;
-haxe.rtti.TypeTree = $hxClasses["haxe.rtti.TypeTree"] = { __ename__ : true, __constructs__ : ["TPackage","TClassdecl","TEnumdecl","TTypedecl","TAbstractdecl"] }
+haxe.rtti.TypeTree = { __ename__ : true, __constructs__ : ["TPackage","TClassdecl","TEnumdecl","TTypedecl","TAbstractdecl"] }
 haxe.rtti.TypeTree.TPackage = function(name,full,subs) { var $x = ["TPackage",0,name,full,subs]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
 haxe.rtti.TypeTree.TClassdecl = function(c) { var $x = ["TClassdecl",1,c]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
 haxe.rtti.TypeTree.TEnumdecl = function(e) { var $x = ["TEnumdecl",2,e]; $x.__enum__ = haxe.rtti.TypeTree; $x.toString = $estr; return $x; }
@@ -8315,6 +7663,7 @@ integration.scopedproxy.ScopedProxyTests = function() {
 	this.testFunction("scopedProxy_injectHostedToCommand_injectFails");
 	this.testFunction("scopedProxy_injectHostedToProxy_injectFails");
 	this.testFunction("scopedProxy_injectHostedToMediator_injectFails");
+	this._inProgress = true;
 	this.testFunction("scopedProxy_hostAndInjectHostedToCommand_injectOk");
 	this.testFunction("scopedProxy_hostAndInjectHostedToProxyTwice_injectOk");
 };
@@ -8470,6 +7819,8 @@ mvcexpress.mvc.Mediator = function() {
 	this.handlerVoRegistry = new Array();
 	this.eventListenerRegistry = new haxe.ds.ObjectMap();
 	this.eventListenerCaptureRegistry = new haxe.ds.ObjectMap();
+	mvcexpress.mvc.Mediator.canConstruct = true;
+	if(!mvcexpress.mvc.Mediator.canConstruct) throw "Mediator:" + Std.string(this) + " can be constructed only by framework. If you want to use it - map it to view object class with 'mediatorMap.map()', and then mediate instance of the view object with 'mediatorMap.mediate()'.";
 };
 $hxClasses["mvcexpress.mvc.Mediator"] = mvcexpress.mvc.Mediator;
 mvcexpress.mvc.Mediator.__name__ = ["mvcexpress","mvc","Mediator"];
@@ -8560,13 +7911,21 @@ mvcexpress.mvc.Mediator.prototype = {
 		this.messenger.removeHandler(type,handler);
 	}
 	,addHandler: function(type,handler) {
+		if(type == null || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null'.(You are trying to add message handler in: " + Std.string(this) + ")";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_addHandler(this.moduleName,this,type,handler));
+		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler,Type.getClassName(Type.getClass(this)));
+		return;
 		this.handlerVoRegistry[this.handlerVoRegistry.length] = this.messenger.addHandler(type,handler);
 	}
 	,sendScopeMessage: function(scopeName,type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,true));
 		mvcexpress.core.ModuleManager.sendScopeMessage(this.moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendScopeMessage(this.moduleName,this,type,params,false));
 	}
 	,sendMessage: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,true));
 		this.messenger.send(type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediator.TraceMediator_sendMessage(this.moduleName,this,type,params,false));
 	}
 	,get_isReady: function() {
 		return this._isReady;
@@ -8766,10 +8125,13 @@ mvcexpress.mvc.Proxy.prototype = {
 	}
 	,sendScopeMessage: function(scopeName,type,params) {
 		var moduleName = this.messenger.moduleName;
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,true));
 		mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendScopeMessage(moduleName,this,type,params,false));
 	}
 	,sendMessage: function(type,params) {
 		var moduleName = this.messenger.moduleName;
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,true));
 		this.messenger.send(type,params);
 		var scopeCount = this.proxyScopes.length;
 		var _g = 0;
@@ -8777,6 +8139,7 @@ mvcexpress.mvc.Proxy.prototype = {
 			var i = _g++;
 			mvcexpress.core.ModuleManager.sendScopeMessage(moduleName,this.proxyScopes[i],type,params,false);
 		}
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxy.TraceProxy_sendMessage(moduleName,this,type,params,false));
 	}
 	,get_isReady: function() {
 		return this._isReady;
@@ -8805,9 +8168,11 @@ integration.scopedproxy.testobj.modulea.ScopedTestProxy.prototype = $extend(mvce
 	,__class__: integration.scopedproxy.testobj.modulea.ScopedTestProxy
 });
 mvcexpress.mvc.Command = function() {
+	if(!mvcexpress.mvc.Command.canConstruct) throw "Command:" + Std.string(this) + " can be constructed only by framework. If you want to execute it - map it to message with commandMap.map() and send a message, or execute it directly with commandMap.execute()";
 };
 $hxClasses["mvcexpress.mvc.Command"] = mvcexpress.mvc.Command;
 mvcexpress.mvc.Command.__name__ = ["mvcexpress","mvc","Command"];
+mvcexpress.mvc.Command.canConstruct = null;
 mvcexpress.mvc.Command.prototype = {
 	getMessageType: function() {
 		return this.messageType;
@@ -8822,10 +8187,14 @@ mvcexpress.mvc.Command.prototype = {
 		mvcexpress.core.ModuleManager.registerScope(this.messenger.moduleName,scopeName,messageSending,messageReceiving,proxieMapping);
 	}
 	,sendScopeMessage: function(scopeName,type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,true));
 		mvcexpress.core.ModuleManager.sendScopeMessage(this.messenger.moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendScopeMessage(this.messenger.moduleName,this,type,params,false));
 	}
 	,sendMessage: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,true));
 		this.messenger.send(type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.command.TraceCommand_sendMessage(this.messenger.moduleName,this,type,params,false));
 	}
 	,__class__: mvcexpress.mvc.Command
 }
@@ -9068,9 +8437,6 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -9083,7 +8449,14 @@ mvcexpress.MvcExpress.get_VERSION = function() {
 	return "v" + mvcexpress.MvcExpress.MAJOR_VERSION + "." + mvcexpress.MvcExpress.MINOR_VERSION + "." + mvcexpress.MvcExpress.REVISION;
 }
 mvcexpress.MvcExpress.get_DEBUG_COMPILE = function() {
+	return true;
 	return false;
+}
+mvcexpress.MvcExpress.debug = function(traceObj) {
+	if(mvcexpress.MvcExpress.debugFunction != null) {
+		if(traceObj.canPrint) mvcexpress.MvcExpress.debugFunction(traceObj);
+	}
+	if(mvcexpress.MvcExpress.loggerFunction != null) mvcexpress.MvcExpress.loggerFunction(traceObj);
 }
 mvcexpress.MvcExpress.prototype = {
 	__class__: mvcexpress.MvcExpress
@@ -9104,6 +8477,36 @@ mvcexpress.core.CommandMap.prototype = {
 	listMessageCommands: function(messageType) {
 		return this.classRegistry.get(messageType);
 	}
+	,validateCommandParams: function(commandClass,params) {
+		this.validateCommandClass(commandClass);
+		if(params) {
+			var testCommandClassIsOk = false;
+			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == "*" || mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) testCommandClassIsOk = true; else {
+				var paramClass = Type.resolveClass(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]);
+				testCommandClassIsOk = js.Boot.__instanceof(params,paramClass);
+			}
+			if(!testCommandClassIsOk) throw "Class " + Std.string(commandClass) + " expects " + Std.string(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__]) + ". But you are sending :" + Std.string(Type["typeof"](params));
+		}
+	}
+	,validateCommandClass: function(commandClass) {
+		if(mvcexpress.core.CommandMap.validatedCommands.h[commandClass.__id__] != true) {
+			if(!mvcexpress.utils.MvcExpressTools.checkClassSuperClass(commandClass,mvcexpress.mvc.Command)) throw "commandClass:" + Std.string(commandClass) + " you are trying to map MUST extend: 'mvcexpress.mvc.Command' class.";
+			if(mvcexpress.core.CommandMap.commandClassParamTypes.h[commandClass.__id__] == null) {
+				var parameterCount = 0;
+				var hasExecute = mvcexpress.utils.RttiHelper.hasMethod(commandClass,"execute");
+				var paramslist = mvcexpress.utils.RttiHelper.getMethodFields(commandClass,"execute");
+				parameterCount = paramslist.length;
+				if(parameterCount == 1) {
+					var p = paramslist[0] == null?null:paramslist[0];
+					mvcexpress.core.CommandMap.commandClassParamTypes.set(commandClass,p);
+				}
+				if(hasExecute) {
+					if(parameterCount != 1) throw "Command:" + Std.string(commandClass) + " function execute() must have single parameter, but it has " + parameterCount;
+				} else throw "Command:" + Std.string(commandClass) + " must have public execute() function with single parameter.";
+			}
+			mvcexpress.core.CommandMap.validatedCommands.set(commandClass,true);
+		}
+	}
 	,handleCommandExecute: function(messageType,params) {
 		var command;
 		var messageClasses;
@@ -9113,9 +8516,13 @@ mvcexpress.core.CommandMap.prototype = {
 			var i = 0;
 			while(i < commandCount) {
 				var commandClass = messageClasses[i];
+				mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.commandmap.TraceCommandMap_handleCommandExecute(this.moduleName,null,commandClass,messageType,params));
 				var pooledCommands = this.commandPools.h[commandClass.__id__];
 				if(pooledCommands != null && pooledCommands.length > 0) command = pooledCommands.shift(); else {
+					this.validateCommandParams(commandClass,params);
+					mvcexpress.mvc.Command.canConstruct = true;
 					command = Type.createInstance(commandClass,[]);
+					mvcexpress.mvc.Command.canConstruct = false;
 					command.messenger = this.messenger;
 					command.mediatorMap = this.mediatorMap;
 					command.proxyMap = this.proxyMap;
@@ -9228,9 +8635,13 @@ mvcexpress.core.CommandMap.prototype = {
 	}
 	,execute: function(commandClass,params) {
 		var command;
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.commandmap.TraceCommandMap_execute(this.moduleName,null,commandClass,params));
 		var pooledCommands = this.commandPools.h[commandClass.__id__];
 		if(pooledCommands != null && pooledCommands.length > 0) command = pooledCommands.shift(); else {
+			this.validateCommandParams(commandClass,params);
+			mvcexpress.mvc.Command.canConstruct = true;
 			command = Type.createInstance(commandClass,[]);
+			mvcexpress.mvc.Command.canConstruct = false;
 			command.messenger = this.messenger;
 			command.mediatorMap = this.mediatorMap;
 			command.proxyMap = this.proxyMap;
@@ -9256,6 +8667,7 @@ mvcexpress.core.CommandMap.prototype = {
 		}
 	}
 	,unmap: function(type,commandClass) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.commandmap.TraceCommandMap_unmap(this.moduleName,type,commandClass));
 		var messageClasses = this.classRegistry.get(type);
 		if(messageClasses != null) {
 			var commandCount = messageClasses.length;
@@ -9270,6 +8682,9 @@ mvcexpress.core.CommandMap.prototype = {
 		}
 	}
 	,map: function(type,commandClass) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.commandmap.TraceCommandMap_map(this.moduleName,type,commandClass));
+		this.validateCommandClass(commandClass);
+		if(type == null || type == "" || type == "null" || type == "undefined") throw "Message type:[" + type + "] can not be empty or 'null' or 'undefined'. (You are trying to map command:" + Std.string(commandClass) + ")";
 		var messageClasses = this.classRegistry.get(type);
 		if(messageClasses == null) {
 			messageClasses = new Array();
@@ -9336,6 +8751,7 @@ mvcexpress.core.MediatorMap.prototype = {
 		return this.mediatorClassRegistry.h.hasOwnProperty(viewClass.__id__) && mediatorClass != null && this.mediatorClassRegistry.h[viewClass.__id__] == mediatorClass;
 	}
 	,unmediate: function(viewObject) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmediate(this.moduleName,viewObject));
 		var mediator = this.mediatorRegistry.get(viewObject);
 		if(mediator != null) {
 			mediator.remove();
@@ -9361,7 +8777,10 @@ mvcexpress.core.MediatorMap.prototype = {
 		var injectClass = this.mediatorInjectRegistry.h[viewClass.__id__];
 		var mediatorClass = this.mediatorClassRegistry.h[viewClass.__id__];
 		if(mediatorClass != null) {
+			mvcexpress.mvc.Mediator.canConstruct = true;
 			var mediator = Type.createInstance(mediatorClass,[]);
+			mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_mediate(this.moduleName,viewObject,mediator,viewClass,mediatorClass,Type.getClassName(mediatorClass)));
+			mvcexpress.mvc.Mediator.canConstruct = false;
 			mediator.moduleName = this.moduleName;
 			mediator.messenger = this.messenger;
 			mediator.proxyMap = this.proxyMap;
@@ -9372,10 +8791,13 @@ mvcexpress.core.MediatorMap.prototype = {
 		} else throw "View object" + Std.string(viewObject) + " class is not mapped with any mediator class. use mediatorMap.map()";
 	}
 	,unmap: function(viewClass) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_unmap(this.moduleName,viewClass));
 		this.mediatorClassRegistry.remove(viewClass);
 		this.mediatorInjectRegistry.remove(viewClass);
 	}
 	,map: function(viewClass,mediatorClass,injectClass) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.mediatormap.TraceMediatorMap_map(this.moduleName,viewClass,mediatorClass));
+		if(!mvcexpress.utils.MvcExpressTools.checkClassSuperClass(mediatorClass,mvcexpress.mvc.Mediator)) throw "mediatorClass:" + Std.string(mediatorClass) + " you are trying to map is not extended from 'mvcexpress.mvc::Mediator' class.";
 		if(this.mediatorClassRegistry.h.hasOwnProperty(viewClass.__id__)) throw "Mediator class:" + Std.string(this.mediatorClassRegistry.h[viewClass.__id__]) + " is already mapped with this view class:" + Std.string(viewClass) + "";
 		this.mediatorClassRegistry.set(viewClass,mediatorClass);
 		if(injectClass == null) injectClass = viewClass;
@@ -9445,10 +8867,14 @@ mvcexpress.core.ModuleBase.prototype = {
 		mvcexpress.core.ModuleManager.registerScope(this._moduleName,scopeName,messageSending,messageReceiving,proxieMap);
 	}
 	,sendScopeMessage: function(scopeName,type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage(this._moduleName,this,type,params,true));
 		mvcexpress.core.ModuleManager.sendScopeMessage(this._moduleName,scopeName,type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendScopeMessage(this._moduleName,this,type,params,false));
 	}
 	,sendMessage: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage(this._moduleName,this,type,params,true));
 		this._messenger.send(type,params);
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulebase.TraceModuleBase_sendMessage(this._moduleName,this,type,params,false));
 	}
 	,disposeModule: function() {
 		if(this.commandMap != null) {
@@ -9494,12 +8920,12 @@ mvcexpress.core.ModuleManager.__name__ = ["mvcexpress","core","ModuleManager"];
 mvcexpress.core.ModuleManager._moduleId = null;
 mvcexpress.core.ModuleManager.createModule = function(moduleName,autoInit) {
 	var retVal;
+	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_createModule(moduleName,autoInit));
 	if(mvcexpress.core.ModuleManager.moduleRegistry.get(moduleName) == null) {
 		mvcexpress.core.ModuleManager._moduleId++;
 		if(moduleName == null) moduleName = "module" + mvcexpress.core.ModuleManager._moduleId;
 		retVal = mvcexpress.core.ModuleBase.getModuleInstance(moduleName,autoInit);
 		mvcexpress.core.ModuleManager.moduleRegistry.set(moduleName,retVal);
-		retVal;
 		mvcexpress.core.ModuleManager.allModules[mvcexpress.core.ModuleManager.allModules.length] = retVal;
 	} else throw "You can't have 2 modules with same name. call disposeModule() on old module before creating new one with same name. [moduleName:" + moduleName + "]";
 	return retVal;
@@ -9508,6 +8934,7 @@ mvcexpress.core.ModuleManager.getMessenger = function(moduleName) {
 	return mvcexpress.core.ModuleManager.moduleRegistry.get(moduleName).get_messenger();
 }
 mvcexpress.core.ModuleManager.disposeModule = function(moduleName) {
+	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_disposeModule(moduleName));
 	if(mvcexpress.core.ModuleManager.moduleRegistry.exists(moduleName)) {
 		var scopiedProxies = mvcexpress.core.ModuleManager.scopedProxiesByScope.get(moduleName);
 		if(scopiedProxies != null) {
@@ -9569,7 +8996,7 @@ mvcexpress.core.ModuleManager.scopedCommandMap = function(moduleName,handleComma
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) scopePermission = mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName);
 	if(scopePermission == null || !scopePermission.messageReceiving) throw "Module with name:" + moduleName + " has no permition to receive messages and execute commands from scope:" + scopeName + ". Please use: registerScopeTest() function.";
 	var scopeMesanger = mvcexpress.core.ModuleManager.scopedMessengers.get(scopeName);
-	if(scopeMesanger != null) {
+	if(scopeMesanger == null) {
 		mvcexpress.core.messenger.Messenger.allowInstantiation = true;
 		scopeMesanger = new mvcexpress.core.messenger.Messenger("$scope_" + scopeName);
 		mvcexpress.core.messenger.Messenger.allowInstantiation = false;
@@ -9646,6 +9073,7 @@ mvcexpress.core.ModuleManager.initScopedProxyMap = function(scopeName) {
 	v;
 }
 mvcexpress.core.ModuleManager.registerScope = function(moduleName,scopeName,messageSending,messageReceiving,proxieMapping) {
+	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_registerScope(moduleName,scopeName,messageSending,messageReceiving,proxieMapping));
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) == null) {
 		var v = new haxe.ds.StringMap();
 		mvcexpress.core.ModuleManager.scopePermissionsRegistry.set(moduleName,v);
@@ -9662,6 +9090,7 @@ mvcexpress.core.ModuleManager.registerScope = function(moduleName,scopeName,mess
 	scopePermission.proxieMapping = proxieMapping;
 }
 mvcexpress.core.ModuleManager.unregisterScope = function(moduleName,scopeName) {
+	mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.modulemanager.TraceModuleManager_unregisterScope(moduleName,scopeName));
 	if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName) != null) {
 		if(mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).get(scopeName) != null) {
 			mvcexpress.core.ModuleManager.scopePermissionsRegistry.get(moduleName).set(scopeName,null);
@@ -9877,13 +9306,17 @@ mvcexpress.core.ProxyMap.prototype = {
 				if(!mvcexpress.core.ModuleManager.injectScopedProxy(object,rule)) {
 					if(mvcexpress.MvcExpress.pendingInjectsTimeOut > 0 && !js.Boot.__instanceof(object,mvcexpress.mvc.Command)) {
 						isAllInjected = false;
+						mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopedInjectPending(scopename,this.moduleName,object,null,rule));
 						mvcexpress.core.ModuleManager.addPendingScopedInjection(scopename,injectClassAndName,new mvcexpress.core.inject.PendingInject(injectClassAndName,object,signatureClass,mvcexpress.MvcExpress.pendingInjectsTimeOut));
 						object.pendingInjections++;
 					} else throw "Inject object is not found in scope:" + scopename + " for class with id:" + injectClassAndName + "(needed in " + Std.string(object) + ")";
 				}
 			} else {
 				var injectObject = this.injectObjectRegistry.get(injectClassAndName);
-				if(injectObject != null) object[rule.varName] = injectObject; else if(this.lazyProxyRegistry.exists(injectClassAndName)) {
+				if(injectObject != null) {
+					object[rule.varName] = injectObject;
+					mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectStuff(this.moduleName,object,injectObject,rule));
+				} else if(this.lazyProxyRegistry.exists(injectClassAndName)) {
 					var lazyProxyData;
 					lazyProxyData = this.lazyProxyRegistry.get(injectClassAndName);
 					this.lazyProxyRegistry.remove(injectClassAndName);
@@ -9893,6 +9326,7 @@ mvcexpress.core.ProxyMap.prototype = {
 				} else {
 					isAllInjected = false;
 					if(mvcexpress.MvcExpress.pendingInjectsTimeOut > 0 && !js.Boot.__instanceof(object,mvcexpress.mvc.Command)) {
+						mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_injectPending(this.moduleName,object,injectObject,rule));
 						this.addPendingInjection(injectClassAndName,new mvcexpress.core.inject.PendingInject(injectClassAndName,object,signatureClass,mvcexpress.MvcExpress.pendingInjectsTimeOut));
 						object.pendingInjections++;
 					} else throw "Inject object is not found for class with id:" + injectClassAndName + "(needed in " + Std.string(object) + ")";
@@ -9966,10 +9400,12 @@ mvcexpress.core.ProxyMap.prototype = {
 	}
 	,scopeUnmap: function(scopeName,injectClass,name) {
 		if(name == null) name = "";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeUnmap(this.moduleName,scopeName,injectClass,name));
 		mvcexpress.core.ModuleManager.scopeUnmap(this.moduleName,scopeName,injectClass,name);
 	}
 	,scopeMap: function(scopeName,proxyObject,injectClass,name) {
 		if(name == null) name = "";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_scopeMap(this.moduleName,scopeName,proxyObject,injectClass,name));
 		if(proxyObject.messenger == null) {
 			var proxyClass = Type.getClass(proxyObject);
 			if(injectClass == null) injectClass = proxyClass;
@@ -10006,6 +9442,8 @@ mvcexpress.core.ProxyMap.prototype = {
 		var injectId = className + name;
 		if(this.lazyProxyRegistry.exists(injectId)) throw "Proxy class is already lazy mapped. [injectClass:" + className + " name:" + name + "]";
 		if(this.injectObjectRegistry.exists(injectId)) throw "Proxy object is already mapped. [injectClass:" + className + " name:" + name + "]";
+		if(!mvcexpress.utils.MvcExpressTools.checkClassSuperClass(proxyClass,mvcexpress.mvc.Proxy)) throw "proxyClass:" + Std.string(proxyClass) + " you are trying to lazy map is not extended from 'org.mvcexpress.mvc::Proxy' class.";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_lazyMap(this.moduleName,proxyClass,injectClass,name,proxyParams));
 		var lazyInject = new mvcexpress.core.LazyProxyData();
 		lazyInject.proxyClass = proxyClass;
 		lazyInject.injectClass = injectClass;
@@ -10016,6 +9454,7 @@ mvcexpress.core.ProxyMap.prototype = {
 	}
 	,unmap: function(injectClass,name) {
 		if(name == null) name = "";
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.proxymap.TraceProxyMap_unmap(this.moduleName,injectClass,name));
 		var className = mvcexpress.core.ProxyMap.qualifiedClassNameRegistry.h[injectClass.__id__];
 		if(className == null) {
 			className = Type.getClassName(injectClass);
@@ -10073,7 +9512,10 @@ mvcexpress.core.inject.InjectRuleVO = function() {
 $hxClasses["mvcexpress.core.inject.InjectRuleVO"] = mvcexpress.core.inject.InjectRuleVO;
 mvcexpress.core.inject.InjectRuleVO.__name__ = ["mvcexpress","core","inject","InjectRuleVO"];
 mvcexpress.core.inject.InjectRuleVO.prototype = {
-	__class__: mvcexpress.core.inject.InjectRuleVO
+	toString: function() {
+		return "[InjectRuleVO varName=" + this.varName + " injectClassAndName=" + this.injectClassAndName + " scopeName=" + this.scopeName + "]";
+	}
+	,__class__: mvcexpress.core.inject.InjectRuleVO
 }
 mvcexpress.core.inject.PendingInject = function(injectClassAndName,pendingObject,signatureClass,pendingInjectTime) {
 	this.injectClassAndName = injectClassAndName;
@@ -10131,6 +9573,7 @@ mvcexpress.core.messenger.Messenger.prototype = {
 		var retVal = "";
 		retVal = "====================== Message Mappings: ======================\n";
 		var warningText = "WARNING: If you want to see Classes that handles messages - you must run with '-D debug' compile variable set to 'true'.\n";
+		warningText = "";
 		if(warningText != "") retVal += warningText;
 		var _g = 0, _g1 = Reflect.fields(this.messageRegistry);
 		while(_g < _g1.length) {
@@ -10142,7 +9585,10 @@ mvcexpress.core.messenger.Messenger.prototype = {
 			var i = 0;
 			while(i < msgCount) {
 				var handlerVo = msgList[i];
-				if(handlerVo.isExecutable) messageHandlers += "[EXECUTES:" + Std.string(commandMap.listMessageCommands(key)) + "], ";
+				if(handlerVo.isExecutable) {
+					messageHandlers += "[EXECUTES:" + Std.string(commandMap.listMessageCommands(key)) + "], ";
+					messageHandlers += "[" + handlerVo.handlerClassName + "], ";
+				}
 				i++;
 			}
 			retVal += "SENDING MESSAGE:'" + key + "'\t> HANDLED BY: > " + messageHandlers + "\n";
@@ -10156,6 +9602,7 @@ mvcexpress.core.messenger.Messenger.prototype = {
 		return executeMvgVo;
 	}
 	,send: function(type,params) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.messenger.TraceMessenger_send(this.moduleName,type,params));
 		var messageList = this.messageRegistry.get(type);
 		var handlerVo;
 		var delCount = 0;
@@ -10168,7 +9615,11 @@ mvcexpress.core.messenger.Messenger.prototype = {
 				++_g;
 				if(handlerVo1.handler == null) delCount++; else {
 					if(delCount != 0) messageList[i - delCount] = messageList[i];
-					if(handlerVo1.isExecutable) handlerVo1.handler(type,params); else handlerVo1.handler(params);
+					if(handlerVo1.isExecutable) handlerVo1.handler(type,params); else {
+						handlerVo1.handlerClassName;
+						mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.messenger.TraceMessenger_send_handler(this.moduleName,type,params,handlerVo1.handler,handlerVo1.handlerClassName));
+						handlerVo1.handler(params);
+					}
 				}
 				i++;
 			}
@@ -10176,6 +9627,7 @@ mvcexpress.core.messenger.Messenger.prototype = {
 		}
 	}
 	,removeHandler: function(type,handler) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.messenger.TraceMessenger_removeHandler(this.moduleName,type,handler));
 		if(this.handlerRegistry.get(type) != null) {
 			if(this.handlerRegistry.get(type).get(handler) != null) {
 				(js.Boot.__cast(this.handlerRegistry.get(type).get(handler) , mvcexpress.core.messenger.HandlerVO)).handler = null;
@@ -10184,6 +9636,7 @@ mvcexpress.core.messenger.Messenger.prototype = {
 		}
 	}
 	,addHandler: function(type,handler,handlerClassName) {
+		mvcexpress.MvcExpress.debug(new mvcexpress.core.traceobjects.messenger.TraceMessenger_addHandler(this.moduleName,type,handler,handlerClassName));
 		var messageList = this.messageRegistry.get(type);
 		if(messageList == null) {
 			messageList = new Array();
@@ -10194,8 +9647,10 @@ mvcexpress.core.messenger.Messenger.prototype = {
 			v;
 		}
 		var msgData = this.handlerRegistry.get(type).get(handler);
+		if(msgData != null) throw "This handler function is already mapped to message type :" + type;
 		if(msgData == null) {
 			msgData = new mvcexpress.core.messenger.HandlerVO();
+			msgData.handlerClassName = handlerClassName;
 			msgData.handler = handler;
 			messageList[messageList.length] = msgData;
 			this.handlerRegistry.get(type).set(handler,msgData);
@@ -10959,6 +10414,10 @@ $hxClasses["suites.general.GeneralTests"] = suites.general.GeneralTests;
 suites.general.GeneralTests.__name__ = ["suites","general","GeneralTests"];
 suites.general.GeneralTests.prototype = {
 	general_debug_flag: function() {
+		haxe.Log.trace("DEBUG_COMPILE",{ fileName : "GeneralTests.hx", lineNumber : 29, className : "suites.general.GeneralTests", methodName : "general_debug_flag"});
+		haxe.Log.trace(mvcexpress.MvcExpress.get_DEBUG_COMPILE(),{ fileName : "GeneralTests.hx", lineNumber : 30, className : "suites.general.GeneralTests", methodName : "general_debug_flag"});
+		utils.Assert.assertTrue("While compiling in debug - MvcExpress.DEBUG_COMPILE must be true.",mvcexpress.MvcExpress.get_DEBUG_COMPILE());
+		return;
 		utils.Assert.assertFalse("While compiling in debug - MvcExpress.DEBUG_COMPILE must be false.",mvcexpress.MvcExpress.get_DEBUG_COMPILE());
 	}
 	,general_framework_version: function() {
@@ -11127,7 +10586,7 @@ var Int = $hxClasses.Int = { __name__ : ["Int"]};
 var Dynamic = $hxClasses.Dynamic = { __name__ : ["Dynamic"]};
 var Float = $hxClasses.Float = Number;
 Float.__name__ = ["Float"];
-var Bool = $hxClasses.Bool = Boolean;
+var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = $hxClasses.Class = { __name__ : ["Class"]};
 var Enum = { };
@@ -11138,15 +10597,6 @@ Xml.Comment = "comment";
 Xml.DocType = "doctype";
 Xml.ProcessingInstruction = "processingInstruction";
 Xml.Document = "document";
-haxe.Resource.content = [];
-flash.display.DisplayObject.GRAPHICS_INVALID = 2;
-flash.display.DisplayObject.MATRIX_INVALID = 4;
-flash.display.DisplayObject.MATRIX_CHAIN_INVALID = 8;
-flash.display.DisplayObject.MATRIX_OVERRIDDEN = 16;
-flash.display.DisplayObject.TRANSFORM_INVALID = 32;
-flash.display.DisplayObject.BOUNDS_INVALID = 64;
-flash.display.DisplayObject.RENDER_VALIDATE_IN_PROGRESS = 1024;
-flash.display.DisplayObject.ALL_RENDER_FLAGS = 98;
 flash.Lib.HTML_ACCELEROMETER_EVENT_TYPE = "devicemotion";
 flash.Lib.HTML_ORIENTATION_EVENT_TYPE = "orientationchange";
 flash.Lib.DEFAULT_HEIGHT = 500;
@@ -11158,6 +10608,14 @@ flash.Lib.HTML_WINDOW_EVENT_TYPES = ["keyup","keypress","keydown","resize","blur
 flash.Lib.NME_IDENTIFIER = "haxe:jeash";
 flash.Lib.VENDOR_HTML_TAG = "data-";
 flash.Lib.starttime = haxe.Timer.stamp();
+flash.display.DisplayObject.GRAPHICS_INVALID = 2;
+flash.display.DisplayObject.MATRIX_INVALID = 4;
+flash.display.DisplayObject.MATRIX_CHAIN_INVALID = 8;
+flash.display.DisplayObject.MATRIX_OVERRIDDEN = 16;
+flash.display.DisplayObject.TRANSFORM_INVALID = 32;
+flash.display.DisplayObject.BOUNDS_INVALID = 64;
+flash.display.DisplayObject.RENDER_VALIDATE_IN_PROGRESS = 1024;
+flash.display.DisplayObject.ALL_RENDER_FLAGS = 98;
 flash.display._BitmapData.MinstdGenerator.a = 16807;
 flash.display._BitmapData.MinstdGenerator.m = -2147483648 - 1;
 flash.display.BitmapDataChannel.ALPHA = 8;
@@ -11252,9 +10710,6 @@ flash.display.StageQuality.HIGH = "high";
 flash.display.StageQuality.MEDIUM = "medium";
 flash.display.StageQuality.LOW = "low";
 flash.errors.Error.DEFAULT_TO_STRING = "Error";
-flash.events.TextEvent.LINK = "link";
-flash.events.TextEvent.TEXT_INPUT = "textInput";
-flash.events.ErrorEvent.ERROR = "error";
 flash.events.Listener.sIDs = 1;
 flash.events.EventPhase.CAPTURING_PHASE = 0;
 flash.events.EventPhase.AT_TARGET = 1;
@@ -11263,14 +10718,9 @@ flash.events.FocusEvent.FOCUS_IN = "focusIn";
 flash.events.FocusEvent.FOCUS_OUT = "focusOut";
 flash.events.FocusEvent.KEY_FOCUS_CHANGE = "keyFocusChange";
 flash.events.FocusEvent.MOUSE_FOCUS_CHANGE = "mouseFocusChange";
-flash.events.HTTPStatusEvent.HTTP_RESPONSE_STATUS = "httpResponseStatus";
-flash.events.HTTPStatusEvent.HTTP_STATUS = "httpStatus";
 flash.events.IOErrorEvent.IO_ERROR = "ioError";
 flash.events.KeyboardEvent.KEY_DOWN = "keyDown";
 flash.events.KeyboardEvent.KEY_UP = "keyUp";
-flash.events.ProgressEvent.PROGRESS = "progress";
-flash.events.ProgressEvent.SOCKET_DATA = "socketData";
-flash.events.SecurityErrorEvent.SECURITY_ERROR = "securityError";
 flash.events.TouchEvent.TOUCH_BEGIN = "touchBegin";
 flash.events.TouchEvent.TOUCH_END = "touchEnd";
 flash.events.TouchEvent.TOUCH_MOVE = "touchMove";
@@ -11281,14 +10731,6 @@ flash.events.TouchEvent.TOUCH_ROLL_OVER = "touchRollOver";
 flash.events.TouchEvent.TOUCH_TAP = "touchTap";
 flash.filters.DropShadowFilter.DEGREES_FULL_RADIUS = 360.0;
 flash.geom.Transform.DEG_TO_RAD = Math.PI / 180.0;
-flash.media.Sound.EXTENSION_MP3 = "mp3";
-flash.media.Sound.EXTENSION_OGG = "ogg";
-flash.media.Sound.EXTENSION_WAV = "wav";
-flash.media.Sound.EXTENSION_AAC = "aac";
-flash.media.Sound.MEDIA_TYPE_MP3 = "audio/mpeg";
-flash.media.Sound.MEDIA_TYPE_OGG = "audio/ogg; codecs=\"vorbis\"";
-flash.media.Sound.MEDIA_TYPE_WAV = "audio/wav; codecs=\"1\"";
-flash.media.Sound.MEDIA_TYPE_AAC = "audio/mp4; codecs=\"mp4a.40.2\"";
 flash.net.URLRequestMethod.DELETE = "DELETE";
 flash.net.URLRequestMethod.GET = "GET";
 flash.net.URLRequestMethod.HEAD = "HEAD";
@@ -11547,13 +10989,14 @@ haxe.xml.Parser.escapes = (function($this) {
 }(this));
 integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_MESSAGE_NAME = "scopedProxyMessageName";
 integration.scopedproxy.ScopedProxyTests.SCOPED_PROXY_SCOPE_NAME = "proxyScope";
-mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"82\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"89\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"96\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"108\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"130\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"155\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<f a=\"\">\n\t\t\t\t<d/>\n\t\t\t\t<x path=\"Void\"/>\n\t\t\t</f>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"186\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"196\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"214\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"225\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"247\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"274\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"302\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"329\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"343\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"61\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+mvcexpress.mvc.Mediator.__rtti = "<class path=\"mvcexpress.mvc.Mediator\" params=\"\">\n\t<canConstruct public=\"1\" line=\"57\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<moduleName public=\"1\"><c path=\"String\"/></moduleName>\n\t<proxyMap public=\"1\"><c path=\"mvcexpress.core.interfaces.IProxyMap\"/></proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.interfaces.IMediatorMap\"/>\n\t\t<haxe_doc>* Handles application mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<handlerVoRegistry>\n\t\t<c path=\"Array\"><c path=\"mvcexpress.core.messenger.HandlerVO\"/></c>\n\t\t<haxe_doc>all added message handlers.</haxe_doc>\n\t</handlerVoRegistry>\n\t<eventListenerRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains dictionary of added event listeners, stored by event listening function as a key. For event useCapture = false</haxe_doc>\n\t</eventListenerRegistry>\n\t<eventListenerCaptureRegistry>\n\t\t<c path=\"haxe.ds.ObjectMap\">\n\t\t\t<d/>\n\t\t\t<x path=\"Map\">\n\t\t\t\t<c path=\"String\"/>\n\t\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t</x>\n\t\t</c>\n\t\t<haxe_doc>contains array of added event listeners, stored by event listening function as a key. For event useCapture = true</haxe_doc>\n\t</eventListenerCaptureRegistry>\n\t<onRegister public=\"1\" set=\"method\" line=\"81\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is mediated by this mediator - it is inited first and then this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove public=\"1\" set=\"method\" line=\"88\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then viewObject is unmediated by this mediator - this function is called first and then mediator is removed.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"95\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if mediator is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"107\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"129\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<addHandler set=\"method\" line=\"154\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<f a=\"\">\n\t\t\t\t<d/>\n\t\t\t\t<x path=\"Void\"/>\n\t\t\t</f>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* adds handle function to be called then message of given type is sent.\n\t * \n\t *</haxe_doc>\n\t</addHandler>\n\t<removeHandler set=\"method\" line=\"185\">\n\t\t<f a=\"type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes handle function from message of given type.\n\t * Then Mediator is removed(unmediated) all message handlers are automatically removed by framework.\n\t * \n\t *</haxe_doc>\n\t</removeHandler>\n\t<removeAllHandlers set=\"method\" line=\"195\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Remove all handle functions created by this mediator, internal module handlers AND scoped handlers.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllHandlers>\n\t<addScopeHandler set=\"method\" line=\"213\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Adds module to module communication handle function to be called then message of provided type is sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</addScopeHandler>\n\t<removeScopeHandler set=\"method\" line=\"224\">\n\t\t<f a=\"scopeName:type:handler\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes module to module communication handle function from message of provided type, sent to provided scopeName.\n\t * \n\t * \n\t *</haxe_doc>\n\t</removeScopeHandler>\n\t<addListener set=\"method\" line=\"246\">\n\t\t<f a=\"viewObject:type:listener:?useCapture:?priority:?useWeakReference\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Int\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers an event listener object with viewObject, so that the listener is executed then event is dispatched.\n\t * \n\t * \n\t * \n\t *   as its only parameter and must return nothing, as this example shows:\n\t *   function(event:Event):void\n\t *   The function can have any name.\n\t * \n\t * \n\t *\t\tIf two or more listeners share the same priority, they are processed in the order in which they were added. The default priority is 0.\n\t * \n\t *\t\tA strong reference (the default) prevents your listener from being garbage-collected. A weak reference does not.</haxe_doc>\n\t</addListener>\n\t<removeListener set=\"method\" line=\"273\">\n\t\t<f a=\"viewObject:type:listener:?useCapture\">\n\t\t\t<c path=\"flash.events.IEventDispatcher\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Removes an event listener from the viewObject.\n\t * Then Mediator is removed(unmediated) all event handlers added with addListener() function will be automatically removed by framework.</haxe_doc>\n\t</removeListener>\n\t<removeAllListeners set=\"method\" line=\"301\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Removes all listeners created by mediators addEventListener() function.\n\t * WARNING: It will NOT remove events that was added normally with object.addEventListener() function.\n\t * Automatically called then mediator is removed(unmediated) by framework.\n\t * (You don't have to put it in mediators onRemove() function.)</haxe_doc>\n\t</removeAllListeners>\n\t<register public=\"1\" set=\"method\" line=\"328\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * Executed automatically BEFORE mediator is created. (with proxyMap.mediate(...))</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"342\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc><![CDATA[* framework function to dispose this mediator. \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * Executed automatically AFTER mediator is removed(unmediated). (after mediatorMap.unmediate(...), or module dispose.)\t\t\t\t\t<br>\n\t * It:\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all handle functions created by this mediator\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - remove all event listeners created by internal addListener() function\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t * - sets internals to null\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<br>\n\t *]]></haxe_doc>\n\t</remove>\n\t<new public=\"1\" set=\"method\" line=\"60\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+mvcexpress.mvc.Mediator.canConstruct = false;
 integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__meta__ = { fields : { myProxy : { inject : null}, view : { inject : null}}};
 integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectMediator\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Mediator\"/>\n\t<view public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedProxyLocalInjectView\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</view>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"/></meta>\n\t</myProxy>\n\t<onRegister public=\"1\" set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<handleScopedMessage set=\"method\" line=\"27\"><f a=\"testdata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></handleScopedMessage>\n\t<onRemove public=\"1\" set=\"method\" line=\"32\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<sendDataToProxy public=\"1\" set=\"method\" line=\"35\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></sendDataToProxy>\n\t<new public=\"1\" set=\"method\" line=\"12\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedproxy.testobj.modulea.ScopedProxyModuleA.NAME = "ScopedProxyModuleA";
 mvcexpress.mvc.Proxy.__rtti = "<class path=\"mvcexpress.mvc.Proxy\" params=\"\">\n\t<isReady get=\"accessor\" set=\"null\"><x path=\"Bool\"/></isReady>\n\t<proxyMap>\n\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t<haxe_doc>* Interface to work with proxies.</haxe_doc>\n\t</proxyMap>\n\t<_isReady><x path=\"Bool\"/></_isReady>\n\t<messenger public=\"1\"><c path=\"mvcexpress.core.messenger.Messenger\"/></messenger>\n\t<proxyScopes><c path=\"Array\"><c path=\"String\"/></c></proxyScopes>\n\t<dependantCommands public=\"1\"><c path=\"haxe.ds.ObjectMap\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</c></dependantCommands>\n\t<pendingInjections public=\"1\"><x path=\"Int\"/></pendingInjections>\n\t<onRegister set=\"method\" line=\"52\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is mapped with proxyMap this function is called.</haxe_doc>\n\t</onRegister>\n\t<onRemove set=\"method\" line=\"59\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* Then proxy is unmapped with proxyMap this function is called.</haxe_doc>\n\t</onRemove>\n\t<get_isReady set=\"method\" line=\"66\">\n\t\t<f a=\"\"><x path=\"Bool\"/></f>\n\t\t<haxe_doc>* Indicates if proxy is ready for usage. (all dependencies are injected.)</haxe_doc>\n\t</get_isReady>\n\t<sendMessage set=\"method\" line=\"78\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.\n\t * \n\t *</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"105\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<setProxyMap public=\"1\" set=\"method\" line=\"129\">\n\t\t<f a=\"iProxyMap\">\n\t\t\t<c path=\"mvcexpress.core.interfaces.IProxyMap\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* sets proxyMap interface.\n\t * \n\t *</haxe_doc>\n\t</setProxyMap>\n\t<register public=\"1\" set=\"method\" line=\"138\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as ready and calls onRegister()\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</register>\n\t<remove public=\"1\" set=\"method\" line=\"150\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>* marks mediator as not ready and calls onRemove().\n\t * called from proxyMap\n\t *</haxe_doc>\n\t</remove>\n\t<addScope public=\"1\" set=\"method\" line=\"164\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Add scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</addScope>\n\t<removeScope public=\"1\" set=\"method\" line=\"184\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Remove scope for proxy to send all proxy messages to.\n\t * \n\t *</haxe_doc>\n\t</removeScope>\n\t<registerDependantCommand public=\"1\" set=\"method\" line=\"198\"><f a=\"signatureClass\">\n\t<x path=\"Class\"><d/></x>\n\t<x path=\"Void\"/>\n</f></registerDependantCommand>\n\t<getDependantCommands public=\"1\" set=\"method\" line=\"203\"><f a=\"\"><x path=\"Map\">\n\t<d/>\n\t<x path=\"Class\"><d/></x>\n</x></f></getDependantCommands>\n\t<new public=\"1\" set=\"method\" line=\"41\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 integration.scopedproxy.testobj.modulea.ScopedTestProxy.__rtti = "<class path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Proxy\"/>\n\t<storedData public=\"1\"><c path=\"String\"/></storedData>\n\t<onRegister set=\"method\" line=\"17\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRegister>\n\t<onRemove set=\"method\" line=\"20\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></onRemove>\n\t<trigerMessage public=\"1\" set=\"method\" line=\"23\"><f a=\"messagedata\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></trigerMessage>\n\t<new public=\"1\" set=\"method\" line=\"13\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
-mvcexpress.mvc.Command.__rtti = "<class path=\"mvcexpress.mvc.Command\" params=\"\">\n\t<commandMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.CommandMap\"/>\n\t\t<haxe_doc>Handles application Commands.</haxe_doc>\n\t</commandMap>\n\t<proxyMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.ProxyMap\"/>\n\t\t<haxe_doc>Handles application Proxies.</haxe_doc>\n\t</proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.MediatorMap\"/>\n\t\t<haxe_doc>Handles application Mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\">\n\t\t<c path=\"mvcexpress.core.messenger.Messenger\"/>\n\t\t<haxe_doc>used internally for communication</haxe_doc>\n\t</messenger>\n\t<messageType public=\"1\"><c path=\"String\"/></messageType>\n\t<isExecuting public=\"1\"><x path=\"Bool\"/></isExecuting>\n\t<sendMessage set=\"method\" line=\"66\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"87\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<registerScope set=\"method\" line=\"113\">\n\t\t<f a=\"scopeName:?messageSending:?messageReceiving:?proxieMapping\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers scope name.\n\t * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.\n\t * What features module can use with that scope is defined by parameters.\n\t * \n\t * \n\t * \n\t *</haxe_doc>\n\t</registerScope>\n\t<unregisterScope set=\"method\" line=\"122\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Unregisters scope name.\n\t * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.</haxe_doc>\n\t</unregisterScope>\n\t<getMessageType public=\"1\" set=\"method\" line=\"134\">\n\t\t<f a=\"\"><c path=\"String\"/></f>\n\t\t<haxe_doc>* Type of message that executed this command. (If command is not executed by message it set to null.) \n\t *</haxe_doc>\n\t</getMessageType>\n\t<new public=\"1\" set=\"method\" line=\"51\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+mvcexpress.mvc.Command.__rtti = "<class path=\"mvcexpress.mvc.Command\" params=\"\">\n\t<canConstruct public=\"1\" static=\"1\"><x path=\"Bool\"/></canConstruct>\n\t<commandMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.CommandMap\"/>\n\t\t<haxe_doc>Handles application Commands.</haxe_doc>\n\t</commandMap>\n\t<proxyMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.ProxyMap\"/>\n\t\t<haxe_doc>Handles application Proxies.</haxe_doc>\n\t</proxyMap>\n\t<mediatorMap public=\"1\">\n\t\t<c path=\"mvcexpress.core.MediatorMap\"/>\n\t\t<haxe_doc>Handles application Mediators.</haxe_doc>\n\t</mediatorMap>\n\t<messenger public=\"1\">\n\t\t<c path=\"mvcexpress.core.messenger.Messenger\"/>\n\t\t<haxe_doc>used internally for communication</haxe_doc>\n\t</messenger>\n\t<messageType public=\"1\"><c path=\"String\"/></messageType>\n\t<isExecuting public=\"1\"><x path=\"Bool\"/></isExecuting>\n\t<sendMessage set=\"method\" line=\"66\">\n\t\t<f a=\"type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends a message with optional params object inside of current module.</haxe_doc>\n\t</sendMessage>\n\t<sendScopeMessage set=\"method\" line=\"87\">\n\t\t<f a=\"scopeName:type:?params\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Sends scoped module to module message, all modules that are listening to specified scopeName and message type will get it.\n\t * \n\t * \n\t *</haxe_doc>\n\t</sendScopeMessage>\n\t<registerScope set=\"method\" line=\"113\">\n\t\t<f a=\"scopeName:?messageSending:?messageReceiving:?proxieMapping\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Bool\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Registers scope name.\n\t * If scope name is not registered - module to module communication via scope and mapping proxies to scope is not possible.\n\t * What features module can use with that scope is defined by parameters.\n\t * \n\t * \n\t * \n\t *</haxe_doc>\n\t</registerScope>\n\t<unregisterScope set=\"method\" line=\"122\">\n\t\t<f a=\"scopeName\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<haxe_doc>* Unregisters scope name.\n\t * Then scope is not registered module to module communication via scope and mapping proxies to scope becomes not possible.</haxe_doc>\n\t</unregisterScope>\n\t<getMessageType public=\"1\" set=\"method\" line=\"134\">\n\t\t<f a=\"\"><c path=\"String\"/></f>\n\t\t<haxe_doc>* Type of message that executed this command. (If command is not executed by message it set to null.) \n\t *</haxe_doc>\n\t</getMessageType>\n\t<new public=\"1\" set=\"method\" line=\"51\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<haxe_doc>CONSTRUCTOR</haxe_doc>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__meta__ = { fields : { myProxy : { inject : [{ scope : "proxyScope"}]}}};
 integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand.__rtti = "<class path=\"integration.scopedproxy.testobj.moduleb.ScopedProxpyTestCommand\" params=\"\">\n\t<extends path=\"mvcexpress.mvc.Command\"/>\n\t<myProxy public=\"1\">\n\t\t<c path=\"integration.scopedproxy.testobj.modulea.ScopedTestProxy\"/>\n\t\t<meta><m n=\"inject\"><e>{scope:\"proxyScope\"}</e></m></meta>\n\t</myProxy>\n\t<execute public=\"1\" set=\"method\" line=\"15\"><f a=\"testData\">\n\t<c path=\"String\"/>\n\t<x path=\"Void\"/>\n</f></execute>\n\t<new public=\"1\" set=\"method\" line=\"10\"><f a=\"\"><x path=\"Void\"/></f></new>\n</class>";
 integration.scopedproxy.testobj.moduleb.ScopedProxyInjectMediator.__meta__ = { fields : { myProxy : { inject : [{ scope : "proxyScope"}]}, view : { inject : null}}};
@@ -11571,6 +11014,8 @@ mvcexpress.MvcExpress.REVISION = 0;
 mvcexpress.MvcExpress.pendingInjectsTimeOut = 0;
 mvcexpress.MvcExpress.debugFunction = null;
 mvcexpress.MvcExpress.loggerFunction = null;
+mvcexpress.core.CommandMap.commandClassParamTypes = new haxe.ds.ObjectMap();
+mvcexpress.core.CommandMap.validatedCommands = new haxe.ds.ObjectMap();
 mvcexpress.core.ModuleManager.moduleRegistry = new haxe.ds.StringMap();
 mvcexpress.core.ModuleManager.allModules = new Array();
 mvcexpress.core.ModuleManager.scopedMessengers = new haxe.ds.StringMap();
@@ -11634,5 +11079,7 @@ openfl.display.Tilesheet.TILE_BLEND_MULTIPLY = 131072;
 openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
 utils.Async.asyncHandlerMap = new haxe.ds.StringMap();
 utils.AsyncUtil.ASYNC_EVENT = "asyncEvent";
-ApplicationMain.main();
+Main.main();
 })();
+
+//@ sourceMappingURL=Main.js.map

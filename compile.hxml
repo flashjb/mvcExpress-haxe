@@ -1,41 +1,50 @@
+################
+# flash target #
+################
+
 -main ApplicationMain 
--lib openfl
+-cp nmetools
 -cp mvcexpress
 -cp src
 -cp test
--D tools=1
--D openfl_ver=1.0.2
--D openfl
--D web
 -swf-version 11
 -swf bin/flash/bin/swf/Main.swf
 -swf-header 1024:768:60:FFFFFF
--cp bin/flash/haxe
-#--remap nme:flash
 --no-inline
 
-#for debugging
--D fdb
+################
+#for debugging #
+################
 -D debug
 -debug
+-D fdb
+
+
 
 --next
 
--main ApplicationMain
+#############
+# js target #
+#############
+
+-main Main
+-js bin/html5/bin/Main.js
 -lib openfl
 -lib openfl-html5
+-cp nmetools
 -cp mvcexpress
 -cp src
 -cp test
 -D tools=1
--D openfl_ver=1.0.2
+-D openfl_ver=1.0.8
 -D openfl
 -D html5
--D web
--js bin/html5/bin/Main.js
--cp bin/html5/haxe
--D html5
 -D html
+-D web
 --remap flash:flash
-#-D debug
-#-debug
+
+################
+#for debugging #
+################
+-D debug
+-debug
